@@ -7,12 +7,16 @@ interface VoteSectionProps {
 	entries: { id: string; text: string }[];
 	onVote: (voteFor: string) => void;
 	disabled: boolean;
+	currentVoteCount?: number;
+	totalPlayers?: number;
 }
 
 export default function VoteSection({
 	entries,
 	onVote,
 	disabled,
+	currentVoteCount = 0,
+	totalPlayers = 0,
 }: VoteSectionProps) {
 	if (disabled) {
 		return (
@@ -40,9 +44,14 @@ export default function VoteSection({
 		>
 			<div className="text-center mb-8">
 				<h2 className="text-2xl font-bold text-white mb-2">Cast Your Vote</h2>
-				<p className="text-zinc-400">
+				<p className="text-zinc-400 mb-2">
 					Choose the answer you think is most fitting
 				</p>
+				{totalPlayers > 0 && (
+					<p className="text-sm text-zinc-500">
+						Votes collected: {currentVoteCount}/{totalPlayers}
+					</p>
+				)}
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2">

@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import VoteSection from "../VoteSection";
-
-const supabase = createClient(
-	process.env.NEXT_PUBLIC_SUPABASE_URL!,
-	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 interface VotingPhaseProps {
 	groupCode: string;
@@ -27,6 +22,7 @@ export default function VotingPhase({
 	onAllVotesComplete,
 }: VotingPhaseProps) {
 	const [votes, setVotes] = useState<Record<string, string>>({});
+	const [voteCompletionChecked, setVoteCompletionChecked] = useState(false);
 
 	useEffect(() => {
 		const fetchInitialVotes = async () => {
@@ -92,18 +88,68 @@ export default function VotingPhase({
 		};
 	}, [groupCode, round]);
 
+	// Periodic check for vote completion (fallback for real-time issues)
 	useEffect(() => {
-		if (Object.keys(votes).length >= players.length) {
+		if (voteCompletionChecked) return;
+
+		const checkVotes = async () => {
+			const { data } = await supabase
+				.from("votes")
+				.select("voter_name, vote_for")
+				.eq("room_code", groupCode)
+				.eq("round_number", round);
+
+			if (data) {
+				const current: Record<string, string> = {};
+				for (const row of data) {
+					current[row.voter_name] = row.vote_for;
+				}
+				setVotes(current);
+			}
+		};
+
+		const interval = setInterval(checkVotes, 2000); // Check every 2 seconds
+
+		return () => clearInterval(interval);
+	}, [groupCode, round, voteCompletionChecked]);
+
+	useEffect(() => {
+		console.log("VotingPhase: Checking votes completion", {
+			votesCount: Object.keys(votes).length,
+			playersCount: players.length,
+			votes,
+			players,
+			voteCompletionChecked,
+		});
+
+		if (Object.keys(votes).length >= players.length && !voteCompletionChecked) {
+			console.log(
+				"VotingPhase: All votes collected, calling onAllVotesComplete"
+			);
+			setVoteCompletionChecked(true);
 			onAllVotesComplete(votes);
 		}
-	}, [votes, players.length, onAllVotesComplete]);
+	}, [votes, players, onAllVotesComplete, voteCompletionChecked]);
 
 	const handleVote = async (voteFor: string) => {
+		console.log("VotingPhase: handleVote called", { playerName, voteFor });
+
 		// Immediately update local state to disable the form
-		setVotes((prev) => ({ ...prev, [playerName]: voteFor }));
+		setVotes((prev) => {
+			const newVotes = { ...prev, [playerName]: voteFor };
+			console.log("VotingPhase: Updated local votes", newVotes);
+			return newVotes;
+		});
 
 		try {
-			await supabase.from("votes").upsert(
+			console.log("VotingPhase: Submitting vote to database", {
+				room_code: groupCode,
+				round_number: round,
+				voter_name: playerName,
+				vote_for: voteFor,
+			});
+
+			const result = await supabase.from("votes").upsert(
 				{
 					room_code: groupCode,
 					round_number: round,
@@ -112,8 +158,10 @@ export default function VotingPhase({
 				},
 				{ onConflict: "room_code,round_number,voter_name" }
 			);
-		} catch {
-			// Handle error silently
+
+			console.log("VotingPhase: Vote submission result", result);
+		} catch (error) {
+			console.error("VotingPhase: Vote submission failed", error);
 		}
 	};
 
@@ -122,6 +170,8 @@ export default function VotingPhase({
 			entries={shuffledEntries.filter((e) => e.id !== playerName)}
 			onVote={handleVote}
 			disabled={!!votes[playerName]}
+			currentVoteCount={Object.keys(votes).length}
+			totalPlayers={players.length}
 		/>
 	);
 }

@@ -245,65 +245,76 @@ export default function GameRoom({
 		emoji: "",
 	};
 
-	const handleAllVotesComplete = (allVotes: Record<string, string>) => {
-		setVotes(allVotes);
+	const handleAllVotesComplete = useCallback(
+		(allVotes: Record<string, string>) => {
+			console.log("GameRoom: handleAllVotesComplete called", {
+				allVotes,
+				round,
+				phase,
+			});
 
-		// Check for tie votes and trigger special whispers
-		const tally = Object.values(allVotes).reduce((acc, id) => {
-			acc[id] = (acc[id] || 0) + 1;
-			return acc;
-		}, {} as Record<string, number>);
+			setVotes(allVotes);
 
-		const maxVotes = Math.max(...Object.values(tally));
-		const winners = Object.keys(tally).filter((id) => tally[id] === maxVotes);
+			// Check for tie votes and trigger special whispers
+			const tally = Object.values(allVotes).reduce((acc, id) => {
+				acc[id] = (acc[id] || 0) + 1;
+				return acc;
+			}, {} as Record<string, number>);
 
-		if (winners.length > 1) {
-			// Tie vote whisper
-			setEventWhisper("Even the void cannot choose between these truths.");
-			setTimeout(() => setEventWhisper(""), 5000);
-		} else {
-			// Single winner whisper
-			const winnerWhispers = [
-				"The crowd's judgment reveals more than the truth.",
-				"Victory tastes like copper and regret.",
-				"The chosen answer carries the weight of all fears.",
-				"In the game of truth, winning is losing.",
-			];
-			const randomWhisper =
-				winnerWhispers[Math.floor(Math.random() * winnerWhispers.length)];
-			setEventWhisper(randomWhisper);
-			setTimeout(() => setEventWhisper(""), 5000);
-		}
+			const maxVotes = Math.max(...Object.values(tally));
+			const winners = Object.keys(tally).filter((id) => tally[id] === maxVotes);
 
-		// Store this round's data
-		setAllRoundData((prev) => ({
-			...prev,
-			[round]: {
-				submissions,
-				votes: allVotes,
-				prompt,
-			},
-		}));
+			if (winners.length > 1) {
+				// Tie vote whisper
+				setEventWhisper("Even the void cannot choose between these truths.");
+				setTimeout(() => setEventWhisper(""), 5000);
+			} else {
+				// Single winner whisper
+				const winnerWhispers = [
+					"The crowd's judgment reveals more than the truth.",
+					"Victory tastes like copper and regret.",
+					"The chosen answer carries the weight of all fears.",
+					"In the game of truth, winning is losing.",
+				];
+				const randomWhisper =
+					winnerWhispers[Math.floor(Math.random() * winnerWhispers.length)];
+				setEventWhisper(randomWhisper);
+				setTimeout(() => setEventWhisper(""), 5000);
+			}
 
-		// Show insights after round 3, and comprehensive insights after round 6 (final)
-		if (round === 3 || round === 6) {
-			// Trigger insights whisper
-			const insightsWhispers = [
-				"Kiro sees the patterns you cannot escape.",
-				"The analysis cuts deeper than the confessions.",
-				"Your secrets write themselves in the data.",
-				"The algorithm remembers what you choose to forget.",
-			];
-			const randomInsightWhisper =
-				insightsWhispers[Math.floor(Math.random() * insightsWhispers.length)];
-			setEventWhisper(randomInsightWhisper);
-			setTimeout(() => setEventWhisper(""), 6000); // Longer for insights
+			// Store this round's data
+			setAllRoundData((prev) => ({
+				...prev,
+				[round]: {
+					submissions,
+					votes: allVotes,
+					prompt,
+				},
+			}));
 
-			setPhase("insights");
-		} else {
-			setPhase("results");
-		}
-	};
+			// Show insights after round 3, and comprehensive insights after round 6 (final)
+			if (round === 3 || round === 6) {
+				// Trigger insights whisper
+				const insightsWhispers = [
+					"Kiro sees the patterns you cannot escape.",
+					"The analysis cuts deeper than the confessions.",
+					"Your secrets write themselves in the data.",
+					"The algorithm remembers what you choose to forget.",
+				];
+				const randomInsightWhisper =
+					insightsWhispers[Math.floor(Math.random() * insightsWhispers.length)];
+				setEventWhisper(randomInsightWhisper);
+				setTimeout(() => setEventWhisper(""), 6000); // Longer for insights
+
+				console.log("GameRoom: Setting phase to insights");
+				setPhase("insights");
+			} else {
+				console.log("GameRoom: Setting phase to results");
+				setPhase("results");
+			}
+		},
+		[round, phase, submissions, prompt]
+	);
 
 	const handleNextRound = () => {
 		setRound((prev) => prev + 1);
