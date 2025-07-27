@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import SubmissionPhase from "./game/SubmissionPhase";
 import VotingPhase from "./game/VotingPhase";
 import ResultsPhase from "./game/ResultsPhase";
+import InsightsPhase from "./game/InsightsPhase";
 import GameOverPhase from "./game/GameOverPhase";
 import FloatingBackground from "./FloatingBackground";
 
@@ -15,7 +16,7 @@ const prompts = [
 	{ text: "What’s the worst thing to say on a first date?", emoji: "💔" },
 ];
 
-type Phase = "submission" | "voting" | "results" | "gameOver";
+type Phase = "submission" | "voting" | "results" | "insights" | "gameOver";
 
 export default function GameRoom({
 	groupCode,
@@ -36,6 +37,13 @@ export default function GameRoom({
 	const [votes, setVotes] = useState<Record<string, string>>({});
 	const [submissions, setSubmissions] = useState<Record<string, string>>({});
 	const [copied, setCopied] = useState(false);
+	const [allRoundData, setAllRoundData] = useState<{
+		[round: number]: {
+			submissions: Record<string, string>;
+			votes: Record<string, string>;
+			prompt: string;
+		};
+	}>({});
 
 	const handleCopyCode = async () => {
 		try {
@@ -72,7 +80,23 @@ export default function GameRoom({
 
 	const handleAllVotesComplete = (allVotes: Record<string, string>) => {
 		setVotes(allVotes);
-		setPhase("results");
+
+		// Store this round's data
+		setAllRoundData((prev) => ({
+			...prev,
+			[round]: {
+				submissions,
+				votes: allVotes,
+				prompt,
+			},
+		}));
+
+		// Show insights every 3 rounds (after round 3, 6, etc.)
+		if (round % 3 === 0 && round < prompts.length) {
+			setPhase("insights");
+		} else {
+			setPhase("results");
+		}
 	};
 
 	const handleNextRound = () => {
@@ -81,6 +105,10 @@ export default function GameRoom({
 		setSubmissions({});
 		setVotes({});
 		setShuffledEntries([]);
+	};
+
+	const handleContinueFromInsights = () => {
+		setPhase("results");
 	};
 
 	const tally = Object.values(votes).reduce((acc, id) => {
@@ -166,6 +194,14 @@ export default function GameRoom({
 							votes={votes}
 							players={players}
 							onNextRound={handleNextRound}
+						/>
+					)}
+
+					{phase === "insights" && (
+						<InsightsPhase
+							allRoundData={allRoundData}
+							players={players}
+							onContinue={handleContinueFromInsights}
 						/>
 					)}
 
