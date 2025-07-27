@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🕯️ Deep Cut
 
-## Getting Started
+_An AI-fueled multiplayer ritual disguised as a party game._
 
-First, run the development server:
+![screenshot](./public/screenshot.png) <!-- optional -->
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 👻 What is Deep Cut?
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Deep Cut** is a surreal, chaotic, and emotionally charged AI party game powered by a ghostly game host named **Kiro**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Inspired by games like _Cards Against Humanity_ and _Jackbox_, Deep Cut uses AI not just to generate content — but to create a living, breathing experience that reacts to your group’s energy in real time.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Each session is a one-time ritual: strange, personal, and impossible to repeat.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧠 How Kiro Shapes the Game
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Kiro isn’t a feature — **Kiro _is_ the game**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Here’s how the AI (via OpenAI’s GPT-4o) is integrated across every layer:
 
-## Deploy on Vercel
+### 🌀 1. Theme Alchemy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Players start by entering a **custom theme** like:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> `Horny Nostalgia` • `Daddy Issues & Deli Meats` • `Public Apology Tour`
+
+Kiro takes this and:
+
+- Generates a full **deck of prompts** inspired by the theme’s tone
+- Creates **private hallucinated answer choices** for each player
+- Writes a series of **ritual whispers** that set the mood
+
+> _“You’ve opened the meat door. There’s no going back.”_
+
+---
+
+### 🔮 2. Personal Hallucinations
+
+Unlike other party games, **each player receives their own set of AI-generated choices** based on the current prompt and theme.
+
+- No two players see the same options
+- Each choice feels poetic, cursed, or disturbingly accurate
+- Kiro watches silently… or doesn’t
+
+---
+
+### 👁 3. Real-Time Commentary
+
+Every 3 rounds, Kiro returns with an insight:
+
+> _“Ella’s answers suggest thirst disguised as intellect.”_
+
+Kiro judges:
+
+- Player patterns
+- Group mood
+- Submission tone
+
+And at the **end of the game**, Kiro gives a final **vibe reading**:
+
+> _“You all flowed like regret in a blender. Try again — softer this time.”_
+
+If the group failed to vibe, Kiro may even prescribe a new theme...
+
+---
+
+### 🗳️ 4. Ritual Flow & Judgment
+
+Gameplay is structured around rounds of:
+
+- Prompt presentation
+- Personal choice selection
+- Group voting
+- Kiro insights
+
+At the end:
+
+- The group may continue **only if Kiro believes they have “flow”**
+- Otherwise, Kiro ends the ritual and suggests a new deck
+
+---
+
+## 🧪 Tech Stack
+
+- **Next.js + React + Tailwind CSS**
+- **Framer Motion** for animations and transitions
+- **Supabase** for real-time multiplayer and room logic
+- **OpenAI GPT-4o** for all Kiro interactions:
+  - Prompt generation
+  - Personalized answer sets
+  - Ritual whispers
+  - Group insights & judgments
+
+---
+
+## 🧙‍♂️ Why We Built This
+
+Most AI games use LLMs to generate text. We wanted to go further — to build a game that **feels haunted** by AI.  
+Where the model doesn’t just create content, but **reacts, judges, and adapts** based on how you and your friends show up.
+
+---
+
+## 🚀 Try It (Coming Soon)
+
+<!-- optional: include demo link or deployment URL here -->
+
+---
+
+## 🙏 Credits
+
+Created for the **Kiro Hackathon** by  
+Isaiah Kim ([@kyisaiah47](https://github.com/kyisaiah47)) + ChatGPT rituals
+
+---
+
+## 💬 Sample Themes to Try
+
+> - Cottagecore Rage
+> - Emotional Damage Lite
+> - Rotwave Romance
+> - Deli-Sliced Trauma
+> - The Apology Era
+> - Softcore Brutality
+
+---
+
+## ⚠️ Warning
+
+**Kiro remembers nothing.**  
+Once the ritual ends, only the shame remains.

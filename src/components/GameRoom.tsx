@@ -10,6 +10,7 @@ import InsightsPhase from "./game/InsightsPhase";
 import GameOverPhase from "./game/GameOverPhase";
 import GameStartRitual from "./GameStartRitual";
 import FloatingBackground from "./FloatingBackground";
+import KiroWhispers from "./KiroWhispers";
 
 // Enhanced prompts with associated emojis (6 rounds)
 const prompts = [
@@ -69,6 +70,9 @@ export default function GameRoom({
 	const [timerActive, setTimerActive] = useState(false);
 	const [kiroAnnouncement, setKiroAnnouncement] = useState<string>("");
 
+	// Kiro Whispers state
+	const [eventWhisper, setEventWhisper] = useState<string>("");
+
 	// Initialize presence tracking
 	useEffect(() => {
 		const presenceChannel = supabase.channel(`room:${groupCode}`, {
@@ -102,14 +106,21 @@ export default function GameRoom({
 					setPresenceMessage(
 						`😱 ${disconnectedPlayers[0]} has vanished into the void...`
 					);
+					// Trigger Kiro whisper for disconnection
+					setEventWhisper("The departed took their secrets with them.");
+					setTimeout(() => setEventWhisper(""), 4000);
 				} else if (disconnectedPlayers.length === 2) {
 					setPresenceMessage(
 						`💀 The circle is breaking. Two souls have departed...`
 					);
+					setEventWhisper("The circle weakens. The void grows hungry.");
+					setTimeout(() => setEventWhisper(""), 4000);
 				} else {
 					setPresenceMessage(
 						`🪦 The circle is breaking. Continue… if you dare.`
 					);
+					setEventWhisper("The survivors carry the weight of the lost.");
+					setTimeout(() => setEventWhisper(""), 4000);
 				}
 				setTimeout(() => setPresenceMessage(""), 4000);
 			}
@@ -181,6 +192,11 @@ export default function GameRoom({
 				return acc;
 			}, {} as Record<string, string>);
 			setSubmissions(submissionsMap);
+
+			// Trigger Kiro whisper for completion
+			setEventWhisper("The circle is complete. Let the judgment begin.");
+			setTimeout(() => setEventWhisper(""), 5000);
+
 			setPhase("voting");
 		},
 		[getDisconnectedPlayers]
@@ -254,6 +270,33 @@ export default function GameRoom({
 	const handleAllVotesComplete = (allVotes: Record<string, string>) => {
 		setVotes(allVotes);
 
+		// Check for tie votes and trigger special whispers
+		const tally = Object.values(allVotes).reduce((acc, id) => {
+			acc[id] = (acc[id] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		const maxVotes = Math.max(...Object.values(tally));
+		const winners = Object.keys(tally).filter((id) => tally[id] === maxVotes);
+
+		if (winners.length > 1) {
+			// Tie vote whisper
+			setEventWhisper("Even the void cannot choose between these truths.");
+			setTimeout(() => setEventWhisper(""), 5000);
+		} else {
+			// Single winner whisper
+			const winnerWhispers = [
+				"The crowd's judgment reveals more than the truth.",
+				"Victory tastes like copper and regret.",
+				"The chosen answer carries the weight of all fears.",
+				"In the game of truth, winning is losing.",
+			];
+			const randomWhisper =
+				winnerWhispers[Math.floor(Math.random() * winnerWhispers.length)];
+			setEventWhisper(randomWhisper);
+			setTimeout(() => setEventWhisper(""), 5000);
+		}
+
 		// Store this round's data
 		setAllRoundData((prev) => ({
 			...prev,
@@ -266,6 +309,18 @@ export default function GameRoom({
 
 		// Show insights after round 3, and comprehensive insights after round 6 (final)
 		if (round === 3 || round === 6) {
+			// Trigger insights whisper
+			const insightsWhispers = [
+				"Kiro sees the patterns you cannot escape.",
+				"The analysis cuts deeper than the confessions.",
+				"Your secrets write themselves in the data.",
+				"The algorithm remembers what you choose to forget.",
+			];
+			const randomInsightWhisper =
+				insightsWhispers[Math.floor(Math.random() * insightsWhispers.length)];
+			setEventWhisper(randomInsightWhisper);
+			setTimeout(() => setEventWhisper(""), 6000); // Longer for insights
+
 			setPhase("insights");
 		} else {
 			setPhase("results");
@@ -278,10 +333,26 @@ export default function GameRoom({
 		setSubmissions({});
 		setVotes({});
 		setShuffledEntries([]);
+
+		// Trigger round progression whisper
+		const roundWhispers = [
+			"The ritual deepens with each confession.",
+			"Another layer of truth peeled away.",
+			"The void grows more intimate with each round.",
+			"Your masks dissolve one by one.",
+			"The game's true nature reveals itself.",
+		];
+		const randomWhisper =
+			roundWhispers[Math.floor(Math.random() * roundWhispers.length)];
+		setEventWhisper(randomWhisper);
+		setTimeout(() => setEventWhisper(""), 5000);
 	};
 
 	const handleRitualComplete = () => {
 		setPhase("submission");
+		// Trigger Kiro whisper for game start
+		setEventWhisper("The first cut is always the deepest.");
+		setTimeout(() => setEventWhisper(""), 5000);
 	};
 
 	const handleContinueFromInsights = () => {
@@ -313,6 +384,24 @@ export default function GameRoom({
 	return (
 		<main className="min-h-screen flex flex-col bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
 			<FloatingBackground />
+
+			{/* Kiro Whispers - Active during gameplay phases */}
+			<KiroWhispers
+				phase={
+					phase === "submission"
+						? "submission"
+						: phase === "voting"
+						? "voting"
+						: phase === "results"
+						? "results"
+						: "insights"
+				}
+				isActive={phase !== "ritual" && phase !== "gameOver"}
+				theme={theme}
+				eventWhisper={eventWhisper}
+				timeLeft={timeLeft}
+			/>
+
 			<div className="p-4 flex justify-between items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
 				<span>👋 {playerName}</span>
 				<span className="relative">
