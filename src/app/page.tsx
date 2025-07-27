@@ -29,6 +29,7 @@ export default function Home() {
 	);
 	const [clickCount, setClickCount] = useState(0);
 	const [easterEgg, setEasterEgg] = useState(false);
+	const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
 
 	const [playWhisper] = useSound("/sounds/whisper.mp3", { volume: 0.4 });
 
@@ -140,32 +141,31 @@ export default function Home() {
 
 	return (
 		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-zinc-950 text-white relative overflow-hidden">
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center text-white text-6xl"
-			>
+			{[...Array(12)].map((_, i) => (
 				<motion.div
-					animate={{
-						rotate: [0, 5, -5, 0],
-						scale: [1, 1.05, 1],
-						opacity: [0.6, 1, 0.6],
+					key={i}
+					className="absolute text-5xl pointer-events-none"
+					style={{
+						top: `${Math.random() * 100}%`,
+						left: `${Math.random() * 100}%`,
+						rotate: `${Math.random() * 360}deg`,
 					}}
-					transition={{ repeat: Infinity, duration: 4 }}
+					animate={{ y: [0, -10, 0], opacity: [0.2, 0.7, 0.2] }}
+					transition={{ repeat: Infinity, duration: 4 + Math.random() * 2 }}
 				>
-					🎭💀✂️
+					{icons[i % icons.length]}
 				</motion.div>
-			</motion.div>
-
+			))}
 			<motion.div
 				initial={{ opacity: 0, y: 40 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6 }}
 				className="text-center p-8 rounded-2xl shadow-xl bg-zinc-800/90 max-w-lg space-y-5 z-10 border border-zinc-700"
 			>
-				<h1 className="text-5xl font-extrabold tracking-tight text-white">
+				<h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-pink-500 text-transparent bg-clip-text animate-pulse">
 					Deep Cut
 				</h1>
+
 				<p
 					onClick={handleTaglineClick}
 					className="text-zinc-400 italic cursor-pointer select-none"
@@ -210,6 +210,10 @@ export default function Home() {
 				>
 					Summon Kiro
 				</Button>
+
+				<p className="text-xs text-zinc-500 italic mt-2">
+					Coming soon: 😈 Dare Mode, 🙏 Confessional, 🕵️ Secret Prompts...
+				</p>
 
 				{copied && (
 					<p className="text-green-400 text-sm">Code copied to clipboard!</p>

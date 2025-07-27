@@ -1,5 +1,3 @@
-// 👇 Updated GameRoom to support multiple prompts and rounds
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,13 +7,14 @@ import VotingPhase from "./game/VotingPhase";
 import ResultsPhase from "./game/ResultsPhase";
 import GameOverPhase from "./game/GameOverPhase";
 
-type Phase = "submission" | "voting" | "results" | "gameOver";
-
+// Enhanced prompts with associated emojis
 const prompts = [
-	"Invent a new law that only applies to your group.",
-	"Name a forbidden dance move.",
-	"What’s the worst thing to say on a first date?",
+	{ text: "Invent a new law that only applies to your group.", emoji: "🧠" },
+	{ text: "Name a forbidden dance move.", emoji: "💃" },
+	{ text: "What’s the worst thing to say on a first date?", emoji: "💔" },
 ];
+
+type Phase = "submission" | "voting" | "results" | "gameOver";
 
 export default function GameRoom({
 	groupCode,
@@ -42,13 +41,15 @@ export default function GameRoom({
 		}
 	}, [round]);
 
-	const prompt = prompts[round - 1] ?? "";
+	const { text: prompt, emoji: promptEmoji } = prompts[round - 1] ?? {
+		text: "",
+		emoji: "",
+	};
 
 	const handleAllSubmissionsComplete = (
 		entries: { id: string; text: string }[]
 	) => {
 		setShuffledEntries(entries);
-		// Store submissions for results phase
 		const submissionsMap = entries.reduce((acc, entry) => {
 			acc[entry.id] = entry.text;
 			return acc;
@@ -70,7 +71,6 @@ export default function GameRoom({
 		setShuffledEntries([]);
 	};
 
-	// Calculate winner for results phase
 	const tally = Object.values(votes).reduce((acc, id) => {
 		acc[id] = (acc[id] || 0) + 1;
 		return acc;
@@ -98,6 +98,15 @@ export default function GameRoom({
 					transition={{ duration: 0.4 }}
 					className="w-full max-w-4xl p-6 mx-auto text-center"
 				>
+					<motion.p
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2 }}
+						className="text-lg text-zinc-300 mb-6"
+					>
+						{promptEmoji} {prompt}
+					</motion.p>
+
 					{phase === "submission" && (
 						<SubmissionPhase
 							groupCode={groupCode}
