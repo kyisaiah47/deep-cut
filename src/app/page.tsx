@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import confetti from "canvas-confetti";
 import { createClient } from "@supabase/supabase-js";
 import PlayerForm from "@/components/PlayerForm";
+import ThemeForm from "@/components/ThemeForm";
 import Lobby from "@/components/Lobby";
 import GameRoom from "@/components/GameRoom";
 import useSound from "use-sound";
@@ -23,10 +24,11 @@ export default function Home() {
 	const [error, setError] = useState("");
 	const [copied, setCopied] = useState(false);
 	const [playerName, setPlayerName] = useState("");
+	const [selectedTheme, setSelectedTheme] = useState("");
 	const [players, setPlayers] = useState<string[]>([]);
-	const [phase, setPhase] = useState<"entry" | "name" | "lobby" | "game">(
-		"entry"
-	);
+	const [phase, setPhase] = useState<
+		"entry" | "theme" | "name" | "lobby" | "game"
+	>("entry");
 	const [clickCount, setClickCount] = useState(0);
 	const [easterEgg, setEasterEgg] = useState(false);
 	const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
@@ -47,6 +49,7 @@ export default function Home() {
 		setPhase("entry");
 		setGroupCode(null);
 		setPlayerName("");
+		setSelectedTheme("");
 		setPlayers([]);
 		setManualCode("");
 		setError("");
@@ -93,7 +96,7 @@ export default function Home() {
 
 		setGroupCode(code);
 		handleCopy(code);
-		setPhase("name");
+		setPhase("theme");
 		confetti({ spread: 90, particleCount: 150, origin: { y: 0.6 } });
 	};
 
@@ -103,6 +106,17 @@ export default function Home() {
 			return count + 1;
 		});
 	};
+
+	if (phase === "theme" && groupCode) {
+		return (
+			<ThemeForm
+				onSubmit={(theme) => {
+					setSelectedTheme(theme);
+					setPhase("name");
+				}}
+			/>
+		);
+	}
 
 	if (phase === "name" && groupCode) {
 		return (
