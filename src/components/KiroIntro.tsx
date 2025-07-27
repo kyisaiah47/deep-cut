@@ -129,9 +129,10 @@ export default function KiroIntro({ theme, onContinue }: KiroIntroProps) {
 					>
 						<Button
 							onClick={onContinue}
-							className="px-8 py-3 bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+							className="relative px-8 py-3 font-medium rounded-lg text-white bg-gradient-to-r from-red-600 to-purple-600 shadow-[0_0_20px_rgba(255,0,128,0.5)] hover:shadow-[0_0_30px_rgba(255,0,200,0.8)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
 						>
-							Enter the Abyss
+							<span className="relative z-10">Enter the Abyss</span>
+							<div className="absolute inset-0 rounded-lg blur-md opacity-50 bg-gradient-to-r from-red-600 to-purple-600 z-0" />
 						</Button>
 					</motion.div>
 				)}

@@ -219,12 +219,19 @@ export default function Home() {
 						placeholder="Enter Group Code (e.g. X4Q7LB)"
 						className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center tracking-widest uppercase hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 					/>
-					<Button
+
+					<motion.button
+						whileHover={{
+							scale: 1.03,
+							rotate: [-0.5, 0.5, -0.5],
+							transition: { repeat: Infinity, duration: 0.3 },
+						}}
 						onClick={handleJoin}
-						className="w-full text-lg transition-all duration-300 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
+						className="w-full text-white font-semibold py-2 rounded-md bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 hover:border-red-500 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,0,0,0.6)]"
 					>
 						Join the Cut
-					</Button>
+					</motion.button>
+
 					{error && <p className="text-red-400 text-sm">{error}</p>}
 				</div>
 
@@ -235,13 +242,22 @@ export default function Home() {
 					</span>
 				</div>
 
-				<Button
+				<motion.button
+					whileHover={{ scale: 1.05 }}
+					whileTap={{ scale: 0.95 }}
+					onClick={handleNewGroup}
+					className="relative px-6 py-3 font-bold text-white rounded-md bg-gradient-to-r from-red-700 via-orange-600 to-yellow-500 shadow-[0_0_20px_rgba(255,50,0,0.6)] "
+				>
+					<span className="relative z-10">🔥 Summon Kiro 🔥</span>
+					<div className="absolute inset-0 rounded-md bg-black opacity-30 blur-sm animate-pulse z-0" />
+				</motion.button>
+
+				{/* <Button
 					size="lg"
 					className="w-full text-lg transition-all duration-300 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
-					onClick={handleNewGroup}
 				>
 					Summon Kiro
-				</Button>
+				</Button> */}
 
 				<p className="text-xs text-zinc-500 italic mt-2">
 					Coming soon: 😈 Dare Mode, 🙏 Confessional, 🕵️ Secret Prompts...
