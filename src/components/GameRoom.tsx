@@ -8,7 +8,6 @@ import VotingPhase from "./game/VotingPhase";
 import ResultsPhase from "./game/ResultsPhase";
 import InsightsPhase from "./game/InsightsPhase";
 import GameOverPhase from "./game/GameOverPhase";
-import GameStartRitual from "./GameStartRitual";
 import FloatingBackground from "./FloatingBackground";
 import KiroWhispers from "./KiroWhispers";
 
@@ -25,13 +24,7 @@ const prompts = [
 	},
 ];
 
-type Phase =
-	| "ritual"
-	| "submission"
-	| "voting"
-	| "results"
-	| "insights"
-	| "gameOver";
+type Phase = "submission" | "voting" | "results" | "insights" | "gameOver";
 
 export default function GameRoom({
 	groupCode,
@@ -46,7 +39,7 @@ export default function GameRoom({
 	theme: string;
 	onReturnHome: () => void;
 }) {
-	const [phase, setPhase] = useState<Phase>("ritual");
+	const [phase, setPhase] = useState<Phase>("submission");
 	const [round, setRound] = useState(1);
 	const [theme] = useState(selectedTheme || "Deep Cut: Revelations");
 	const [shuffledEntries, setShuffledEntries] = useState<
@@ -350,13 +343,6 @@ export default function GameRoom({
 		setTimeout(() => setEventWhisper(""), 5000);
 	};
 
-	const handleRitualComplete = () => {
-		setPhase("submission");
-		// Trigger Kiro whisper for game start
-		setEventWhisper("The first cut is always the deepest.");
-		setTimeout(() => setEventWhisper(""), 5000);
-	};
-
 	const handleContinueFromInsights = () => {
 		if (round === 6) {
 			// Final insights - this will be handled by the enhanced InsightsPhase
@@ -394,7 +380,7 @@ export default function GameRoom({
 						? "results"
 						: "insights"
 				}
-				isActive={phase !== "ritual" && phase !== "gameOver"}
+				isActive={phase !== "gameOver"}
 				theme={theme}
 				eventWhisper={eventWhisper}
 				timeLeft={timeLeft}
@@ -502,179 +488,164 @@ export default function GameRoom({
 			)}
 
 			<div className="flex-1 flex items-center justify-center p-4">
-				{phase === "ritual" && (
-					<GameStartRitual
-						theme={theme}
-						onRitualComplete={handleRitualComplete}
-					/>
-				)}
-
-				{phase !== "ritual" && (
-					<motion.div
-						initial={{ opacity: 0, scale: 0.9 }}
-						animate={{ opacity: 1, scale: 1 }}
-						transition={{ duration: 0.4 }}
-						className="w-full max-w-6xl mx-auto text-center"
+				<motion.div
+					initial={{ opacity: 0, scale: 0.9 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ duration: 0.4 }}
+					className="w-full max-w-6xl mx-auto text-center"
+				>
+					<motion.p
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2 }}
+						className="text-lg font-medium leading-tight mb-8 px-4 drop-shadow-[0_0_2px_#ec489888]"
 					>
-						<motion.p
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.2 }}
-							className="text-lg font-medium leading-tight mb-8 px-4 drop-shadow-[0_0_2px_#ec489888]"
+						<span
+							className="mr-2 text-2xl animate-pulse"
+							style={{ animationDuration: "2.5s" }}
 						>
-							<span
-								className="mr-2 text-2xl animate-pulse"
-								style={{ animationDuration: "2.5s" }}
-							>
-								{promptEmoji}
-							</span>
-							<span>{prompt}</span>
-						</motion.p>
+							{promptEmoji}
+						</span>
+						<span>{prompt}</span>
+					</motion.p>
 
-						{/* Timer and Kiro's Announcement for Submission Phase */}
-						{phase === "submission" && (
-							<>
-								{/* Kiro's Announcement */}
-								{kiroAnnouncement && (
-									<motion.div
-										initial={{ opacity: 0, scale: 0.9 }}
-										animate={{ opacity: 1, scale: 1 }}
-										exit={{ opacity: 0, scale: 0.9 }}
-										className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-purple-900/40 rounded-lg border border-red-500/40"
-									>
-										<div className="flex items-center justify-center gap-2 mb-2">
-											<span className="text-red-400 animate-pulse">💀</span>
-											<span className="text-lg font-bold text-red-300">
-												Kiro&apos;s Command
-											</span>
-											<span className="text-red-400 animate-pulse">💀</span>
-										</div>
-										<p className="text-red-200 text-sm italic">
-											&ldquo;{kiroAnnouncement}&rdquo;
-										</p>
-									</motion.div>
-								)}
+					{/* Timer and Kiro's Announcement for Submission Phase */}
+					{phase === "submission" && (
+						<>
+							{/* Kiro's Announcement */}
+							{kiroAnnouncement && (
+								<motion.div
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.9 }}
+									className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-purple-900/40 rounded-lg border border-red-500/40"
+								>
+									<div className="flex items-center justify-center gap-2 mb-2">
+										<span className="text-red-400 animate-pulse">💀</span>
+										<span className="text-lg font-bold text-red-300">
+											Kiro&apos;s Command
+										</span>
+										<span className="text-red-400 animate-pulse">💀</span>
+									</div>
+									<p className="text-red-200 text-sm italic">
+										&ldquo;{kiroAnnouncement}&rdquo;
+									</p>
+								</motion.div>
+							)}
 
-								{/* Timer Display */}
-								{timerActive && (
-									<motion.div
-										initial={{ opacity: 0, y: -10 }}
-										animate={{ opacity: 1, y: 0 }}
-										className="mb-6 flex items-center justify-center gap-4"
-									>
-										<div className="flex items-center gap-2">
-											<span className="text-2xl animate-pulse">⏰</span>
-											<span
-												className={`text-2xl font-bold ${
-													timeLeft <= 10
-														? "text-red-400 animate-pulse"
-														: timeLeft <= 20
-														? "text-yellow-400"
-														: "text-green-400"
-												}`}
-											>
-												{timeLeft}s
-											</span>
-										</div>
+							{/* Timer Display */}
+							{timerActive && (
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									className="mb-6 flex items-center justify-center gap-4"
+								>
+									<div className="flex items-center gap-2">
+										<span className="text-2xl animate-pulse">⏰</span>
+										<span
+											className={`text-2xl font-bold ${
+												timeLeft <= 10
+													? "text-red-400 animate-pulse"
+													: timeLeft <= 20
+													? "text-yellow-400"
+													: "text-green-400"
+											}`}
+										>
+											{timeLeft}s
+										</span>
+									</div>
 
-										{/* Subtle glow bar */}
-										<div className="w-32 h-2 bg-zinc-700 rounded-full overflow-hidden">
-											<motion.div
-												className={`h-full rounded-full ${
-													timeLeft <= 10
-														? "bg-red-500"
-														: timeLeft <= 20
-														? "bg-yellow-500"
-														: "bg-green-500"
-												}`}
-												initial={{ width: "100%" }}
-												animate={{ width: `${(timeLeft / 30) * 100}%` }}
-												transition={{ duration: 1, ease: "linear" }}
-											/>
-										</div>
-									</motion.div>
-								)}
-							</>
-						)}
+									{/* Subtle glow bar */}
+									<div className="w-32 h-2 bg-zinc-700 rounded-full overflow-hidden">
+										<motion.div
+											className={`h-full rounded-full ${
+												timeLeft <= 10
+													? "bg-red-500"
+													: timeLeft <= 20
+													? "bg-yellow-500"
+													: "bg-green-500"
+											}`}
+											initial={{ width: "100%" }}
+											animate={{ width: `${(timeLeft / 30) * 100}%` }}
+											transition={{ duration: 1, ease: "linear" }}
+										/>
+									</div>
+								</motion.div>
+							)}
+						</>
+					)}
 
-						{phase === "submission" && (
-							<SubmissionPhase
-								groupCode={groupCode}
-								playerName={playerName}
+					{phase === "submission" && (
+						<SubmissionPhase
+							groupCode={groupCode}
+							playerName={playerName}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
+							round={round}
+							prompt={prompt}
+							theme={theme}
+							onAllSubmissionsComplete={handleAllSubmissionsComplete}
+						/>
+					)}
+
+					{phase === "voting" && (
+						<VotingPhase
+							groupCode={groupCode}
+							playerName={playerName}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
+							round={round}
+							shuffledEntries={shuffledEntries}
+							onAllVotesComplete={handleAllVotesComplete}
+						/>
+					)}
+
+					{phase === "results" && (
+						<>
+							{shouldShowDisconnectionInsight() && (
+								<motion.div
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									className="mb-6 p-4 bg-gradient-to-r from-red-900/30 to-purple-900/30 rounded-lg border border-red-500/30"
+								>
+									<div className="flex items-center justify-center gap-2 mb-2">
+										<span className="text-red-400">💀</span>
+										<span className="text-lg font-bold text-red-300">
+											Kiro&apos;s Observation
+										</span>
+										<span className="text-red-400">💀</span>
+									</div>
+									<p className="text-red-200 text-sm">
+										{getDisconnectedPlayers().length === 1
+											? "Kiro noticed someone disappeared. Not everyone can handle the pressure."
+											: "You've shed the dead weight. The circle grows stronger."}
+									</p>
+								</motion.div>
+							)}
+							<ResultsPhase
+								winnerId={winnerId}
+								submissions={submissions}
+								votes={votes}
 								players={
 									connectedPlayers.length > 0 ? connectedPlayers : players
 								}
-								round={round}
-								prompt={prompt}
-								theme={theme}
-								onAllSubmissionsComplete={handleAllSubmissionsComplete}
+								onNextRound={handleNextRound}
 							/>
-						)}
+						</>
+					)}
 
-						{phase === "voting" && (
-							<VotingPhase
-								groupCode={groupCode}
-								playerName={playerName}
-								players={
-									connectedPlayers.length > 0 ? connectedPlayers : players
-								}
-								round={round}
-								shuffledEntries={shuffledEntries}
-								onAllVotesComplete={handleAllVotesComplete}
-							/>
-						)}
+					{phase === "insights" && (
+						<InsightsPhase
+							allRoundData={allRoundData}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
+							isFinalInsights={round === 6}
+							onContinue={handleContinueFromInsights}
+							onReturnHome={onReturnHome}
+						/>
+					)}
 
-						{phase === "results" && (
-							<>
-								{shouldShowDisconnectionInsight() && (
-									<motion.div
-										initial={{ opacity: 0, y: 20 }}
-										animate={{ opacity: 1, y: 0 }}
-										className="mb-6 p-4 bg-gradient-to-r from-red-900/30 to-purple-900/30 rounded-lg border border-red-500/30"
-									>
-										<div className="flex items-center justify-center gap-2 mb-2">
-											<span className="text-red-400">💀</span>
-											<span className="text-lg font-bold text-red-300">
-												Kiro&apos;s Observation
-											</span>
-											<span className="text-red-400">💀</span>
-										</div>
-										<p className="text-red-200 text-sm">
-											{getDisconnectedPlayers().length === 1
-												? "Kiro noticed someone disappeared. Not everyone can handle the pressure."
-												: "You've shed the dead weight. The circle grows stronger."}
-										</p>
-									</motion.div>
-								)}
-								<ResultsPhase
-									winnerId={winnerId}
-									submissions={submissions}
-									votes={votes}
-									players={
-										connectedPlayers.length > 0 ? connectedPlayers : players
-									}
-									onNextRound={handleNextRound}
-								/>
-							</>
-						)}
-
-						{phase === "insights" && (
-							<InsightsPhase
-								allRoundData={allRoundData}
-								players={
-									connectedPlayers.length > 0 ? connectedPlayers : players
-								}
-								isFinalInsights={round === 6}
-								onContinue={handleContinueFromInsights}
-								onReturnHome={onReturnHome}
-							/>
-						)}
-
-						{phase === "gameOver" && (
-							<GameOverPhase onReturnHome={onReturnHome} />
-						)}
-					</motion.div>
-				)}
+					{phase === "gameOver" && (
+						<GameOverPhase onReturnHome={onReturnHome} />
+					)}
+				</motion.div>
 			</div>
 		</main>
 	);
