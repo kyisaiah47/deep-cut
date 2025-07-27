@@ -21,10 +21,12 @@ export default function GameRoom({
 	groupCode,
 	playerName,
 	players,
+	onReturnHome,
 }: {
 	groupCode: string;
 	playerName: string;
 	players: string[];
+	onReturnHome: () => void;
 }) {
 	const [phase, setPhase] = useState<Phase>("submission");
 	const [round, setRound] = useState(1);
@@ -128,7 +130,9 @@ export default function GameRoom({
 						/>
 					)}
 
-					{phase === "gameOver" && <GameOverPhase />}
+					{phase === "gameOver" && (
+						<GameOverPhase onReturnHome={onReturnHome} />
+					)}
 				</motion.div>
 			</div>
 		</main>

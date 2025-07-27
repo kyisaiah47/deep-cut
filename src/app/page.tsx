@@ -26,6 +26,16 @@ export default function Home() {
 		"entry"
 	);
 
+	const handleReturnHome = () => {
+		setPhase("entry");
+		setGroupCode(null);
+		setPlayerName("");
+		setPlayers([]);
+		setManualCode("");
+		setError("");
+		setCopied(false);
+	};
+
 	const handleJoin = async () => {
 		if (manualCode.length !== 6) return;
 
@@ -49,7 +59,7 @@ export default function Home() {
 			await navigator.clipboard.writeText(code);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-		} catch (err) {
+		} catch {
 			// Copy failed silently
 		}
 	};
@@ -99,6 +109,7 @@ export default function Home() {
 				groupCode={groupCode}
 				playerName={playerName}
 				players={players}
+				onReturnHome={handleReturnHome}
 			/>
 		);
 	}
