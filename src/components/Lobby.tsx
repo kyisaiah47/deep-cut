@@ -34,6 +34,28 @@ export default function Lobby({
 	const [tip, setTip] = useState<string>("");
 	const [copied, setCopied] = useState(false);
 	const [theme, setTheme] = useState<string>(selectedTheme || "");
+	const [isStartingGame, setIsStartingGame] = useState(false);
+	const [gameStarted, setGameStarted] = useState(false);
+
+	const startGame = async () => {
+		if (players.length < 3 || gameStarted || isStartingGame) return;
+
+		try {
+			setIsStartingGame(true);
+			const { error } = await supabase
+				.from("rooms")
+				.update({ game_started: true })
+				.eq("room_code", groupCode);
+
+			if (error) {
+				console.error("Error starting game:", error);
+				setIsStartingGame(false);
+			}
+		} catch (error) {
+			console.error("Error starting game:", error);
+			setIsStartingGame(false);
+		}
+	};
 
 	const handleCopyCode = async () => {
 		try {
@@ -61,21 +83,52 @@ export default function Lobby({
 	}, [selectedTheme, theme]);
 
 	useEffect(() => {
-		// Fetch room theme from database
-		const fetchRoomTheme = async () => {
+		// Fetch room theme from database and check game state
+		const fetchRoomData = async () => {
 			const { data } = await supabase
 				.from("rooms")
-				.select("theme")
+				.select("theme, game_started")
 				.eq("code", groupCode)
 				.maybeSingle();
 
 			if (data?.theme && data.theme !== theme) {
 				setTheme(data.theme);
 			}
+
+			// If game is already started, immediately redirect
+			if (data?.game_started) {
+				setGameStarted(true);
+				onReady(players);
+			}
 		};
 
-		fetchRoomTheme();
-	}, [groupCode, theme]);
+		fetchRoomData();
+
+		// Subscribe to room state changes
+		const roomSubscription = supabase
+			.channel(`room-state-${groupCode}`)
+			.on(
+				"postgres_changes",
+				{
+					event: "UPDATE",
+					schema: "public",
+					table: "rooms",
+					filter: `code=eq.${groupCode}`,
+				},
+				(payload) => {
+					if (payload.new?.game_started && !gameStarted) {
+						setGameStarted(true);
+						setIsStartingGame(false); // Reset the starting state
+						onReady(players);
+					}
+				}
+			)
+			.subscribe();
+
+		return () => {
+			supabase.removeChannel(roomSubscription);
+		};
+	}, [groupCode, theme, gameStarted, players, onReady]);
 
 	useEffect(() => {
 		const upsertPlayer = async () => {
@@ -145,6 +198,20 @@ export default function Lobby({
 				.delete()
 				.eq("room_code", groupCode)
 				.eq("name", playerName);
+
+			// Check if this was the last player, and if so, reset the game state
+			const { data: remainingPlayers } = await supabase
+				.from("players")
+				.select("name")
+				.eq("room_code", groupCode);
+
+			if (!remainingPlayers || remainingPlayers.length === 0) {
+				// Reset the game state if no players left
+				await supabase
+					.from("rooms")
+					.update({ game_started: false })
+					.eq("code", groupCode);
+			}
 		};
 
 		window.addEventListener("beforeunload", removePlayer);
@@ -253,6 +320,13 @@ export default function Lobby({
 							Share the room code with friends to get started!
 						</p>
 					</div>
+				) : gameStarted ? (
+					<div className="mb-4 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+						<p className="text-sm text-blue-200 flex items-center gap-2">
+							<span className="text-lg animate-spin">🎮</span>
+							<span>Game starting... Get ready!</span>
+						</p>
+					</div>
 				) : (
 					<div className="mb-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
 						<p className="text-sm text-green-200 flex items-center gap-2">
@@ -265,16 +339,18 @@ export default function Lobby({
 				<p className="text-sm italic text-zinc-500 mb-4">{tip}</p>
 
 				<Button
-					onClick={() => onReady(players)}
-					disabled={players.length < 3}
+					onClick={startGame}
+					disabled={players.length < 3 || gameStarted || isStartingGame}
 					className={
 						"w-full py-3 text-base font-medium transition-all duration-300 ease-in-out " +
-						(players.length >= 3
+						(players.length >= 3 && !gameStarted && !isStartingGame
 							? "text-white bg-red-900 border border-red-700 rounded-lg hover:bg-zinc-900 hover:text-red-200 shadow-[0_0_20px_rgba(185,28,28,0.7)] hover:shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] shadow-lg shadow-pink-400/40"
 							: "text-zinc-500 bg-zinc-800 border border-zinc-600 rounded-lg cursor-not-allowed opacity-50")
 					}
 				>
-					{players.length < 3
+					{gameStarted || isStartingGame
+						? "Starting Game..."
+						: players.length < 3
 						? `Need ${3 - players.length} more player${
 								3 - players.length === 1 ? "" : "s"
 						  }`
