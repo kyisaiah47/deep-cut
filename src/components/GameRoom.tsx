@@ -404,8 +404,9 @@ export default function GameRoom({
 				timeLeft={timeLeft}
 			/>
 
-			<div className="p-4 flex justify-between items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
-				<div className="flex items-center gap-4">
+			<div className="p-4 grid grid-cols-3 items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
+				{/* Left Column - Player Info */}
+				<div className="flex items-center gap-4 justify-self-start">
 					<span>👋 {playerName}</span>
 					<div className="flex items-center gap-2">
 						{players.map((player) => (
@@ -424,7 +425,9 @@ export default function GameRoom({
 						))}
 					</div>
 				</div>
-				<span className="relative">
+
+				{/* Center Column - Group Code */}
+				<span className="relative justify-self-center">
 					Group Code:{" "}
 					<button
 						onClick={handleCopyCode}
@@ -434,12 +437,14 @@ export default function GameRoom({
 						{groupCode}
 					</button>
 					{copied && (
-						<span className="absolute top-8 transform -translate-x-1/2 text-xs text-green-400 bg-zinc-800 px-2 py-1 rounded whitespace-nowrap">
+						<span className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-green-400 bg-zinc-800 px-2 py-1 rounded whitespace-nowrap">
 							Copied!
 						</span>
 					)}
 				</span>
-				<span>Round {round}/6</span>
+
+				{/* Right Column - Round Info */}
+				<span className="justify-self-end">Round {round}/6</span>
 			</div>
 
 			{/* Presence message only when needed */}
