@@ -16,6 +16,8 @@ export default function ChoiceSubmissionPhase({
 	currentPlayer,
 	onSubmit,
 	disabled,
+	submissionCount = 0,
+	totalPlayers = 0,
 }: {
 	prompt: string;
 	theme: string;
@@ -23,6 +25,8 @@ export default function ChoiceSubmissionPhase({
 	currentPlayer: string;
 	onSubmit: (answer: string) => void;
 	disabled: boolean;
+	submissionCount?: number;
+	totalPlayers?: number;
 }) {
 	const [playerChoices, setPlayerChoices] = useState<PlayerChoices>({});
 	const [selectedChoice, setSelectedChoice] = useState<string>("");
@@ -117,7 +121,7 @@ export default function ChoiceSubmissionPhase({
 					{prompt}
 				</h2>
 				<p
-					className="text-zinc-400 text-sm"
+					className="text-zinc-400 text-sm mb-3"
 					style={{
 						fontFamily:
 							"'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif",
@@ -125,6 +129,41 @@ export default function ChoiceSubmissionPhase({
 				>
 					Choose your submission, {currentPlayer}
 				</p>
+
+				{/* Submission Progress */}
+				{totalPlayers > 0 && (
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ delay: 0.1 }}
+						className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-800/50 rounded-full border border-zinc-700/50"
+					>
+						<div className="flex items-center gap-2">
+							<div className="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center">
+								<motion.div
+									className="w-3 h-3 rounded-full bg-pink-500"
+									animate={{
+										scale: submissionCount === totalPlayers ? [1, 1.2, 1] : 1,
+									}}
+									transition={{ duration: 0.6 }}
+								/>
+							</div>
+							<span className="text-sm font-medium text-zinc-300">
+								{submissionCount}/{totalPlayers} submitted
+							</span>
+						</div>
+						{submissionCount === totalPlayers && (
+							<motion.span
+								initial={{ opacity: 0, scale: 0 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ delay: 0.3 }}
+								className="text-green-400 text-sm"
+							>
+								✓ Moving to voting...
+							</motion.span>
+						)}
+					</motion.div>
+				)}
 			</motion.div>
 
 			{/* Modern Choice Cards Grid */}
@@ -171,7 +210,9 @@ export default function ChoiceSubmissionPhase({
 					}}
 				>
 					{submitted
-						? "Submitted • Waiting for others..."
+						? `Submitted • Waiting for ${
+								totalPlayers - submissionCount
+						  } more...`
 						: !selectedChoice
 						? "Select your choice first"
 						: "Submit answer"}

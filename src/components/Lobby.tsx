@@ -37,6 +37,7 @@ export default function Lobby({
 	const [isStartingGame, setIsStartingGame] = useState(false);
 	const [gameStarted, setGameStarted] = useState(false);
 	const [countdown, setCountdown] = useState(0);
+	const [countdownStarted, setCountdownStarted] = useState(false);
 
 	const startGame = async () => {
 		if (players.length < 3 || gameStarted || isStartingGame) return;
@@ -92,8 +93,9 @@ export default function Lobby({
 			players.length >= 3 &&
 			!gameStarted &&
 			!isStartingGame &&
-			countdown === 0
+			!countdownStarted
 		) {
+			setCountdownStarted(true);
 			setCountdown(3);
 			const interval = setInterval(() => {
 				setCountdown((prev) => {
@@ -107,7 +109,13 @@ export default function Lobby({
 
 			return () => clearInterval(interval);
 		}
-	}, [players.length, gameStarted, isStartingGame, countdown]);
+		// Reset countdown when conditions change
+		if (players.length < 3 || gameStarted || isStartingGame) {
+			setCountdownStarted(false);
+			setCountdown(0);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [players.length, gameStarted, isStartingGame]); // Intentionally omitting countdown to prevent infinite loop
 
 	useEffect(() => {
 		// Fetch room theme from database and check game state

@@ -118,6 +118,8 @@ export default function SubmissionPhase({
 				currentPlayer={playerName}
 				onSubmit={handleSubmit}
 				disabled={!!submissions[playerName]}
+				submissionCount={Object.keys(submissions).length}
+				totalPlayers={players.length}
 			/>
 		</>
 	);

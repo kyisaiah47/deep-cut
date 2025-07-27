@@ -17,7 +17,7 @@ export default function ResultsPhase({
 	winnerId,
 	submissions,
 	votes,
-	players,
+	players, // eslint-disable-line @typescript-eslint/no-unused-vars
 	onNextRound,
 	isProgressing = false,
 }: ResultsPhaseProps) {
@@ -25,20 +25,18 @@ export default function ResultsPhase({
 
 	// Countdown effect when component mounts
 	useEffect(() => {
-		if (countdown > 0) {
-			const interval = setInterval(() => {
-				setCountdown((prev) => {
-					if (prev <= 1) {
-						clearInterval(interval);
-						return 0;
-					}
-					return prev - 1;
-				});
-			}, 1000);
+		const interval = setInterval(() => {
+			setCountdown((prev) => {
+				if (prev <= 1) {
+					clearInterval(interval);
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
 
-			return () => clearInterval(interval);
-		}
-	}, [countdown]);
+		return () => clearInterval(interval);
+	}, []); // Empty dependency array - runs once on mount
 
 	// Calculate vote tally for visual representation
 	const voteTally = Object.values(votes).reduce((acc, votedFor) => {
@@ -47,6 +45,12 @@ export default function ResultsPhase({
 	}, {} as Record<string, number>);
 
 	const maxVotes = Math.max(...Object.values(voteTally));
+
+	// Check for ties - find all players with the maximum votes
+	const winners = Object.entries(voteTally).filter(
+		([, votes]) => votes === maxVotes
+	);
+	const isTie = winners.length > 1;
 
 	return (
 		<motion.div
@@ -68,10 +72,10 @@ export default function ResultsPhase({
 					transition={{ delay: 0.4, duration: 0.4 }}
 					className="text-4xl mb-3"
 				>
-					🏆
+					{isTie ? "🤝" : "🏆"}
 				</motion.div>
 				<h2 className="text-2xl font-bold text-yellow-400 mb-2">
-					{winnerId} Wins!
+					{isTie ? "It's a Tie!" : `${winnerId} Wins!`}
 				</h2>
 				<motion.div
 					initial={{ opacity: 0 }}
@@ -79,32 +83,46 @@ export default function ResultsPhase({
 					transition={{ delay: 0.6, duration: 0.5 }}
 					className="bg-zinc-900/80 p-3 rounded-lg border border-zinc-700/50"
 				>
-					<p className="text-base text-zinc-200 italic leading-relaxed">
-						&ldquo;{submissions[winnerId]}&rdquo;
-					</p>
+					{isTie ? (
+						<div className="space-y-2">
+							{winners.map(([playerId]) => (
+								<p
+									key={playerId}
+									className="text-base text-zinc-200 italic leading-relaxed"
+								>
+									<span className="text-yellow-300 font-medium">
+										{playerId}:
+									</span>{" "}
+									&ldquo;{submissions[playerId]}&rdquo;
+								</p>
+							))}
+						</div>
+					) : (
+						<p className="text-base text-zinc-200 italic leading-relaxed">
+							&ldquo;{submissions[winnerId]}&rdquo;
+						</p>
+					)}
 				</motion.div>
 				<div className="mt-3 flex items-center justify-center gap-2">
 					<span className="text-yellow-400 font-medium text-sm">
-						{voteTally[winnerId] || 0} votes
+						{isTie
+							? `${maxVotes} votes each`
+							: `${voteTally[winnerId] || 0} votes`}
 					</span>
 					<div className="flex gap-1">
-						{Array.from({ length: Math.min(voteTally[winnerId] || 0, 5) }).map(
-							(_, i) => (
-								<motion.span
-									key={i}
-									initial={{ opacity: 0, scale: 0 }}
-									animate={{ opacity: 1, scale: 1 }}
-									transition={{ delay: 0.8 + i * 0.1 }}
-									className="text-yellow-400 text-sm"
-								>
-									⭐
-								</motion.span>
-							)
-						)}
-						{(voteTally[winnerId] || 0) > 5 && (
-							<span className="text-yellow-400 text-sm">
-								+{(voteTally[winnerId] || 0) - 5}
-							</span>
+						{Array.from({ length: Math.min(maxVotes, 5) }).map((_, i) => (
+							<motion.span
+								key={i}
+								initial={{ opacity: 0, scale: 0 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ delay: 0.8 + i * 0.1 }}
+								className="text-yellow-400 text-sm"
+							>
+								⭐
+							</motion.span>
+						))}
+						{maxVotes > 5 && (
+							<span className="text-yellow-400 text-sm">+{maxVotes - 5}</span>
 						)}
 					</div>
 				</div>
@@ -133,7 +151,7 @@ export default function ResultsPhase({
 									animate={{ opacity: 1, x: 0 }}
 									transition={{ delay: 0.6 + index * 0.05 }}
 									className={`p-3 rounded-lg border transition-all duration-200 ${
-										playerId === winnerId
+										voteCount === maxVotes
 											? "bg-yellow-500/15 border-yellow-500/30"
 											: "bg-zinc-700/50 border-zinc-600/50"
 									}`}
@@ -142,21 +160,23 @@ export default function ResultsPhase({
 										<div className="flex items-center gap-2">
 											<span
 												className={`font-medium text-sm ${
-													playerId === winnerId
+													voteCount === maxVotes
 														? "text-yellow-300"
 														: "text-zinc-200"
 												}`}
 											>
 												{playerId}
 											</span>
-											{playerId === winnerId && (
-												<span className="text-yellow-400 text-sm">👑</span>
+											{voteCount === maxVotes && (
+												<span className="text-yellow-400 text-sm">
+													{isTie ? "🤝" : "👑"}
+												</span>
 											)}
 										</div>
 										<div className="flex items-center gap-2">
 											<span
 												className={`font-bold text-sm ${
-													playerId === winnerId
+													voteCount === maxVotes
 														? "text-yellow-300"
 														: "text-zinc-300"
 												}`}
@@ -173,7 +193,7 @@ export default function ResultsPhase({
 											animate={{ width: `${(voteCount / maxVotes) * 100}%` }}
 											transition={{ delay: 0.8 + index * 0.05, duration: 0.6 }}
 											className={`h-full rounded-full ${
-												playerId === winnerId
+												voteCount === maxVotes
 													? "bg-gradient-to-r from-yellow-400 to-orange-400"
 													: "bg-gradient-to-r from-zinc-500 to-zinc-400"
 											}`}
@@ -187,44 +207,6 @@ export default function ResultsPhase({
 									</p>
 								</motion.div>
 							))}
-					</div>
-				</motion.div>
-
-				{/* Individual Votes - Compact Grid */}
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.6, duration: 0.6 }}
-					className="bg-zinc-800/90 backdrop-blur-sm rounded-2xl p-4 border border-zinc-700/50"
-				>
-					<h3 className="text-lg font-semibold text-white mb-3 text-center">
-						🗳️ Individual Votes
-					</h3>
-
-					<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 max-h-60 overflow-y-auto">
-						{players.map((player, index) => (
-							<motion.div
-								key={player}
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ delay: 0.8 + index * 0.02 }}
-								className="flex items-center justify-between p-2 bg-zinc-700/50 rounded-lg border border-zinc-600/30"
-							>
-								<span className="text-zinc-200 font-medium text-sm truncate">
-									{player}
-								</span>
-								<span className="text-zinc-400 text-xs mx-1">→</span>
-								<span
-									className={`font-medium text-sm truncate ${
-										votes[player] === winnerId
-											? "text-yellow-300"
-											: "text-zinc-300"
-									}`}
-								>
-									{votes[player]}
-								</span>
-							</motion.div>
-						))}
 					</div>
 				</motion.div>
 			</div>
