@@ -65,7 +65,7 @@ export default function ThemeForm({
 							setError("");
 						}}
 						placeholder="e.g. 'Embarrassing childhood memories', 'Work drama', 'Secret crushes'..."
-						className="w-full px-4 py-3 rounded-lg bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center border-2 border-zinc-600 focus:border-pink-500 transition-colors hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
+						className="w-full px-4 py-3 rounded-lg bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center border-2 border-zinc-600 focus:border-pink-500 transition-colors"
 						maxLength={100}
 					/>
 				</div>

@@ -180,7 +180,10 @@ export default function Home() {
 				transition={{ duration: 0.6 }}
 				className="text-center p-8 rounded-2xl shadow-xl bg-zinc-800/90 max-w-lg space-y-5 z-10 border border-zinc-700"
 			>
-				<h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-pink-500 text-transparent bg-clip-text animate-pulse">
+				<h1
+					style={{ textShadow: "0 0 10px #ff0055aa, 0 0 20px #ff1f4baa" }}
+					className="text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-pink-500 text-transparent bg-clip-text animate-pulse"
+				>
 					Deep Cut
 				</h1>
 
