@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -58,6 +58,11 @@ export default function GameRoom({
 	const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 	const [presenceMessage, setPresenceMessage] = useState<string>("");
 
+	// Timer state
+	const [timeLeft, setTimeLeft] = useState(30);
+	const [timerActive, setTimerActive] = useState(false);
+	const [kiroAnnouncement, setKiroAnnouncement] = useState<string>("");
+
 	// Initialize presence tracking
 	useEffect(() => {
 		const presenceChannel = supabase.channel(`room:${groupCode}`, {
@@ -111,6 +116,88 @@ export default function GameRoom({
 		};
 	}, [groupCode, playerName, players]);
 
+	// Timer logic
+	useEffect(() => {
+		if (phase === "submission") {
+			// Start timer when submission phase begins
+			setTimeLeft(30);
+			setTimerActive(true);
+
+			// Kiro's dramatic announcement
+			const announcements = [
+				"You have 30 seconds to bare your soul. Kiro is watching.",
+				"The clock ticks. Your truth awaits. 30 seconds.",
+				"Time bleeds away. Speak now or forever hold your peace.",
+				"30 seconds to confess. The void grows impatient.",
+				"Your moment of truth begins. 30 seconds remain.",
+			];
+			const randomAnnouncement =
+				announcements[Math.floor(Math.random() * announcements.length)];
+			setKiroAnnouncement(randomAnnouncement);
+
+			// Clear announcement after 4 seconds
+			setTimeout(() => setKiroAnnouncement(""), 4000);
+		} else {
+			setTimerActive(false);
+			setKiroAnnouncement("");
+		}
+	}, [phase, round]);
+
+	// Countdown timer
+	useEffect(() => {
+		if (!timerActive || timeLeft <= 0) return;
+
+		const timer = setTimeout(() => {
+			setTimeLeft((prev) => prev - 1);
+		}, 1000);
+
+		return () => clearTimeout(timer);
+	}, [timerActive, timeLeft]);
+
+	const handleTimeExpired = useCallback(() => {
+		const connectedPlayersList =
+			connectedPlayers.length > 0 ? connectedPlayers : players;
+		const submittedPlayers = Object.keys(submissions);
+		const missedPlayers = connectedPlayersList.filter(
+			(player) => !submittedPlayers.includes(player)
+		);
+
+		if (missedPlayers.length > 0) {
+			// Add entries for players who missed the deadline
+			const lateMessages = [
+				"— Missed the cut",
+				"— Froze in fear",
+				"— Kiro erased their memory",
+				"— Lost in the void",
+				"— Time claimed their voice",
+			];
+
+			const entries = submittedPlayers.map((player) => ({
+				id: player,
+				text: submissions[player],
+			}));
+
+			missedPlayers.forEach((player) => {
+				const randomMessage =
+					lateMessages[Math.floor(Math.random() * lateMessages.length)];
+				entries.push({
+					id: player,
+					text: randomMessage,
+				});
+			});
+
+			handleAllSubmissionsComplete(entries);
+		}
+	}, [connectedPlayers, players, submissions, handleAllSubmissionsComplete]);
+
+	// Handle timer expiration
+	useEffect(() => {
+		if (timerActive && timeLeft === 0) {
+			setTimerActive(false);
+			handleTimeExpired();
+		}
+	}, [timeLeft, timerActive, handleTimeExpired]);
+
 	const handleCopyCode = async () => {
 		try {
 			await navigator.clipboard.writeText(groupCode);
@@ -132,28 +219,33 @@ export default function GameRoom({
 		emoji: "",
 	};
 
-	const handleAllSubmissionsComplete = (
-		entries: { id: string; text: string }[]
-	) => {
-		// Add submissions for disconnected players
-		const disconnectedPlayers = getDisconnectedPlayers();
-		const allEntries = [...entries];
+	const getDisconnectedPlayers = useCallback(() => {
+		return players.filter((p) => !connectedPlayers.includes(p));
+	}, [players, connectedPlayers]);
 
-		disconnectedPlayers.forEach((player) => {
-			allEntries.push({
-				id: player,
-				text: "— Left the void unanswered —",
+	const handleAllSubmissionsComplete = useCallback(
+		(entries: { id: string; text: string }[]) => {
+			// Add submissions for disconnected players
+			const disconnectedPlayers = getDisconnectedPlayers();
+			const allEntries = [...entries];
+
+			disconnectedPlayers.forEach((player) => {
+				allEntries.push({
+					id: player,
+					text: "— Left the void unanswered —",
+				});
 			});
-		});
 
-		setShuffledEntries(allEntries);
-		const submissionsMap = allEntries.reduce((acc, entry) => {
-			acc[entry.id] = entry.text;
-			return acc;
-		}, {} as Record<string, string>);
-		setSubmissions(submissionsMap);
-		setPhase("voting");
-	};
+			setShuffledEntries(allEntries);
+			const submissionsMap = allEntries.reduce((acc, entry) => {
+				acc[entry.id] = entry.text;
+				return acc;
+			}, {} as Record<string, string>);
+			setSubmissions(submissionsMap);
+			setPhase("voting");
+		},
+		[getDisconnectedPlayers]
+	);
 
 	const handleAllVotesComplete = (allVotes: Record<string, string>) => {
 		setVotes(allVotes);
@@ -203,10 +295,6 @@ export default function GameRoom({
 
 	const getPlayerStatus = (player: string) => {
 		return connectedPlayers.includes(player) ? "🟢" : "🔴";
-	};
-
-	const getDisconnectedPlayers = () => {
-		return players.filter((p) => !connectedPlayers.includes(p));
 	};
 
 	const shouldShowDisconnectionInsight = () => {
@@ -280,6 +368,72 @@ export default function GameRoom({
 						</span>
 						<span>{prompt}</span>
 					</motion.p>
+
+					{/* Timer and Kiro's Announcement for Submission Phase */}
+					{phase === "submission" && (
+						<>
+							{/* Kiro's Announcement */}
+							{kiroAnnouncement && (
+								<motion.div
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.9 }}
+									className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-purple-900/40 rounded-lg border border-red-500/40"
+								>
+									<div className="flex items-center justify-center gap-2 mb-2">
+										<span className="text-red-400 animate-pulse">💀</span>
+										<span className="text-lg font-bold text-red-300">
+											Kiro&apos;s Command
+										</span>
+										<span className="text-red-400 animate-pulse">💀</span>
+									</div>
+									<p className="text-red-200 text-sm italic">
+										&ldquo;{kiroAnnouncement}&rdquo;
+									</p>
+								</motion.div>
+							)}
+
+							{/* Timer Display */}
+							{timerActive && (
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									className="mb-6 flex items-center justify-center gap-4"
+								>
+									<div className="flex items-center gap-2">
+										<span className="text-2xl animate-pulse">⏰</span>
+										<span
+											className={`text-2xl font-bold ${
+												timeLeft <= 10
+													? "text-red-400 animate-pulse"
+													: timeLeft <= 20
+													? "text-yellow-400"
+													: "text-green-400"
+											}`}
+										>
+											{timeLeft}s
+										</span>
+									</div>
+
+									{/* Subtle glow bar */}
+									<div className="w-32 h-2 bg-zinc-700 rounded-full overflow-hidden">
+										<motion.div
+											className={`h-full rounded-full ${
+												timeLeft <= 10
+													? "bg-red-500"
+													: timeLeft <= 20
+													? "bg-yellow-500"
+													: "bg-green-500"
+											}`}
+											initial={{ width: "100%" }}
+											animate={{ width: `${(timeLeft / 30) * 100}%` }}
+											transition={{ duration: 1, ease: "linear" }}
+										/>
+									</div>
+								</motion.div>
+							)}
+						</>
+					)}
 
 					{phase === "submission" && (
 						<SubmissionPhase
