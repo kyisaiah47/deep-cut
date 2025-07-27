@@ -17,7 +17,7 @@ export default function Lobby({
 }: {
 	groupCode: string;
 	playerName: string;
-	onReady: () => void;
+	onReady: (players: string[]) => void;
 }) {
 	const [players, setPlayers] = useState<string[]>([]);
 
@@ -34,7 +34,7 @@ export default function Lobby({
 				.from("players")
 				.upsert(
 					{ name: playerName, room_code: groupCode },
-					{ onConflict: ["room_code", "name"] }
+					{ onConflict: "room_code,name" }
 				);
 			if (error) console.error("Upsert error:", error.message);
 			else console.log("Upserted player:", playerName);
@@ -132,7 +132,7 @@ export default function Lobby({
 				</div>
 
 				<Button
-					onClick={onReady}
+					onClick={() => onReady(players)}
 					disabled={players.length < 2}
 					className="w-full"
 				>

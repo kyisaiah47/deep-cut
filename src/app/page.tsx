@@ -21,6 +21,7 @@ export default function Home() {
 	const [error, setError] = useState("");
 	const [copied, setCopied] = useState(false);
 	const [playerName, setPlayerName] = useState("");
+	const [players, setPlayers] = useState<string[]>([]);
 	const [phase, setPhase] = useState<"entry" | "name" | "lobby" | "game">(
 		"entry"
 	);
@@ -86,7 +87,10 @@ export default function Home() {
 			<Lobby
 				groupCode={groupCode}
 				playerName={playerName}
-				onReady={() => setPhase("game")}
+				onReady={(players) => {
+					setPlayers(players);
+					setPhase("game");
+				}}
 			/>
 		);
 	}
@@ -96,6 +100,7 @@ export default function Home() {
 			<GameRoom
 				groupCode={groupCode}
 				playerName={playerName}
+				players={players}
 			/>
 		);
 	}
