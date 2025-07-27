@@ -30,6 +30,17 @@ export default function Lobby({
 }) {
 	const [players, setPlayers] = useState<string[]>([]);
 	const [tip, setTip] = useState<string>("");
+	const [copied, setCopied] = useState(false);
+
+	const handleCopyCode = async () => {
+		try {
+			await navigator.clipboard.writeText(groupCode);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch {
+			// Copy failed silently
+		}
+	};
 
 	useEffect(() => {
 		setTip(tips[Math.floor(Math.random() * tips.length)]);
@@ -118,7 +129,18 @@ export default function Lobby({
 				</h2>
 				<p className="text-zinc-400 text-sm mb-4">
 					Group Code:{" "}
-					<span className="text-yellow-300 font-mono">{groupCode}</span>
+					<button
+						onClick={handleCopyCode}
+						className="text-yellow-300 font-mono cursor-pointer hover:text-yellow-200 hover:bg-zinc-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500 px-2 py-1 rounded transition-all duration-200 relative"
+						title="Click to copy"
+					>
+						{groupCode}
+						{copied && (
+							<span className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs text-green-400 bg-zinc-800 px-2 py-1 rounded">
+								Copied!
+							</span>
+						)}
+					</button>
 				</p>
 
 				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-4">

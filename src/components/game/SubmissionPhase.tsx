@@ -108,7 +108,6 @@ export default function SubmissionPhase({
 
 	return (
 		<>
-			<h2 className="text-xl mb-4">🧠 {prompt}</h2>
 			<PlayerSubmission
 				player={playerName}
 				onSubmit={handleSubmit}

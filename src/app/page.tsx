@@ -59,20 +59,38 @@ export default function Home() {
 	};
 
 	const handleJoin = async () => {
-		if (manualCode.length !== 6) return;
+		// Clear any existing errors
+		setError("");
 
-		const { data, error } = await supabase
-			.from("rooms")
-			.select("*")
-			.eq("code", manualCode.toUpperCase())
-			.maybeSingle();
+		// Validate input
+		if (!manualCode.trim()) {
+			setError("Please enter a group code.");
+			return;
+		}
 
-		if (error || !data) {
-			setError("Room not found. Please check the code.");
-		} else {
-			setGroupCode(data.code);
-			setError("");
-			setPhase("name");
+		if (manualCode.length !== 6) {
+			setError("Group code must be exactly 6 characters.");
+			return;
+		}
+
+		try {
+			const { data, error } = await supabase
+				.from("rooms")
+				.select("*")
+				.eq("code", manualCode.toUpperCase())
+				.maybeSingle();
+
+			if (error) {
+				setError("Failed to check room. Please try again.");
+			} else if (!data) {
+				setError("Room not found. Please check the code and try again.");
+			} else {
+				setGroupCode(data.code);
+				setError("");
+				setPhase("name");
+			}
+		} catch {
+			setError("Network error. Please check your connection and try again.");
 		}
 	};
 

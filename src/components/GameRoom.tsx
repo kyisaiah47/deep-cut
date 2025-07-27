@@ -84,7 +84,7 @@ export default function GameRoom({
 	return (
 		<main className="min-h-screen flex flex-col bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
 			<FloatingBackground />
-			<div className="p-4 flex justify-between items-center bg-zinc-800 text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
+			<div className="p-4 flex justify-between items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
 				<span>👋 {playerName}</span>
 				<span>
 					Group Code:{" "}
@@ -104,9 +104,15 @@ export default function GameRoom({
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.2 }}
-						className="text-lg text-zinc-300 mb-6"
+						className="text-lg font-medium leading-tight text-yellow-300 mb-8 px-4 drop-shadow-[0_0_2px_#fde04788]"
 					>
-						{promptEmoji} {prompt}
+						<span
+							className="mr-2 text-2xl animate-pulse"
+							style={{ animationDuration: "2.5s" }}
+						>
+							{promptEmoji}
+						</span>
+						<span>{prompt}</span>
 					</motion.p>
 
 					{phase === "submission" && (

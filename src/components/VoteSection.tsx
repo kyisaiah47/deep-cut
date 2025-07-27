@@ -15,6 +15,14 @@ export default function VoteSection({
 	disabled: boolean;
 }) {
 	const [selected, setSelected] = useState("");
+	const [voted, setVoted] = useState(false);
+
+	const handleVote = () => {
+		if (selected) {
+			setVoted(true);
+			onVote(selected);
+		}
+	};
 
 	return (
 		<div className="bg-zinc-700 p-4 rounded-xl">
@@ -40,10 +48,10 @@ export default function VoteSection({
 			</div>
 			<Button
 				className="mt-2 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
-				onClick={() => selected && onVote(selected)}
-				disabled={disabled || !selected}
+				onClick={handleVote}
+				disabled={disabled || !selected || voted}
 			>
-				Vote
+				{voted ? "Waiting for others..." : "Vote"}
 			</Button>
 		</div>
 	);
