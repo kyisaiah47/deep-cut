@@ -9,6 +9,8 @@ import { createClient } from "@supabase/supabase-js";
 import PlayerForm from "@/components/PlayerForm";
 import Lobby from "@/components/Lobby";
 import GameRoom from "@/components/GameRoom";
+import useSound from "use-sound";
+import { useTypewriter } from "react-simple-typewriter";
 
 const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,6 +27,20 @@ export default function Home() {
 	const [phase, setPhase] = useState<"entry" | "name" | "lobby" | "game">(
 		"entry"
 	);
+	const [clickCount, setClickCount] = useState(0);
+	const [easterEgg, setEasterEgg] = useState(false);
+
+	const [playWhisper] = useSound("/sounds/whisper.mp3", { volume: 0.4 });
+
+	const [kiroMessage] = useTypewriter({
+		words: [
+			"Kiro is sharpening the blade…",
+			"Blood will be spilled.",
+			"You sure you can handle this?",
+		],
+		loop: 0,
+		delaySpeed: 2000,
+	});
 
 	const handleReturnHome = () => {
 		setPhase("entry");
@@ -34,6 +50,8 @@ export default function Home() {
 		setManualCode("");
 		setError("");
 		setCopied(false);
+		setClickCount(0);
+		setEasterEgg(false);
 	};
 
 	const handleJoin = async () => {
@@ -59,12 +77,11 @@ export default function Home() {
 			await navigator.clipboard.writeText(code);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-		} catch {
-			// Copy failed silently
-		}
+		} catch {}
 	};
 
 	const handleNewGroup = async () => {
+		playWhisper();
 		const code = nanoid(6).toUpperCase();
 		const { error } = await supabase.from("rooms").insert([{ code }]);
 
@@ -77,6 +94,13 @@ export default function Home() {
 		handleCopy(code);
 		setPhase("name");
 		confetti({ spread: 90, particleCount: 150, origin: { y: 0.6 } });
+	};
+
+	const handleTaglineClick = () => {
+		setClickCount((count) => {
+			if (count + 1 === 5) setEasterEgg(true);
+			return count + 1;
+		});
 	};
 
 	if (phase === "name" && groupCode) {
@@ -115,32 +139,61 @@ export default function Home() {
 	}
 
 	return (
-		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-zinc-900 text-white">
+		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-zinc-950 text-white relative overflow-hidden">
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center text-white text-6xl"
+			>
+				<motion.div
+					animate={{
+						rotate: [0, 5, -5, 0],
+						scale: [1, 1.05, 1],
+						opacity: [0.6, 1, 0.6],
+					}}
+					transition={{ repeat: Infinity, duration: 4 }}
+				>
+					🎭💀✂️
+				</motion.div>
+			</motion.div>
+
 			<motion.div
 				initial={{ opacity: 0, y: 40 }}
 				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className="text-center p-6 rounded-2xl shadow-xl bg-zinc-800 max-w-lg space-y-4"
+				transition={{ duration: 0.6 }}
+				className="text-center p-8 rounded-2xl shadow-xl bg-zinc-800/90 max-w-lg space-y-5 z-10 border border-zinc-700"
 			>
-				<h1 className="text-4xl font-bold">🎭 Join or Create a Group</h1>
-				<p className="text-zinc-300">Share or enter a code to play together.</p>
+				<h1 className="text-5xl font-extrabold tracking-tight text-white">
+					Deep Cut
+				</h1>
+				<p
+					onClick={handleTaglineClick}
+					className="text-zinc-400 italic cursor-pointer select-none"
+				>
+					The party game where you cut deep — or get cut.
+				</p>
+				{easterEgg && (
+					<p className="text-red-500 text-sm italic animate-pulse">
+						👁 Chaos Mode Unlocked. Kiro is watching.
+					</p>
+				)}
 
-				<div className="space-y-2">
+				<div className="space-y-3">
 					<input
 						type="text"
 						value={manualCode}
 						onChange={(e) => setManualCode(e.target.value.toUpperCase())}
 						maxLength={6}
-						placeholder="Enter Code (e.g. X4Q7LB)"
+						placeholder="Enter Group Code (e.g. X4Q7LB)"
 						className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center tracking-widest uppercase"
 					/>
 					<Button
 						onClick={handleJoin}
-						className="w-full"
+						className="w-full text-lg transition-all duration-300 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 					>
-						Join Group
+						Join the Cut
 					</Button>
-					{error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+					{error && <p className="text-red-400 text-sm">{error}</p>}
 				</div>
 
 				<div className="relative py-3">
@@ -152,15 +205,31 @@ export default function Home() {
 
 				<Button
 					size="lg"
-					className="w-full"
+					className="w-full text-lg transition-all duration-300 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 					onClick={handleNewGroup}
 				>
-					Generate New Group
+					Summon Kiro
 				</Button>
 
 				{copied && (
 					<p className="text-green-400 text-sm">Code copied to clipboard!</p>
 				)}
+
+				{groupCode && phase === "name" && (
+					<div className="mt-4 flex items-center justify-center gap-2">
+						<span className="text-xl font-mono tracking-widest">
+							{groupCode}
+						</span>
+						<button
+							onClick={() => handleCopy(groupCode)}
+							className="text-zinc-400 hover:text-white transition"
+						>
+							📋
+						</button>
+					</div>
+				)}
+
+				<p className="text-sm text-zinc-400 mt-4 italic">{kiroMessage}</p>
 			</motion.div>
 		</main>
 	);
