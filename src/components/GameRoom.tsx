@@ -441,9 +441,25 @@ export default function GameRoom({
 					))}
 				</div>
 
-				{/* Center Column - Group Code */}
+				{/* Center Column - Round Info */}
 				<div className="relative justify-self-center">
-					<div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/8 to-purple-500/8 px-3 py-1 rounded-lg border border-blue-500/15 backdrop-blur-sm">
+					<div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/8 to-pink-500/8 px-3 py-1 rounded-lg border border-purple-500/15 backdrop-blur-sm">
+						<span className="text-2xl">🎯</span>
+						<span
+							className="text-white font-mono text-base font-bold"
+							style={{
+								fontFamily:
+									"'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace",
+							}}
+						>
+							Round {round}/6
+						</span>
+					</div>
+				</div>
+
+				{/* Right Column - Group Code */}
+				<div className="relative justify-self-end">
+					<div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/8 to-purple-500/8 px-2 py-1 rounded-md border border-blue-500/15 backdrop-blur-sm">
 						<span
 							className="text-blue-300 text-xs uppercase tracking-wide font-medium"
 							style={{
@@ -451,11 +467,11 @@ export default function GameRoom({
 									"'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif",
 							}}
 						>
-							Group Code
+							Code
 						</span>
 						<button
 							onClick={handleCopyCode}
-							className="text-white font-mono text-base font-bold cursor-pointer hover:text-blue-300 hover:bg-blue-500/15 focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 py-1 rounded-md transition-all duration-200 hover:scale-105"
+							className="text-white font-mono text-xs font-medium cursor-pointer hover:text-blue-300 hover:bg-blue-500/15 focus:outline-none focus:ring-2 focus:ring-blue-400 px-1 py-0.5 rounded transition-all duration-200 hover:scale-105"
 							title="Click to copy"
 							style={{
 								fontFamily:
@@ -470,28 +486,11 @@ export default function GameRoom({
 							initial={{ opacity: 0, y: 10, scale: 0.8 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
 							exit={{ opacity: 0, y: -10, scale: 0.8 }}
-							className="absolute top-10 left-1/2 transform -translate-x-1/2 text-xs text-green-300 bg-green-500/15 border border-green-500/25 px-2 py-1 rounded-md whitespace-nowrap backdrop-blur-sm"
+							className="absolute top-10 right-0 text-xs text-green-300 bg-green-500/15 border border-green-500/25 px-2 py-1 rounded-md whitespace-nowrap backdrop-blur-sm z-20"
 						>
-							✓ Copied to clipboard!
+							✓ Copied!
 						</motion.span>
 					)}
-				</div>
-
-				{/* Right Column - Round Info */}
-				<div className="justify-self-end">
-					<div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/8 to-pink-500/8 px-3 py-1 rounded-lg border border-purple-500/15 backdrop-blur-sm">
-						<span className="text-lg">🎯</span>
-						<span
-							className="text-white font-semibold text-sm"
-							style={{
-								fontFamily:
-									"'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif",
-								fontWeight: "600",
-							}}
-						>
-							Round {round}/6
-						</span>
-					</div>
 				</div>
 			</div>
 
