@@ -1,3 +1,5 @@
+// 👇 Updated GameRoom to support multiple prompts and rounds
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,12 +13,14 @@ const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-type Phase = "submission" | "voting" | "results";
+type Phase = "submission" | "voting" | "results" | "gameOver";
+type SubmissionRow = { player_name: string; answer: string };
 
-type SubmissionRow = {
-	player_name: string;
-	answer: string;
-};
+const prompts = [
+	"Invent a new law that only applies to your group.",
+	"Name a forbidden dance move.",
+	"What’s the worst thing to say on a first date?",
+];
 
 export default function GameRoom({
 	groupCode,
@@ -28,7 +32,7 @@ export default function GameRoom({
 	players: string[];
 }) {
 	const [phase, setPhase] = useState<Phase>("submission");
-	const [prompt, setPrompt] = useState<string>("");
+	const [round, setRound] = useState(1);
 	const [submissions, setSubmissions] = useState<Record<string, string>>({});
 	const [votes, setVotes] = useState<Record<string, string>>({});
 	const [shuffledEntries, setShuffledEntries] = useState<
@@ -36,18 +40,22 @@ export default function GameRoom({
 	>([]);
 
 	useEffect(() => {
-		setPrompt("Invent a new law that only applies to your group.");
-	}, []);
+		if (round > prompts.length) {
+			setPhase("gameOver");
+		}
+	}, [round]);
+
+	const prompt = prompts[round - 1] ?? "";
 
 	useEffect(() => {
 		if (phase !== "submission") return;
 
 		const fetchInitialSubmissions = async () => {
-			const { data, error } = await supabase
+			const { data } = await supabase
 				.from("submissions")
 				.select("player_name, answer")
 				.eq("room_code", groupCode)
-				.eq("round_number", 1);
+				.eq("round_number", round);
 
 			if (data) {
 				const initial: Record<string, string> = {};
@@ -65,10 +73,10 @@ export default function GameRoom({
 			.on(
 				"postgres_changes",
 				{
-					event: "INSERT",
+					event: "*",
 					schema: "public",
 					table: "submissions",
-					filter: `room_code=eq.${groupCode},round_number=eq.1`,
+					filter: `room_code=eq.${groupCode},round_number=eq.${round}`,
 				},
 				(payload) => {
 					const { player_name, answer } = payload.new as SubmissionRow;
@@ -80,7 +88,7 @@ export default function GameRoom({
 		return () => {
 			supabase.removeChannel(channel);
 		};
-	}, [groupCode, phase]);
+	}, [groupCode, phase, round]);
 
 	useEffect(() => {
 		if (
@@ -97,48 +105,61 @@ export default function GameRoom({
 	}, [submissions, phase, players.length]);
 
 	useEffect(() => {
-		if (phase === "voting" && Object.keys(votes).length === players.length) {
+		if (phase === "voting" && Object.keys(votes).length >= players.length) {
 			setPhase("results");
 		}
 	}, [votes, phase, players.length]);
 
 	const handleSubmit = async (answer: string) => {
-		const { error } = await supabase.from("submissions").upsert(
+		// Immediately update local state to disable the form
+		setSubmissions((prev) => ({ ...prev, [playerName]: answer }));
+
+		await supabase.from("submissions").upsert(
 			{
 				room_code: groupCode,
 				player_name: playerName,
-				round_number: 1,
+				round_number: round,
 				answer,
-				user_id: (await supabase.auth.getUser()).data.user?.id, // make sure you are signed in!
+				user_id: (await supabase.auth.getUser()).data.user?.id,
 			},
 			{
 				onConflict: "room_code,player_name,round_number",
 			}
 		);
-
-		if (error) {
-			console.error("Submission failed:", error.message);
-		}
 	};
 
 	const handleVote = async (voteFor: string) => {
-		const { error } = await supabase.from("votes").upsert(
+		await supabase.from("votes").upsert(
 			{
 				room_code: groupCode,
-				round_number: 1,
+				round_number: round,
 				voter_name: playerName,
 				vote_for: voteFor,
 			},
 			{ onConflict: "room_code,round_number,voter_name" }
 		);
-
-		if (error) {
-			console.error("Vote failed:", error.message);
-		}
 	};
 
 	useEffect(() => {
 		if (phase !== "voting") return;
+
+		const fetchInitialVotes = async () => {
+			const { data } = await supabase
+				.from("votes")
+				.select("voter_name, vote_for")
+				.eq("room_code", groupCode)
+				.eq("round_number", round);
+
+			if (data) {
+				const initial: Record<string, string> = {};
+				for (const row of data) {
+					initial[row.voter_name] = row.vote_for;
+				}
+				setVotes(initial);
+			}
+		};
+
+		fetchInitialVotes();
 
 		const voteChannel = supabase
 			.channel("votes")
@@ -148,7 +169,20 @@ export default function GameRoom({
 					event: "INSERT",
 					schema: "public",
 					table: "votes",
-					filter: `room_code=eq.${groupCode},round_number=eq.1`,
+					filter: `room_code=eq.${groupCode},round_number=eq.${round}`,
+				},
+				(payload) => {
+					const { voter_name, vote_for } = payload.new;
+					setVotes((prev) => ({ ...prev, [voter_name]: vote_for }));
+				}
+			)
+			.on(
+				"postgres_changes",
+				{
+					event: "UPDATE",
+					schema: "public",
+					table: "votes",
+					filter: `room_code=eq.${groupCode},round_number=eq.${round}`,
 				},
 				(payload) => {
 					const { voter_name, vote_for } = payload.new;
@@ -160,7 +194,7 @@ export default function GameRoom({
 		return () => {
 			supabase.removeChannel(voteChannel);
 		};
-	}, [groupCode, phase]);
+	}, [groupCode, phase, round]);
 
 	const tally = Object.values(votes).reduce((acc, id) => {
 		acc[id] = (acc[id] || 0) + 1;
@@ -179,7 +213,7 @@ export default function GameRoom({
 					Group Code:{" "}
 					<code className="text-yellow-300 font-mono">{groupCode}</code>
 				</span>
-				<span>Mode: Classic</span>
+				<span>Round {round}</span>
 			</div>
 
 			<div className="flex-grow flex items-center justify-center">
@@ -190,11 +224,14 @@ export default function GameRoom({
 					className="w-full max-w-4xl p-6 mx-auto text-center"
 				>
 					{phase === "submission" && (
-						<PlayerSubmission
-							player={playerName}
-							onSubmit={handleSubmit}
-							disabled={!!submissions[playerName]}
-						/>
+						<>
+							<h2 className="text-xl mb-4">🧠 {prompt}</h2>
+							<PlayerSubmission
+								player={playerName}
+								onSubmit={handleSubmit}
+								disabled={!!submissions[playerName]}
+							/>
+						</>
 					)}
 
 					{phase === "voting" && (
@@ -220,6 +257,24 @@ export default function GameRoom({
 									</li>
 								))}
 							</ul>
+							<button
+								className="mt-6 px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500"
+								onClick={() => {
+									setRound((prev) => prev + 1);
+									setPhase("submission");
+									setSubmissions({});
+									setVotes({});
+								}}
+							>
+								➡️ Next Round
+							</button>
+						</div>
+					)}
+
+					{phase === "gameOver" && (
+						<div className="text-center py-10">
+							<h2 className="text-3xl font-bold">🎉 Game Over!</h2>
+							<p className="mt-2 text-zinc-400">Thanks for playing!</p>
 						</div>
 					)}
 				</motion.div>
