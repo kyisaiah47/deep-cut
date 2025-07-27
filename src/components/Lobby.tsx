@@ -159,7 +159,7 @@ export default function Lobby({
 					onClick={() => onReady(players)}
 					disabled={players.length < 2}
 					className={
-						"w-full transition-shadow hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500 " +
+						"w-full py-3 text-base font-medium text-red-200 bg-zinc-900 border border-red-700 rounded-lg hover:bg-red-900 hover:text-white transition-all duration-300 ease-in-out shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] hover:shadow-[0_0_20px_rgba(185,28,28,0.7)]" +
 						(players.length >= 2 ? "shadow-lg shadow-pink-400/40" : "")
 					}
 				>

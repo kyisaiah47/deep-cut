@@ -35,6 +35,17 @@ export default function GameRoom({
 	>([]);
 	const [votes, setVotes] = useState<Record<string, string>>({});
 	const [submissions, setSubmissions] = useState<Record<string, string>>({});
+	const [copied, setCopied] = useState(false);
+
+	const handleCopyCode = async () => {
+		try {
+			await navigator.clipboard.writeText(groupCode);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch {
+			// Copy failed silently
+		}
+	};
 
 	useEffect(() => {
 		if (round > prompts.length) {
@@ -86,9 +97,20 @@ export default function GameRoom({
 			<FloatingBackground />
 			<div className="p-4 flex justify-between items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
 				<span>👋 {playerName}</span>
-				<span>
+				<span className="relative">
 					Group Code:{" "}
-					<code className="text-pink-500 font-mono">{groupCode}</code>
+					<button
+						onClick={handleCopyCode}
+						className="text-pink-500 font-mono cursor-pointer hover:text-pink-400 hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-pink-500 px-2 py-1 rounded transition-all duration-200"
+						title="Click to copy"
+					>
+						{groupCode}
+					</button>
+					{copied && (
+						<span className="absolute top-8 transform -translate-x-1/2 text-xs text-green-400 bg-zinc-800 px-2 py-1 rounded whitespace-nowrap">
+							Copied!
+						</span>
+					)}
 				</span>
 				<span>Round {round}</span>
 			</div>
