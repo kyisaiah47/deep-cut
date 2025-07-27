@@ -210,21 +210,29 @@ export default function Home() {
 	}
 
 	return (
-		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-zinc-950 text-white relative overflow-hidden">
+		<main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-zinc-950 text-white relative overflow-hidden">
 			<FloatingBackground />
+
+			<motion.div
+				initial={{ opacity: 0, y: -20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.3, duration: 0.6 }}
+				className="text-center mb-8"
+			>
+				<h1 className="text-5xl sm:text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]">
+					🎭 Deep Cut 💬
+				</h1>
+				<p className="mt-2 text-sm sm:text-base text-zinc-400 italic">
+					The game starts where the truth ends.
+				</p>
+			</motion.div>
+
 			<motion.div
 				initial={{ opacity: 0, y: 40 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6 }}
 				className="text-center p-8 rounded-2xl shadow-xl bg-zinc-800/90 max-w-lg space-y-5 z-10 border border-zinc-700"
 			>
-				<h1
-					style={{ textShadow: "0 0 10px #ff0055aa, 0 0 20px #ff1f4baa" }}
-					className="text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-pink-500 text-transparent bg-clip-text animate-pulse"
-				>
-					Deep Cut
-				</h1>
-
 				<p
 					onClick={handleTaglineClick}
 					className="text-zinc-400 italic cursor-pointer select-none"
@@ -254,9 +262,10 @@ export default function Home() {
 							transition: { repeat: Infinity, duration: 0.3 },
 						}}
 						onClick={handleJoin}
-						className="w-full text-white font-semibold py-2 rounded-md bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 hover:border-red-500 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,0,0,0.6)]"
+						className="relative w-full px-6 py-3 font-bold text-white rounded-md bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-500 shadow-[0_0_20px_rgba(180,0,255,0.5)]"
 					>
-						Join the Cut
+						<span className="relative z-10">🎭 Join the Cut</span>
+						<div className="absolute inset-0 rounded-md bg-black opacity-30 blur-sm animate-pulse z-0" />
 					</motion.button>
 
 					{error && <p className="text-red-400 text-sm">{error}</p>}
@@ -273,7 +282,7 @@ export default function Home() {
 					whileHover={{ scale: 1.05 }}
 					whileTap={{ scale: 0.95 }}
 					onClick={handleNewGroup}
-					className="relative px-6 py-3 font-bold text-white rounded-md bg-gradient-to-r from-red-700 via-orange-600 to-yellow-500 shadow-[0_0_20px_rgba(255,50,0,0.6)] "
+					className="relative px-6 py-3 font-bold text-white rounded-md bg-gradient-to-r from-red-700 via-orange-600 to-yellow-500 shadow-[0_0_20px_rgba(255,50,0,0.6)]"
 				>
 					<span className="relative z-10">🔥 Summon Kiro 🔥</span>
 					<div className="absolute inset-0 rounded-md bg-black opacity-30 blur-sm animate-pulse z-0" />
