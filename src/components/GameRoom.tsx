@@ -88,10 +88,21 @@ export default function GameRoom({
 			// Check for player disconnections
 			const disconnectedPlayers = players.filter((p) => !connected.includes(p));
 			if (disconnectedPlayers.length > 0 && connected.length > 0) {
-				setPresenceMessage(
-					`😱 ${disconnectedPlayers[0]} has vanished into the void...`
-				);
-				setTimeout(() => setPresenceMessage(""), 3000);
+				// Different messages based on how many disconnected
+				if (disconnectedPlayers.length === 1) {
+					setPresenceMessage(
+						`😱 ${disconnectedPlayers[0]} has vanished into the void...`
+					);
+				} else if (disconnectedPlayers.length === 2) {
+					setPresenceMessage(
+						`💀 The circle is breaking. Two souls have departed...`
+					);
+				} else {
+					setPresenceMessage(
+						`🪦 The circle is breaking. Continue… if you dare.`
+					);
+				}
+				setTimeout(() => setPresenceMessage(""), 4000);
 			}
 		});
 
@@ -124,8 +135,19 @@ export default function GameRoom({
 	const handleAllSubmissionsComplete = (
 		entries: { id: string; text: string }[]
 	) => {
-		setShuffledEntries(entries);
-		const submissionsMap = entries.reduce((acc, entry) => {
+		// Add submissions for disconnected players
+		const disconnectedPlayers = getDisconnectedPlayers();
+		const allEntries = [...entries];
+
+		disconnectedPlayers.forEach((player) => {
+			allEntries.push({
+				id: player,
+				text: "— Left the void unanswered —",
+			});
+		});
+
+		setShuffledEntries(allEntries);
+		const submissionsMap = allEntries.reduce((acc, entry) => {
 			acc[entry.id] = entry.text;
 			return acc;
 		}, {} as Record<string, string>);
@@ -183,6 +205,15 @@ export default function GameRoom({
 		return connectedPlayers.includes(player) ? "🟢" : "🔴";
 	};
 
+	const getDisconnectedPlayers = () => {
+		return players.filter((p) => !connectedPlayers.includes(p));
+	};
+
+	const shouldShowDisconnectionInsight = () => {
+		const disconnected = getDisconnectedPlayers();
+		return disconnected.length > 0 && connectedPlayers.length > 0;
+	};
+
 	return (
 		<main className="min-h-screen flex flex-col bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
 			<FloatingBackground />
@@ -215,6 +246,9 @@ export default function GameRoom({
 							className="flex items-center gap-1"
 						>
 							{getPlayerStatus(player)} {player}
+							{!connectedPlayers.includes(player) && (
+								<span className="text-red-400 ml-1 text-xs">disconnected</span>
+							)}
 						</span>
 					))}
 				</div>
@@ -270,13 +304,37 @@ export default function GameRoom({
 					)}
 
 					{phase === "results" && (
-						<ResultsPhase
-							winnerId={winnerId}
-							submissions={submissions}
-							votes={votes}
-							players={connectedPlayers.length > 0 ? connectedPlayers : players}
-							onNextRound={handleNextRound}
-						/>
+						<>
+							{shouldShowDisconnectionInsight() && (
+								<motion.div
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									className="mb-6 p-4 bg-gradient-to-r from-red-900/30 to-purple-900/30 rounded-lg border border-red-500/30"
+								>
+									<div className="flex items-center justify-center gap-2 mb-2">
+										<span className="text-red-400">💀</span>
+										<span className="text-lg font-bold text-red-300">
+											Kiro&apos;s Observation
+										</span>
+										<span className="text-red-400">💀</span>
+									</div>
+									<p className="text-red-200 text-sm">
+										{getDisconnectedPlayers().length === 1
+											? "Kiro noticed someone disappeared. Not everyone can handle the pressure."
+											: "You've shed the dead weight. The circle grows stronger."}
+									</p>
+								</motion.div>
+							)}
+							<ResultsPhase
+								winnerId={winnerId}
+								submissions={submissions}
+								votes={votes}
+								players={
+									connectedPlayers.length > 0 ? connectedPlayers : players
+								}
+								onNextRound={handleNextRound}
+							/>
+						</>
 					)}
 
 					{phase === "insights" && (
