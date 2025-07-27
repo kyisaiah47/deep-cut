@@ -77,19 +77,35 @@ export default function Lobby({
 		}, 500);
 
 		const subscribe = supabase
-			.channel("room-players")
+			.channel(`room-players-${groupCode}`)
 			.on(
 				"postgres_changes",
 				{ event: "INSERT", schema: "public", table: "players" },
 				(payload) => {
-					if (payload?.new?.room_code === groupCode) fetchPlayers();
+					if (payload?.new?.room_code === groupCode) {
+						fetchPlayers();
+					}
 				}
 			)
 			.on(
 				"postgres_changes",
 				{ event: "DELETE", schema: "public", table: "players" },
 				(payload) => {
-					if (payload?.old?.room_code === groupCode) fetchPlayers();
+					if (payload?.old?.room_code === groupCode) {
+						fetchPlayers();
+					}
+				}
+			)
+			.on(
+				"postgres_changes",
+				{ event: "UPDATE", schema: "public", table: "players" },
+				(payload) => {
+					if (
+						payload?.new?.room_code === groupCode ||
+						payload?.old?.room_code === groupCode
+					) {
+						fetchPlayers();
+					}
 				}
 			)
 			.subscribe();
@@ -144,26 +160,83 @@ export default function Lobby({
 				</p>
 
 				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-4">
+					<div className="flex justify-between items-center mb-2 px-1">
+						<span className="text-xs text-zinc-400">
+							Players ({players.length})
+						</span>
+						{players.length < 3 && (
+							<span className="text-xs text-yellow-400 animate-pulse">
+								Need 3+ to start
+							</span>
+						)}
+					</div>
 					<ul className="text-zinc-200 space-y-1 text-left">
 						{players.map((p, i) => (
-							<li key={i}>
-								{icons[i % icons.length]} {p}
-							</li>
+							<motion.li
+								key={`${p}-${i}`}
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								exit={{ opacity: 0, x: -20 }}
+								transition={{ duration: 0.2, delay: i * 0.05 }}
+								className="flex items-center gap-2 p-1 rounded hover:bg-zinc-700/30 transition-colors"
+							>
+								<span className="text-lg">{icons[i % icons.length]}</span>
+								<span
+									className={
+										p === playerName ? "text-pink-400 font-medium" : ""
+									}
+								>
+									{p}
+								</span>
+								{p === playerName && (
+									<span className="text-xs text-pink-500">(you)</span>
+								)}
+							</motion.li>
 						))}
+						{players.length === 0 && (
+							<li className="text-center text-zinc-500 py-4">
+								Waiting for players to join...
+							</li>
+						)}
 					</ul>
 				</div>
+
+				{players.length < 3 ? (
+					<div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+						<p className="text-sm text-yellow-200 flex items-center gap-2">
+							<span className="text-lg">⚠️</span>
+							<span>Need at least 3 players to start the game</span>
+						</p>
+						<p className="text-xs text-yellow-400 mt-1">
+							Share the room code with friends to get started!
+						</p>
+					</div>
+				) : (
+					<div className="mb-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
+						<p className="text-sm text-green-200 flex items-center gap-2">
+							<span className="text-lg">✅</span>
+							<span>Ready to start! Everyone&apos;s here</span>
+						</p>
+					</div>
+				)}
 
 				<p className="text-sm italic text-zinc-500 mb-4">{tip}</p>
 
 				<Button
 					onClick={() => onReady(players)}
-					disabled={players.length < 2}
+					disabled={players.length < 3}
 					className={
-						"w-full py-3 text-base font-medium text-red-200 bg-zinc-900 border border-red-700 rounded-lg hover:bg-red-900 hover:text-white transition-all duration-300 ease-in-out shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] hover:shadow-[0_0_20px_rgba(185,28,28,0.7)]" +
-						(players.length >= 2 ? "shadow-lg shadow-pink-400/40" : "")
+						"w-full py-3 text-base font-medium transition-all duration-300 ease-in-out " +
+						(players.length >= 3
+							? "text-red-200 bg-zinc-900 border border-red-700 rounded-lg hover:bg-red-900 hover:text-white shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] hover:shadow-[0_0_20px_rgba(185,28,28,0.7)] shadow-lg shadow-pink-400/40"
+							: "text-zinc-500 bg-zinc-800 border border-zinc-600 rounded-lg cursor-not-allowed opacity-50")
 					}
 				>
-					Start Game
+					{players.length < 3
+						? `Need ${3 - players.length} more player${
+								3 - players.length === 1 ? "" : "s"
+						  }`
+						: "Start Game"}
 				</Button>
 			</motion.div>
 		</main>

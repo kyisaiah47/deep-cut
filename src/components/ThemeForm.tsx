@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import FloatingBackground from "./FloatingBackground";
+import { cn } from "@/lib/utils";
 
 const kiroMessages = [
 	"Choose your arena of destruction...",
@@ -118,8 +119,12 @@ export default function ThemeForm({
 					<Button
 						onClick={handleRandomTheme}
 						disabled={isGenerating}
-						variant="outline"
-						className="w-full border-zinc-600 text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50"
+						className={cn(
+							"w-full justify-center rounded-md text-white font-semibold",
+							"bg-gradient-to-r from-pink-500 via-yellow-400 to-blue-500 bg-[length:300%_300%] animate-rainbow",
+							"hover:brightness-110 transition-all duration-200 ease-in-out",
+							"disabled:opacity-50 disabled:cursor-not-allowed"
+						)}
 					>
 						{isGenerating ? (
 							<>
