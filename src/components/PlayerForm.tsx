@@ -53,6 +53,9 @@ export default function PlayerForm({
 				<h2 className="text-xl font-bold text-white animate-pulse drop-shadow">
 					Enter Your Name
 				</h2>
+				<p className="text-xs text-zinc-500 italic -mt-2">
+					💡 Tip: Use the same username if reconnecting to an existing game
+				</p>
 				<input
 					type="text"
 					value={name}

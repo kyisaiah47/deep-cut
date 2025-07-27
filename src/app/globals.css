@@ -120,3 +120,12 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+@keyframes rainbowGlow {
+	0% {
+		filter: hue-rotate(0deg);
+	}
+	100% {
+		filter: hue-rotate(360deg);
+	}
+}

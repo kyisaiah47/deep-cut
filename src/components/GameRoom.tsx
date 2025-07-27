@@ -88,7 +88,7 @@ export default function GameRoom({
 				<span>👋 {playerName}</span>
 				<span>
 					Group Code:{" "}
-					<code className="text-yellow-300 font-mono">{groupCode}</code>
+					<code className="text-pink-500 font-mono">{groupCode}</code>
 				</span>
 				<span>Round {round}</span>
 			</div>
@@ -104,7 +104,7 @@ export default function GameRoom({
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.2 }}
-						className="text-lg font-medium leading-tight text-yellow-300 mb-8 px-4 drop-shadow-[0_0_2px_#fde04788]"
+						className="text-lg font-medium leading-tight mb-8 px-4 drop-shadow-[0_0_2px_#ec489888]"
 					>
 						<span
 							className="mr-2 text-2xl animate-pulse"

@@ -28,7 +28,7 @@ export default function ResultsPhase({
 				))}
 			</ul>
 			<button
-				className="mt-6 px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+				className="mt-6 px-4 py-2 bg-pink-400 text-black rounded hover:bg-pink-500 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
 				onClick={onNextRound}
 			>
 				➡️ Next Round

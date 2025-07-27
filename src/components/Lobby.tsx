@@ -131,7 +131,7 @@ export default function Lobby({
 					Group Code:{" "}
 					<button
 						onClick={handleCopyCode}
-						className="text-yellow-300 font-mono cursor-pointer hover:text-yellow-200 hover:bg-zinc-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500 px-2 py-1 rounded transition-all duration-200 relative"
+						className="text-pink-500 font-mono cursor-pointer hover:text-pink-200 hover:bg-zinc-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500 px-2 py-1 rounded transition-all duration-200 relative"
 						title="Click to copy"
 					>
 						{groupCode}
@@ -160,7 +160,7 @@ export default function Lobby({
 					disabled={players.length < 2}
 					className={
 						"w-full transition-shadow hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500 " +
-						(players.length >= 2 ? "shadow-lg shadow-yellow-400/40" : "")
+						(players.length >= 2 ? "shadow-lg shadow-pink-400/40" : "")
 					}
 				>
 					Start Game
