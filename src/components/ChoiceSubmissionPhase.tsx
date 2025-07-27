@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ChoiceCard from "./game/ChoiceCard";
 
 interface PlayerChoices {
 	[player: string]: string[];
@@ -272,151 +273,143 @@ export default function ChoiceSubmissionPhase({
 					</motion.div>
 				)}
 
-				{/* Choice Cards Grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+				{/* Mystical Choice Cards Grid */}
+				<motion.div
+					initial={{ opacity: 0, scale: 0.9 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ delay: 0.3, duration: 0.5 }}
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 max-w-4xl mx-auto"
+				>
 					{currentPlayerChoices.map((choice, index) => (
-						<motion.div
+						<ChoiceCard
 							key={index}
-							initial={{ opacity: 0, x: -20, rotateY: -15 }}
-							animate={{ opacity: 1, x: 0, rotateY: 0 }}
-							transition={{
-								delay: index * 0.15,
-								type: "spring",
-								stiffness: 100,
-							}}
-							onClick={() =>
-								!disabled && !submitted && setSelectedChoice(choice)
-							}
-							className={`group relative p-6 rounded-lg border cursor-pointer transition-all duration-300 transform-gpu ${
-								selectedChoice === choice
-									? "bg-gradient-to-br from-pink-900/40 to-red-900/40 border-pink-500 scale-105 shadow-2xl shadow-pink-500/25"
-									: "bg-gradient-to-br from-zinc-800/60 to-zinc-900/60 border-zinc-600/50 hover:border-zinc-500 hover:bg-zinc-800/80"
-							} ${
-								disabled || submitted
-									? "opacity-50 cursor-not-allowed"
-									: "hover:scale-102"
-							}`}
-							whileHover={
-								!disabled && !submitted
-									? {
-											scale: selectedChoice === choice ? 1.05 : 1.02,
-											rotateY: 2,
-											rotateX: 1,
-									  }
-									: {}
-							}
-							whileTap={!disabled && !submitted ? { scale: 0.98 } : {}}
-						>
-							{/* Card background glow */}
-							{selectedChoice === choice && (
-								<motion.div
-									className="absolute inset-0 rounded-lg bg-gradient-to-br from-pink-500/20 to-red-500/20"
-									animate={{ opacity: [0.2, 0.4, 0.2] }}
-									transition={{ duration: 2, repeat: Infinity }}
-								/>
-							)}
-
-							{/* Selection indicator */}
-							<div
-								className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 transition-all ${
-									selectedChoice === choice
-										? "bg-pink-500 border-pink-400 shadow-lg shadow-pink-500/50"
-										: "border-zinc-600 group-hover:border-zinc-500"
-								}`}
-							>
-								{selectedChoice === choice && (
-									<motion.div
-										initial={{ scale: 0 }}
-										animate={{ scale: 1 }}
-										className="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-									/>
-								)}
-							</div>
-
-							{/* Choice text */}
-							<div className="relative z-10">
-								<p
-									className={`text-lg leading-relaxed transition-colors ${
-										selectedChoice === choice ? "text-pink-100" : "text-white"
-									}`}
-								>
-									{choice}
-								</p>
-							</div>
-
-							{/* Hover effect overlay */}
-							<motion.div
-								className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-								style={{ pointerEvents: "none" }}
-							/>
-						</motion.div>
+							text={choice}
+							selected={selectedChoice === choice}
+							onSelect={() => setSelectedChoice(choice)}
+							disabled={disabled || submitted}
+							index={index}
+						/>
 					))}
-				</div>
+				</motion.div>
 
-				{/* Submit Button */}
-				<motion.button
+				{/* Mystical Submit Button */}
+				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.8 }}
-					onClick={handleSubmit}
-					disabled={disabled || submitted || !selectedChoice}
-					className={`w-full py-4 px-8 rounded-lg font-bold text-lg transition-all duration-300 relative overflow-hidden ${
-						submitted
-							? "bg-gradient-to-r from-green-900/60 to-emerald-900/60 border-green-500/40 text-green-200"
-							: selectedChoice
-							? "bg-gradient-to-r from-pink-600 to-red-600 text-black hover:from-pink-500 hover:to-red-500 hover:shadow-xl hover:shadow-pink-500/25 transform hover:scale-[1.02]"
-							: "bg-gradient-to-r from-zinc-700 to-zinc-800 text-zinc-400 cursor-not-allowed"
-					} ${disabled && !submitted ? "opacity-50" : ""}`}
-					whileHover={
-						selectedChoice && !submitted && !disabled
-							? {
-									boxShadow: "0 0 30px rgba(236, 72, 153, 0.4)",
-							  }
-							: {}
-					}
-					whileTap={
-						selectedChoice && !submitted && !disabled ? { scale: 0.98 } : {}
-					}
+					className="relative max-w-md mx-auto"
 				>
-					{submitted ? (
-						<span className="flex items-center justify-center gap-2">
-							<motion.span
-								animate={{ rotate: 360 }}
-								transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-							>
-								✓
-							</motion.span>
-							Submitted to the void
+					<motion.button
+						onClick={handleSubmit}
+						disabled={disabled || submitted || !selectedChoice}
+						className={`
+							w-full py-4 px-8 rounded-xl font-bold text-lg relative overflow-hidden
+							transition-all duration-300 border-2
+							${
+								submitted
+									? "bg-gradient-to-r from-green-900/60 to-emerald-900/60 border-green-400/60 text-green-200"
+									: selectedChoice
+									? "bg-gradient-to-r from-pink-900/80 to-red-900/80 border-pink-500 text-pink-100 hover:from-pink-800/80 hover:to-red-800/80 hover:border-pink-400"
+									: "bg-gradient-to-r from-zinc-800/60 to-zinc-900/60 border-zinc-600 text-zinc-500 cursor-not-allowed"
+							}
+							${disabled && !submitted ? "opacity-50" : ""}
+						`}
+						whileHover={
+							selectedChoice && !submitted && !disabled
+								? {
+										scale: 1.02,
+										boxShadow: "0 0 30px rgba(236, 72, 153, 0.4)",
+								  }
+								: {}
+						}
+						whileTap={
+							selectedChoice && !submitted && !disabled ? { scale: 0.98 } : {}
+						}
+					>
+						{/* Button text with mystical styling */}
+						<span className="relative z-10 flex items-center justify-center gap-2">
+							{submitted ? (
+								<>
+									<motion.span
+										initial={{ scale: 0 }}
+										animate={{ scale: 1 }}
+										className="text-xl"
+									>
+										✦
+									</motion.span>
+									<span>Choice Sealed in Darkness</span>
+									<motion.span
+										initial={{ scale: 0 }}
+										animate={{ scale: 1 }}
+										className="text-xl"
+									>
+										✦
+									</motion.span>
+								</>
+							) : selectedChoice ? (
+								<>
+									<motion.span
+										animate={{ rotate: 360 }}
+										transition={{
+											duration: 2,
+											repeat: Infinity,
+											ease: "linear",
+										}}
+										className="text-xl"
+									>
+										◆
+									</motion.span>
+									<span>Offer to Kiro</span>
+									<motion.span
+										animate={{ rotate: -360 }}
+										transition={{
+											duration: 2,
+											repeat: Infinity,
+											ease: "linear",
+										}}
+										className="text-xl"
+									>
+										◆
+									</motion.span>
+								</>
+							) : (
+								<>
+									<span className="text-zinc-400">⬦</span>
+									<span>Select Your Fate</span>
+									<span className="text-zinc-400">⬦</span>
+								</>
+							)}
 						</span>
-					) : selectedChoice ? (
-						"Submit to Kiro"
-					) : (
-						"Select your confession"
-					)}
 
-					{/* Button glow effect */}
-					{selectedChoice && !submitted && (
-						<motion.div
-							className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-red-500/20"
-							animate={{ opacity: [0.3, 0.6, 0.3] }}
-							transition={{ duration: 1.5, repeat: Infinity }}
-						/>
-					)}
-				</motion.button>
+						{/* Mystical button glow */}
+						{selectedChoice && !submitted && (
+							<motion.div
+								className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500/20 to-red-500/20"
+								animate={{ opacity: [0.2, 0.4, 0.2] }}
+								transition={{ duration: 2, repeat: Infinity }}
+							/>
+						)}
+					</motion.button>
+				</motion.div>
 
 				{/* Kiro's whispered approval */}
 				{selectedChoice && !submitted && (
 					<motion.div
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="mt-4 text-center"
+						className="mt-6 text-center"
 					>
-						<p className="text-zinc-500 text-sm italic">
-							💀{" "}
+						<p className="text-zinc-500 text-sm italic flex items-center justify-center gap-2">
+							<motion.span
+								animate={{ rotate: [0, 10, -10, 0] }}
+								transition={{ duration: 2, repeat: Infinity }}
+							>
+								💀
+							</motion.span>
 							<span className="text-red-400">
 								&ldquo;{selectedChoice}&rdquo;
-							</span>{" "}
-							- Kiro&apos;s interest is piqued...
+							</span>
+							<span>- Kiro&apos;s interest is piqued...</span>
 						</p>
 					</motion.div>
 				)}
