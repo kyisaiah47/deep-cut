@@ -255,7 +255,7 @@ export default function KiroWhispers({
 						</div>
 
 						{/* Speech bubble tail */}
-						<div className="absolute bottom-0 right-6 transform translate-y-1/2 w-3 h-3 bg-red-900/80 border-r border-b border-red-500/40 rotate-45" />
+						{/* <div className="absolute bottom-0 right-6 transform translate-y-1/2 w-3 h-3 bg-red-900/80 border-r border-b border-red-500/40 rotate-45" /> */}
 
 						{/* Ambient glow */}
 						<div className="absolute inset-0 rounded-lg bg-red-500/20 blur-xl scale-110 -z-10" />
