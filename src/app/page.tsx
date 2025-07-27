@@ -36,7 +36,6 @@ export default function Home() {
 			.maybeSingle();
 
 		if (error || !data) {
-			console.error("Room lookup failed:", error);
 			setError("Room not found. Please check the code.");
 		} else {
 			setGroupCode(data.code);
@@ -51,7 +50,7 @@ export default function Home() {
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			console.error("Copy failed", err);
+			// Copy failed silently
 		}
 	};
 
@@ -60,7 +59,6 @@ export default function Home() {
 		const { error } = await supabase.from("rooms").insert([{ code }]);
 
 		if (error) {
-			console.error("Room insert failed:", error);
 			setError("Failed to create group. Please try again.");
 			return;
 		}
