@@ -59,10 +59,16 @@ export default function GameRoom({
 	const [connectedPlayers, setConnectedPlayers] = useState<string[]>([]);
 	const [presenceMessage, setPresenceMessage] = useState<string>("");
 	const [roundProgression, setRoundProgression] = useState(false);
+	const [isMounted, setIsMounted] = useState(false);
 
 	// Timer state
 	const [timeLeft, setTimeLeft] = useState(30);
 	const [timerActive, setTimerActive] = useState(false);
+
+	// Set mounted state to prevent hydration issues
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	// Initialize presence tracking
 	useEffect(() => {
@@ -353,7 +359,11 @@ export default function GameRoom({
 							<span
 								className={`
 								w-1.5 h-1.5 rounded-full animate-pulse
-								${connectedPlayers.includes(player) ? "bg-green-400" : "bg-red-400"}
+								${
+									isMounted && connectedPlayers.includes(player)
+										? "bg-green-400"
+										: "bg-red-400"
+								}
 							`}
 							/>
 							<span
@@ -369,7 +379,7 @@ export default function GameRoom({
 							>
 								{player}
 							</span>
-							{!connectedPlayers.includes(player) && (
+							{isMounted && !connectedPlayers.includes(player) && (
 								<span className="text-red-400 text-xs opacity-75">offline</span>
 							)}
 						</div>
@@ -416,7 +426,7 @@ export default function GameRoom({
 							{groupCode}
 						</button>
 					</div>
-					{copied && (
+					{isMounted && copied && (
 						<motion.span
 							initial={{ opacity: 0, y: 10, scale: 0.8 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -430,7 +440,7 @@ export default function GameRoom({
 			</div>
 
 			{/* Presence message only when needed */}
-			{presenceMessage && (
+			{isMounted && presenceMessage && (
 				<div className="p-2 bg-red-900/20 backdrop-blur-md text-xs text-center text-yellow-400 animate-pulse border-b border-zinc-700/50 relative z-10">
 					{presenceMessage}
 				</div>
@@ -444,7 +454,7 @@ export default function GameRoom({
 					className="w-full max-w-6xl mx-auto text-center"
 				>
 					{/* Timer Display for Submission Phase */}
-					{phase === "submission" && timerActive && (
+					{isMounted && phase === "submission" && timerActive && (
 						<motion.div
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}

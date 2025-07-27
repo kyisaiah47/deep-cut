@@ -58,7 +58,7 @@ export default function ThemeForm({
 		setError("");
 
 		try {
-			const response = await fetch("/api/generate-theme", {
+			const response = await fetch("/api/generate-random-theme", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
