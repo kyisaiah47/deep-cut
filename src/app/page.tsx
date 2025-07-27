@@ -8,6 +8,7 @@ import confetti from "canvas-confetti";
 import { createClient } from "@supabase/supabase-js";
 import PlayerForm from "@/components/PlayerForm";
 import ThemeForm from "@/components/ThemeForm";
+import KiroIntro from "@/components/KiroIntro";
 import Lobby from "@/components/Lobby";
 import GameRoom from "@/components/GameRoom";
 import FloatingBackground from "@/components/FloatingBackground";
@@ -28,7 +29,7 @@ export default function Home() {
 	const [selectedTheme, setSelectedTheme] = useState("");
 	const [players, setPlayers] = useState<string[]>([]);
 	const [phase, setPhase] = useState<
-		"entry" | "theme" | "name" | "lobby" | "game"
+		"entry" | "theme" | "kiro-intro" | "name" | "lobby" | "game"
 	>("entry");
 	const [clickCount, setClickCount] = useState(0);
 	const [easterEgg, setEasterEgg] = useState(false);
@@ -130,8 +131,17 @@ export default function Home() {
 			<ThemeForm
 				onSubmit={(theme) => {
 					setSelectedTheme(theme);
-					setPhase("name");
+					setPhase("kiro-intro");
 				}}
+			/>
+		);
+	}
+
+	if (phase === "kiro-intro" && groupCode && selectedTheme) {
+		return (
+			<KiroIntro
+				theme={selectedTheme}
+				onContinue={() => setPhase("name")}
 			/>
 		);
 	}
