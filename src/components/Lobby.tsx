@@ -10,6 +10,14 @@ const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const tips = [
+	"Kiro knows when you're lying.",
+	"Someone in this room will betray you.",
+	"Only the worthy can press Start.",
+];
+
+const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
+
 export default function Lobby({
 	groupCode,
 	playerName,
@@ -20,22 +28,28 @@ export default function Lobby({
 	onReady: (players: string[]) => void;
 }) {
 	const [players, setPlayers] = useState<string[]>([]);
+	const [tip, setTip] = useState<string>("");
+
+	useEffect(() => {
+		setTip(tips[Math.floor(Math.random() * tips.length)]);
+		const interval = setInterval(() => {
+			setTip(tips[Math.floor(Math.random() * tips.length)]);
+		}, 7000);
+		return () => clearInterval(interval);
+	}, []);
 
 	useEffect(() => {
 		const upsertPlayer = async () => {
-			const { error } = await supabase
+			await supabase
 				.from("players")
 				.upsert(
 					{ name: playerName, room_code: groupCode },
 					{ onConflict: "room_code,name" }
 				);
-			if (error) {
-				// Handle error silently
-			}
 		};
 
 		const fetchPlayers = async () => {
-			const { data, error } = await supabase
+			const { data } = await supabase
 				.from("players")
 				.select("*")
 				.eq("room_code", groupCode);
@@ -43,9 +57,6 @@ export default function Lobby({
 			if (data) {
 				const playerNames = data.map((p) => p.name);
 				setPlayers(playerNames);
-			}
-			if (error) {
-				// Handle error silently
 			}
 		};
 
@@ -57,28 +68,16 @@ export default function Lobby({
 			.channel("room-players")
 			.on(
 				"postgres_changes",
-				{
-					event: "INSERT",
-					schema: "public",
-					table: "players",
-				},
+				{ event: "INSERT", schema: "public", table: "players" },
 				(payload) => {
-					if (payload?.new?.room_code === groupCode) {
-						fetchPlayers();
-					}
+					if (payload?.new?.room_code === groupCode) fetchPlayers();
 				}
 			)
 			.on(
 				"postgres_changes",
-				{
-					event: "DELETE",
-					schema: "public",
-					table: "players",
-				},
+				{ event: "DELETE", schema: "public", table: "players" },
 				(payload) => {
-					if (payload?.old?.room_code === groupCode) {
-						fetchPlayers();
-					}
+					if (payload?.old?.room_code === groupCode) fetchPlayers();
 				}
 			)
 			.subscribe();
@@ -86,14 +85,11 @@ export default function Lobby({
 		upsertPlayer();
 
 		const removePlayer = async () => {
-			const { error } = await supabase
+			await supabase
 				.from("players")
 				.delete()
 				.eq("room_code", groupCode)
 				.eq("name", playerName);
-			if (error) {
-				// Handle error silently
-			}
 		};
 
 		window.addEventListener("beforeunload", removePlayer);
@@ -107,31 +103,57 @@ export default function Lobby({
 	}, [groupCode, playerName]);
 
 	return (
-		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-zinc-900 text-white">
+		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
+			{/* Floating Emojis */}
+			{[...Array(12)].map((_, i) => (
+				<motion.div
+					key={i}
+					className="absolute text-5xl pointer-events-none"
+					style={{
+						top: `${Math.random() * 100}%`,
+						left: `${Math.random() * 100}%`,
+						rotate: `${Math.random() * 360}deg`,
+					}}
+					animate={{ y: [0, -10, 0], opacity: [0.2, 0.7, 0.2] }}
+					transition={{ repeat: Infinity, duration: 4 + Math.random() * 2 }}
+				>
+					{icons[i % icons.length]}
+				</motion.div>
+			))}
+
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.4 }}
-				className="text-center p-6 rounded-2xl shadow-xl bg-zinc-800 max-w-md w-full"
+				className="text-center p-6 rounded-2xl shadow-xl bg-zinc-800/90 backdrop-blur-md max-w-md w-full border border-zinc-700 relative z-10"
 			>
-				<h2 className="text-2xl font-semibold mb-2">Waiting Room</h2>
+				<h2 className="text-2xl font-semibold mb-2 drop-shadow animate-pulse">
+					Waiting Room
+				</h2>
 				<p className="text-zinc-400 text-sm mb-4">
 					Group Code:{" "}
 					<span className="text-yellow-300 font-mono">{groupCode}</span>
 				</p>
 
-				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-6">
+				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-4">
 					<ul className="text-zinc-200 space-y-1 text-left">
 						{players.map((p, i) => (
-							<li key={i}>👤 {p}</li>
+							<li key={i}>
+								{icons[i % icons.length]} {p}
+							</li>
 						))}
 					</ul>
 				</div>
 
+				<p className="text-sm italic text-zinc-500 mb-4">{tip}</p>
+
 				<Button
 					onClick={() => onReady(players)}
 					disabled={players.length < 2}
-					className="w-full"
+					className={
+						"w-full transition-shadow " +
+						(players.length >= 2 ? "shadow-lg shadow-yellow-400/40" : "")
+					}
 				>
 					Start Game
 				</Button>
