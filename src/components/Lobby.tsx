@@ -23,41 +23,56 @@ export default function Lobby({
 
 	useEffect(() => {
 		console.log(
-			"Mounting Lobby for groupCode:",
+			"🚀 Lobby: Mounting for groupCode:",
 			groupCode,
 			"and player:",
 			playerName
 		);
 
 		const upsertPlayer = async () => {
-			const { error } = await supabase
+			console.log(
+				"👤 Lobby: Upserting player:",
+				playerName,
+				"to room:",
+				groupCode
+			);
+			const { error, data } = await supabase
 				.from("players")
 				.upsert(
 					{ name: playerName, room_code: groupCode },
 					{ onConflict: "room_code,name" }
 				);
-			if (error) console.error("Upsert error:", error.message);
-			else console.log("Upserted player:", playerName);
+			if (error) {
+				console.error("❌ Lobby: Upsert error:", error.message);
+			} else {
+				console.log("✅ Lobby: Upserted player:", playerName, "result:", data);
+			}
 		};
 
 		const fetchPlayers = async () => {
+			console.log("📥 Lobby: Fetching players for room:", groupCode);
 			const { data, error } = await supabase
 				.from("players")
 				.select("*")
 				.eq("room_code", groupCode);
 
 			if (data) {
-				console.log("Fetched players:", data);
-				setPlayers(data.map((p) => p.name));
+				console.log("📥 Lobby: Fetched players data:", data);
+				const playerNames = data.map((p) => p.name);
+				console.log("👥 Lobby: Player names:", playerNames);
+				setPlayers(playerNames);
 			}
-			if (error) console.error("Fetch error:", error.message);
+			if (error) {
+				console.error("❌ Lobby: Fetch error:", error.message);
+			}
 		};
 
 		const timeout = setTimeout(() => {
-			console.log("Running delayed fetchPlayers()");
+			console.log("⏰ Lobby: Running delayed fetchPlayers()");
 			fetchPlayers();
 		}, 500);
 
+		console.log("🔗 Lobby: Setting up WebSocket subscription...");
 		const subscribe = supabase
 			.channel("room-players")
 			.on(
@@ -68,36 +83,95 @@ export default function Lobby({
 					table: "players",
 				},
 				(payload) => {
-					console.log("Subscription payload received:", payload);
+					console.log("🔥 Lobby: INSERT event received:", payload);
+					console.log("📡 Lobby: Full payload received:", payload);
+					console.log("🔍 Lobby: Expected groupCode:", groupCode);
+					console.log("📌 Lobby: Incoming room_code:", payload?.new?.room_code);
+					console.log("👤 Lobby: Incoming player name:", payload?.new?.name);
+
 					if (payload?.new?.room_code === groupCode) {
-						console.log("Payload matches group code, refetching...");
+						console.log(
+							"✅ Lobby: Payload matches group code, refetching players..."
+						);
 						fetchPlayers();
 					} else {
 						console.log(
-							"Payload room_code mismatch or malformed:",
-							payload?.new?.room_code
+							"❌ Lobby: Payload room_code mismatch or malformed:",
+							payload?.new?.room_code,
+							"expected:",
+							groupCode
 						);
 					}
 				}
 			)
-			.subscribe((status) =>
-				console.log("Subscribed to player inserts with status:", status)
-			);
+			.on(
+				"postgres_changes",
+				{
+					event: "DELETE",
+					schema: "public",
+					table: "players",
+				},
+				(payload) => {
+					console.log("🗑️ Lobby: DELETE event received:", payload);
+					console.log("📡 Lobby: Delete payload:", payload);
+					console.log("🔍 Lobby: Expected groupCode:", groupCode);
+					console.log(
+						"📌 Lobby: Deleted from room_code:",
+						payload?.old?.room_code
+					);
+
+					if (payload?.old?.room_code === groupCode) {
+						console.log(
+							"✅ Lobby: Delete matches group code, refetching players..."
+						);
+						fetchPlayers();
+					} else {
+						console.log(
+							"❌ Lobby: Delete room_code mismatch:",
+							payload?.old?.room_code,
+							"expected:",
+							groupCode
+						);
+					}
+				}
+			)
+			.subscribe((status) => {
+				console.log("🔗 Lobby: Channel subscription status:", status);
+				if (status === "SUBSCRIBED") {
+					console.log("✅ Lobby: Successfully subscribed to player changes");
+				} else if (status === "CHANNEL_ERROR") {
+					console.error("❌ Lobby: Channel subscription error");
+				} else if (status === "CLOSED") {
+					console.warn("⚠️ Lobby: Channel subscription closed");
+				}
+			});
 
 		upsertPlayer();
 
 		const removePlayer = async () => {
-			await supabase
+			console.log(
+				"🗑️ Lobby: Removing player:",
+				playerName,
+				"from room:",
+				groupCode
+			);
+			const { error } = await supabase
 				.from("players")
 				.delete()
 				.eq("room_code", groupCode)
 				.eq("name", playerName);
+			if (error) {
+				console.error("❌ Lobby: Error removing player:", error.message);
+			} else {
+				console.log("✅ Lobby: Successfully removed player:", playerName);
+			}
 		};
 
+		console.log("🎯 Lobby: Adding beforeunload event listener");
 		window.addEventListener("beforeunload", removePlayer);
 
 		return () => {
-			console.log("Unmounting and cleaning up subscription");
+			console.log("🧹 Lobby: Unmounting and cleaning up subscription");
 			clearTimeout(timeout);
 			supabase.removeChannel(subscribe);
 			window.removeEventListener("beforeunload", removePlayer);
