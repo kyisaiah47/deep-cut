@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +21,25 @@ export default function ResultsPhase({
 	onNextRound,
 	isProgressing = false,
 }: ResultsPhaseProps) {
+	const [countdown, setCountdown] = useState(3);
+
+	// Countdown effect when component mounts
+	useEffect(() => {
+		if (countdown > 0) {
+			const interval = setInterval(() => {
+				setCountdown((prev) => {
+					if (prev <= 1) {
+						clearInterval(interval);
+						return 0;
+					}
+					return prev - 1;
+				});
+			}, 1000);
+
+			return () => clearInterval(interval);
+		}
+	}, [countdown]);
+
 	// Calculate vote tally for visual representation
 	const voteTally = Object.values(votes).reduce((acc, votedFor) => {
 		acc[votedFor] = (acc[votedFor] || 0) + 1;
@@ -218,16 +238,22 @@ export default function ResultsPhase({
 			>
 				<Button
 					onClick={onNextRound}
-					disabled={isProgressing}
+					disabled={isProgressing || countdown > 0}
 					size="lg"
 					className={`px-6 py-3 text-base font-bold rounded-xl transition-all duration-300 ${
-						isProgressing
+						isProgressing || countdown > 0
 							? "bg-gray-600 text-gray-400 cursor-not-allowed"
 							: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]"
 					}`}
 				>
-					<span className="mr-2">{isProgressing ? "⏳" : "🚀"}</span>
-					{isProgressing ? "Starting Next Round..." : "Continue to Next Round"}
+					<span className="mr-2">
+						{isProgressing ? "⏳" : countdown > 0 ? "⏰" : "🚀"}
+					</span>
+					{isProgressing
+						? "Starting Next Round..."
+						: countdown > 0
+						? `Ready in ${countdown}...`
+						: "Continue to Next Round"}
 				</Button>
 			</motion.div>
 		</motion.div>

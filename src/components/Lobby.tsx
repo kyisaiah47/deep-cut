@@ -36,6 +36,7 @@ export default function Lobby({
 	const [theme, setTheme] = useState<string>(selectedTheme || "");
 	const [isStartingGame, setIsStartingGame] = useState(false);
 	const [gameStarted, setGameStarted] = useState(false);
+	const [countdown, setCountdown] = useState(0);
 
 	const startGame = async () => {
 		if (players.length < 3 || gameStarted || isStartingGame) return;
@@ -84,6 +85,29 @@ export default function Lobby({
 			setTheme(selectedTheme);
 		}
 	}, [selectedTheme, theme]);
+
+	// Countdown effect when players are ready
+	useEffect(() => {
+		if (
+			players.length >= 3 &&
+			!gameStarted &&
+			!isStartingGame &&
+			countdown === 0
+		) {
+			setCountdown(3);
+			const interval = setInterval(() => {
+				setCountdown((prev) => {
+					if (prev <= 1) {
+						clearInterval(interval);
+						return 0;
+					}
+					return prev - 1;
+				});
+			}, 1000);
+
+			return () => clearInterval(interval);
+		}
+	}, [players.length, gameStarted, isStartingGame, countdown]);
 
 	useEffect(() => {
 		// Fetch room theme from database and check game state
@@ -346,16 +370,23 @@ export default function Lobby({
 
 				<Button
 					onClick={startGame}
-					disabled={players.length < 3 || gameStarted || isStartingGame}
+					disabled={
+						players.length < 3 || gameStarted || isStartingGame || countdown > 0
+					}
 					className={
 						"w-full py-3 text-base font-medium transition-all duration-300 ease-in-out " +
-						(players.length >= 3 && !gameStarted && !isStartingGame
+						(players.length >= 3 &&
+						!gameStarted &&
+						!isStartingGame &&
+						countdown === 0
 							? "text-white bg-red-900 border border-red-700 rounded-lg hover:bg-zinc-900 hover:text-red-200 shadow-[0_0_20px_rgba(185,28,28,0.7)] hover:shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] shadow-lg shadow-pink-400/40"
 							: "text-zinc-500 bg-zinc-800 border border-zinc-600 rounded-lg cursor-not-allowed opacity-50")
 					}
 				>
 					{gameStarted || isStartingGame
 						? "Starting Game..."
+						: countdown > 0
+						? `Ready in ${countdown}...`
 						: players.length < 3
 						? `Need ${3 - players.length} more player${
 								3 - players.length === 1 ? "" : "s"
