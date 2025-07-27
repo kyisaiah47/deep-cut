@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 
 export default function PlayerSubmission({
 	player,
@@ -12,31 +11,37 @@ export default function PlayerSubmission({
 	onSubmit: (answer: string) => void;
 	disabled: boolean;
 }) {
-	const [input, setInput] = useState("");
+	const [answer, setAnswer] = useState("");
+	const [error, setError] = useState("");
+
+	const handleSubmit = () => {
+		if (!answer.trim()) {
+			setError("Please enter a valid response.");
+			return;
+		}
+		setError("");
+		onSubmit(answer.trim());
+	};
 
 	return (
-		<div className="bg-zinc-700 p-4 rounded-xl w-full max-w-sm mx-auto">
-			<h4 className="text-lg font-medium text-white mb-2">{player}</h4>
+		<div className="bg-zinc-800 p-6 rounded-xl w-full max-w-md mx-auto">
+			<h2 className="text-xl font-semibold mb-4 text-white">{player}</h2>
 			<input
 				type="text"
-				value={input}
-				onChange={(e) => setInput(e.target.value)}
-				disabled={disabled}
+				value={answer}
+				onChange={(e) => setAnswer(e.target.value)}
+				className="w-full px-4 py-2 rounded-md bg-zinc-900 border border-zinc-700 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-300"
 				placeholder="Enter your answer..."
-				className="w-full p-2 rounded bg-zinc-800 text-white outline-none disabled:opacity-50"
-			/>
-			<Button
-				className="mt-2 w-full"
-				onClick={() => {
-					if (input.trim()) {
-						onSubmit(input.trim());
-						setInput("");
-					}
-				}}
 				disabled={disabled}
+			/>
+			{error && <p className="text-red-400 mt-2 text-sm text-left">{error}</p>}
+			<button
+				onClick={handleSubmit}
+				disabled={disabled}
+				className="w-full mt-4 py-2 bg-yellow-300 text-black font-semibold rounded-md hover:bg-yellow-400 transition disabled:opacity-50"
 			>
 				Submit
-			</Button>
+			</button>
 		</div>
 	);
 }
