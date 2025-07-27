@@ -21,6 +21,7 @@ export default function ThemeForm({
 	const [selectedTheme, setSelectedTheme] = useState("");
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
+	const [isGenerating, setIsGenerating] = useState(false);
 
 	useEffect(() => {
 		const rotate = () => {
@@ -37,6 +38,51 @@ export default function ThemeForm({
 			onSubmit(selectedTheme.trim());
 		} else {
 			setError("Please enter a theme.");
+		}
+	};
+
+	const handleRandomTheme = async () => {
+		setIsGenerating(true);
+		setError("");
+
+		try {
+			const response = await fetch("/api/generate-theme", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					prompt:
+						"Generate a fun, weird, or emotionally charged game theme for a chaotic friend group. Make it unexpected and slightly unhinged but appropriate for adults. Examples: 'Daddy Issues & Deli Meats', 'Corporate Nightmares', 'Childhood Traumas & Snacks'. Just return the theme name, nothing else.",
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error("Failed to generate theme");
+			}
+
+			const data = await response.json();
+			setSelectedTheme(data.theme || "Chaotic Friendship Dynamics");
+		} catch (error) {
+			console.error("Error generating theme:", error);
+			// Fallback to predefined chaotic themes
+			const fallbackThemes = [
+				"Daddy Issues & Deli Meats",
+				"Corporate Nightmares",
+				"Childhood Traumas & Snacks",
+				"Toxic Ex Stories",
+				"Family Drama & Fast Food",
+				"Quarter Life Crisis Vibes",
+				"Awkward First Dates",
+				"Embarrassing College Memories",
+				"Work Gossip & Wine",
+				"Secret Guilty Pleasures",
+			];
+			const randomTheme =
+				fallbackThemes[Math.floor(Math.random() * fallbackThemes.length)];
+			setSelectedTheme(randomTheme);
+		} finally {
+			setIsGenerating(false);
 		}
 	};
 
@@ -68,6 +114,22 @@ export default function ThemeForm({
 						className="w-full px-4 py-3 rounded-lg bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center border-2 border-zinc-600 focus:border-pink-500 transition-colors"
 						maxLength={100}
 					/>
+
+					<Button
+						onClick={handleRandomTheme}
+						disabled={isGenerating}
+						variant="outline"
+						className="w-full border-zinc-600 text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50"
+					>
+						{isGenerating ? (
+							<>
+								<span className="animate-spin mr-2">🎲</span>
+								Summoning chaos...
+							</>
+						) : (
+							<>🎲 I&apos;m feeling chaotic</>
+						)}
+					</Button>
 				</div>
 				<Button
 					onClick={handleSubmit}
