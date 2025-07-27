@@ -88,15 +88,16 @@ export default function Home() {
 			const { data, error } = await supabase
 				.from("rooms")
 				.select("*")
-				.eq("code", manualCode.toUpperCase())
+				.eq("room_code", manualCode.toUpperCase())
 				.maybeSingle();
 
+			console.log("Room data:", data);
 			if (error) {
 				setError("Failed to check room. Please try again.");
 			} else if (!data) {
 				setError("Room not found. Please check the code and try again.");
 			} else {
-				setGroupCode(data.code);
+				setGroupCode(data.room_code);
 				// Set the theme from the database if it exists
 				if (data.theme) {
 					setSelectedTheme(data.theme);
@@ -120,7 +121,9 @@ export default function Home() {
 	const handleNewGroup = async () => {
 		playWhisper();
 		const code = nanoid(6).toUpperCase();
-		const { error } = await supabase.from("rooms").insert([{ code }]);
+		const { error } = await supabase
+			.from("rooms")
+			.insert([{ room_code: code }]);
 
 		if (error) {
 			setError("Failed to create group. Please try again.");
@@ -147,8 +150,8 @@ export default function Home() {
 					// First verify the room exists
 					const { data: roomCheck } = await supabase
 						.from("rooms")
-						.select("code")
-						.eq("code", groupCode)
+						.select("room_code")
+						.eq("room_code", groupCode)
 						.maybeSingle();
 
 					if (!roomCheck) {
@@ -159,7 +162,7 @@ export default function Home() {
 					const { error } = await supabase
 						.from("rooms")
 						.update({ theme })
-						.eq("code", groupCode);
+						.eq("room_code", groupCode);
 
 					if (error) {
 						console.error("Failed to save theme:", error);

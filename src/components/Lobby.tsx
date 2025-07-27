@@ -88,7 +88,7 @@ export default function Lobby({
 			const { data } = await supabase
 				.from("rooms")
 				.select("theme, game_started")
-				.eq("code", groupCode)
+				.eq("room_code", groupCode)
 				.maybeSingle();
 
 			if (data?.theme && data.theme !== theme) {
@@ -210,7 +210,7 @@ export default function Lobby({
 				await supabase
 					.from("rooms")
 					.update({ game_started: false })
-					.eq("code", groupCode);
+					.eq("room_code", groupCode);
 			}
 		};
 
