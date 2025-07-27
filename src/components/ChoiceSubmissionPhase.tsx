@@ -1,11 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PlayerChoices {
 	[player: string]: string[];
 }
+
+const kiroCommentaries = [
+	"One of these choices is a lie you've told yourself.",
+	"Don't take too long. The void is patient, but I'm not.",
+	"Your truth is written in the shadows between these words.",
+	"Choose the one that haunts you at 3 AM.",
+	"The correct answer died with your innocence.",
+	"Which confession will you wear like a crown?",
+	"Your choice echoes in dimensions you cannot see.",
+	"Pick the one that makes your reflection blink first.",
+];
 
 export default function ChoiceSubmissionPhase({
 	prompt,
@@ -27,6 +38,8 @@ export default function ChoiceSubmissionPhase({
 	const [loading, setLoading] = useState(true);
 	const [submitted, setSubmitted] = useState(false);
 	const [error, setError] = useState("");
+	const [kiroCommentary, setKiroCommentary] = useState<string>("");
+	const [showCommentary, setShowCommentary] = useState(false);
 
 	// Generate choices when component mounts
 	useEffect(() => {
@@ -77,6 +90,37 @@ export default function ChoiceSubmissionPhase({
 		generateChoices();
 	}, [prompt, theme, players]);
 
+	// Kiro commentary timer
+	useEffect(() => {
+		if (loading || submitted) return;
+
+		const showRandomCommentary = () => {
+			const randomComment =
+				kiroCommentaries[Math.floor(Math.random() * kiroCommentaries.length)];
+			setKiroCommentary(randomComment);
+			setShowCommentary(true);
+
+			// Hide after 4 seconds
+			setTimeout(() => setShowCommentary(false), 4000);
+		};
+
+		// Show first commentary after 8 seconds
+		const firstTimer = setTimeout(showRandomCommentary, 8000);
+
+		// Then show random commentary every 15-20 seconds
+		const intervalTimer = setInterval(() => {
+			if (Math.random() > 0.3) {
+				// 70% chance to show
+				showRandomCommentary();
+			}
+		}, 15000 + Math.random() * 5000);
+
+		return () => {
+			clearTimeout(firstTimer);
+			clearInterval(intervalTimer);
+		};
+	}, [loading, submitted]);
+
 	const handleSubmit = () => {
 		if (!selectedChoice) {
 			setError("Please select one of Kiro's offerings.");
@@ -91,114 +135,325 @@ export default function ChoiceSubmissionPhase({
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center p-8">
+			<div className="relative min-h-[60vh] flex items-center justify-center">
+				{/* Atmospheric background */}
+				<div className="absolute inset-0 bg-gradient-to-br from-zinc-900/60 via-purple-900/20 to-red-900/30 rounded-lg backdrop-blur-sm" />
+
+				{/* Floating particles */}
+				{[...Array(8)].map((_, i) => (
+					<motion.div
+						key={i}
+						className="absolute w-1 h-1 bg-red-500/40 rounded-full"
+						animate={{
+							x: [0, Math.random() * 100 - 50],
+							y: [0, Math.random() * 100 - 50],
+							opacity: [0.2, 0.8, 0.2],
+						}}
+						transition={{
+							duration: 3 + Math.random() * 2,
+							repeat: Infinity,
+							ease: "easeInOut",
+						}}
+						style={{
+							left: `${20 + Math.random() * 60}%`,
+							top: `${20 + Math.random() * 60}%`,
+						}}
+					/>
+				))}
+
 				<motion.div
 					animate={{ rotate: 360 }}
 					transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-					className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full"
+					className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full relative z-10"
 				/>
-				<span className="ml-4 text-white">
-					Kiro is crafting your choices...
+				<span className="ml-4 text-white relative z-10">
+					Kiro is crafting your fate...
 				</span>
 			</div>
 		);
 	}
 
 	return (
-		<div className="max-w-2xl mx-auto">
-			{/* Player identification */}
-			<motion.div
-				initial={{ opacity: 0, y: -10 }}
-				animate={{ opacity: 1, y: 0 }}
-				className="text-center mb-6"
-			>
-				<h2 className="text-xl font-semibold text-white mb-2">
-					{currentPlayer}
-				</h2>
-				<p className="text-zinc-400 text-sm">
-					Choose from Kiro&apos;s twisted offerings
-				</p>
-			</motion.div>
+		<div className="relative max-w-4xl mx-auto">
+			{/* Atmospheric background mist */}
+			<div className="absolute inset-0 bg-gradient-to-br from-zinc-900/40 via-purple-900/20 to-red-900/20 rounded-2xl backdrop-blur-sm border border-zinc-700/30" />
 
-			{/* Error message */}
-			{error && (
+			{/* Floating atmospheric particles */}
+			{[...Array(12)].map((_, i) => (
 				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					className="mb-4 p-3 bg-red-900/40 border border-red-500/40 rounded-lg text-red-200 text-sm text-center"
-				>
-					{error}
-				</motion.div>
-			)}
+					key={i}
+					className="absolute w-1 h-1 bg-red-400/30 rounded-full"
+					animate={{
+						x: [0, Math.random() * 200 - 100],
+						y: [0, Math.random() * 200 - 100],
+						opacity: [0.1, 0.6, 0.1],
+						scale: [0.5, 1.2, 0.5],
+					}}
+					transition={{
+						duration: 4 + Math.random() * 3,
+						repeat: Infinity,
+						ease: "easeInOut",
+						delay: Math.random() * 2,
+					}}
+					style={{
+						left: `${10 + Math.random() * 80}%`,
+						top: `${10 + Math.random() * 80}%`,
+					}}
+				/>
+			))}
 
-			{/* Choice selection */}
-			<div className="space-y-3 mb-6">
-				{currentPlayerChoices.map((choice, index) => (
-					<motion.button
-						key={index}
-						initial={{ opacity: 0, x: -20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ delay: index * 0.1 }}
-						onClick={() => !disabled && !submitted && setSelectedChoice(choice)}
-						disabled={disabled || submitted}
-						className={`w-full p-4 text-left rounded-lg border transition-all duration-200 ${
-							selectedChoice === choice
-								? "bg-pink-500/20 border-pink-500 text-pink-100 shadow-lg shadow-pink-500/20"
-								: "bg-zinc-900/60 border-zinc-700 text-white hover:bg-zinc-800/60 hover:border-zinc-600"
-						} ${
-							disabled || submitted
-								? "opacity-50 cursor-not-allowed"
-								: "cursor-pointer"
-						}`}
+			<div className="relative z-10 p-8">
+				{/* Prompt Section with Surreal Styling */}
+				<motion.div
+					initial={{ opacity: 0, y: -20 }}
+					animate={{ opacity: 1, y: 0 }}
+					className="text-center mb-8"
+				>
+					<motion.h2
+						className="text-3xl text-zinc-100 text-center mb-3 relative"
+						animate={{
+							textShadow: [
+								"0 0 10px rgba(239, 68, 68, 0.3)",
+								"0 0 20px rgba(239, 68, 68, 0.5)",
+								"0 0 10px rgba(239, 68, 68, 0.3)",
+							],
+						}}
+						transition={{ duration: 3, repeat: Infinity }}
 					>
-						<div className="flex items-center">
-							<div
-								className={`w-4 h-4 rounded-full border-2 mr-3 ${
-									selectedChoice === choice
-										? "bg-pink-500 border-pink-500"
-										: "border-zinc-600"
-								}`}
-							/>
-							<span className="font-medium">{choice}</span>
+						{prompt}
+						{/* Subtle flicker underline */}
+						<motion.div
+							className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent"
+							animate={{
+								width: ["20%", "60%", "20%"],
+								opacity: [0.3, 0.8, 0.3],
+							}}
+							transition={{ duration: 2.5, repeat: Infinity }}
+						/>
+					</motion.h2>
+
+					<motion.p
+						className="text-sm text-zinc-400 text-center italic"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ delay: 0.5 }}
+					>
+						Choose wisely. Kiro is watching through the cracks.
+					</motion.p>
+				</motion.div>
+
+				<motion.div
+					initial={{ opacity: 0, scale: 0.9 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ delay: 0.3 }}
+					className="text-center mb-8"
+				>
+					<div className="inline-block px-6 py-2 bg-gradient-to-r from-purple-900/40 to-red-900/40 rounded-full border border-purple-500/30">
+						<span className="text-lg font-medium text-purple-200">
+							{currentPlayer}
+						</span>
+						<span className="text-zinc-400 text-sm ml-2">
+							• Your private choices
+						</span>
+					</div>
+				</motion.div>
+
+				{/* Error message with atmospheric styling */}
+				{error && (
+					<motion.div
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="mb-6 p-4 bg-gradient-to-r from-red-900/60 to-purple-900/40 rounded-lg border border-red-500/50"
+					>
+						<div className="flex items-center justify-center gap-2">
+							<span className="text-red-400 animate-pulse">⚠️</span>
+							<span className="text-red-200 text-sm">{error}</span>
 						</div>
-					</motion.button>
-				))}
+					</motion.div>
+				)}
+
+				{/* Choice Cards Grid */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+					{currentPlayerChoices.map((choice, index) => (
+						<motion.div
+							key={index}
+							initial={{ opacity: 0, x: -20, rotateY: -15 }}
+							animate={{ opacity: 1, x: 0, rotateY: 0 }}
+							transition={{
+								delay: index * 0.15,
+								type: "spring",
+								stiffness: 100,
+							}}
+							onClick={() =>
+								!disabled && !submitted && setSelectedChoice(choice)
+							}
+							className={`group relative p-6 rounded-lg border cursor-pointer transition-all duration-300 transform-gpu ${
+								selectedChoice === choice
+									? "bg-gradient-to-br from-pink-900/40 to-red-900/40 border-pink-500 scale-105 shadow-2xl shadow-pink-500/25"
+									: "bg-gradient-to-br from-zinc-800/60 to-zinc-900/60 border-zinc-600/50 hover:border-zinc-500 hover:bg-zinc-800/80"
+							} ${
+								disabled || submitted
+									? "opacity-50 cursor-not-allowed"
+									: "hover:scale-102"
+							}`}
+							whileHover={
+								!disabled && !submitted
+									? {
+											scale: selectedChoice === choice ? 1.05 : 1.02,
+											rotateY: 2,
+											rotateX: 1,
+									  }
+									: {}
+							}
+							whileTap={!disabled && !submitted ? { scale: 0.98 } : {}}
+						>
+							{/* Card background glow */}
+							{selectedChoice === choice && (
+								<motion.div
+									className="absolute inset-0 rounded-lg bg-gradient-to-br from-pink-500/20 to-red-500/20"
+									animate={{ opacity: [0.2, 0.4, 0.2] }}
+									transition={{ duration: 2, repeat: Infinity }}
+								/>
+							)}
+
+							{/* Selection indicator */}
+							<div
+								className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 transition-all ${
+									selectedChoice === choice
+										? "bg-pink-500 border-pink-400 shadow-lg shadow-pink-500/50"
+										: "border-zinc-600 group-hover:border-zinc-500"
+								}`}
+							>
+								{selectedChoice === choice && (
+									<motion.div
+										initial={{ scale: 0 }}
+										animate={{ scale: 1 }}
+										className="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+									/>
+								)}
+							</div>
+
+							{/* Choice text */}
+							<div className="relative z-10">
+								<p
+									className={`text-lg leading-relaxed transition-colors ${
+										selectedChoice === choice ? "text-pink-100" : "text-white"
+									}`}
+								>
+									{choice}
+								</p>
+							</div>
+
+							{/* Hover effect overlay */}
+							<motion.div
+								className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+								style={{ pointerEvents: "none" }}
+							/>
+						</motion.div>
+					))}
+				</div>
+
+				{/* Submit Button */}
+				<motion.button
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.8 }}
+					onClick={handleSubmit}
+					disabled={disabled || submitted || !selectedChoice}
+					className={`w-full py-4 px-8 rounded-lg font-bold text-lg transition-all duration-300 relative overflow-hidden ${
+						submitted
+							? "bg-gradient-to-r from-green-900/60 to-emerald-900/60 border-green-500/40 text-green-200"
+							: selectedChoice
+							? "bg-gradient-to-r from-pink-600 to-red-600 text-black hover:from-pink-500 hover:to-red-500 hover:shadow-xl hover:shadow-pink-500/25 transform hover:scale-[1.02]"
+							: "bg-gradient-to-r from-zinc-700 to-zinc-800 text-zinc-400 cursor-not-allowed"
+					} ${disabled && !submitted ? "opacity-50" : ""}`}
+					whileHover={
+						selectedChoice && !submitted && !disabled
+							? {
+									boxShadow: "0 0 30px rgba(236, 72, 153, 0.4)",
+							  }
+							: {}
+					}
+					whileTap={
+						selectedChoice && !submitted && !disabled ? { scale: 0.98 } : {}
+					}
+				>
+					{submitted ? (
+						<span className="flex items-center justify-center gap-2">
+							<motion.span
+								animate={{ rotate: 360 }}
+								transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+							>
+								✓
+							</motion.span>
+							Submitted to the void
+						</span>
+					) : selectedChoice ? (
+						"Submit to Kiro"
+					) : (
+						"Select your confession"
+					)}
+
+					{/* Button glow effect */}
+					{selectedChoice && !submitted && (
+						<motion.div
+							className="absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-red-500/20"
+							animate={{ opacity: [0.3, 0.6, 0.3] }}
+							transition={{ duration: 1.5, repeat: Infinity }}
+						/>
+					)}
+				</motion.button>
+
+				{/* Kiro's whispered approval */}
+				{selectedChoice && !submitted && (
+					<motion.div
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="mt-4 text-center"
+					>
+						<p className="text-zinc-500 text-sm italic">
+							💀{" "}
+							<span className="text-red-400">
+								&ldquo;{selectedChoice}&rdquo;
+							</span>{" "}
+							- Kiro&apos;s interest is piqued...
+						</p>
+					</motion.div>
+				)}
 			</div>
 
-			{/* Submit button */}
-			<motion.button
-				initial={{ opacity: 0, y: 10 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.5 }}
-				onClick={handleSubmit}
-				disabled={disabled || submitted || !selectedChoice}
-				className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
-					submitted
-						? "bg-green-500/20 border-green-500/40 text-green-300"
-						: selectedChoice
-						? "bg-pink-500 text-black hover:bg-pink-400 hover:shadow-lg"
-						: "bg-zinc-700 text-zinc-400 cursor-not-allowed"
-				} ${disabled && !submitted ? "opacity-50" : ""}`}
-			>
-				{submitted
-					? "✓ Choice submitted"
-					: selectedChoice
-					? "Submit to Kiro"
-					: "Select a choice"}
-			</motion.button>
+			{/* Kiro Commentary Bubble */}
+			<AnimatePresence>
+				{showCommentary && kiroCommentary && !submitted && (
+					<motion.div
+						initial={{ opacity: 0, scale: 0.8, y: 20 }}
+						animate={{ opacity: 1, scale: 1, y: 0 }}
+						exit={{ opacity: 0, scale: 0.8, y: -20 }}
+						className="absolute top-4 right-4 max-w-xs p-4 bg-gradient-to-br from-red-900/80 to-purple-900/80 rounded-lg border border-red-500/50 backdrop-blur-md"
+					>
+						<div className="flex items-start gap-2">
+							<motion.span
+								animate={{ scale: [1, 1.2, 1] }}
+								transition={{ duration: 2, repeat: Infinity }}
+								className="text-red-400 text-sm"
+							>
+								👁️
+							</motion.span>
+							<div>
+								<p className="text-red-200 text-xs font-semibold mb-1">
+									Kiro whispers:
+								</p>
+								<p className="text-red-100 text-xs italic leading-relaxed">
+									&ldquo;{kiroCommentary}&rdquo;
+								</p>
+							</div>
+						</div>
 
-			{/* Kiro's whisper */}
-			{selectedChoice && !submitted && (
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					className="mt-4 text-center"
-				>
-					<p className="text-zinc-500 text-xs italic">
-						💀 &ldquo;{selectedChoice}&rdquo; - Kiro approves...
-					</p>
-				</motion.div>
-			)}
+						{/* Speech bubble tail */}
+						<div className="absolute bottom-0 right-6 transform translate-y-1/2 w-3 h-3 bg-red-900/80 border-r border-b border-red-500/50 rotate-45" />
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</div>
 	);
 }
