@@ -11,7 +11,7 @@ export default function GameOverPhase({
 			<p className="mt-2 text-zinc-400">Thanks for playing!</p>
 			<Button
 				onClick={onReturnHome}
-				className="mt-6"
+				className="mt-6 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 				size="lg"
 			>
 				Return to Home

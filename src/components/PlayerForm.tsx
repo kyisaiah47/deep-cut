@@ -61,11 +61,11 @@ export default function PlayerForm({
 						setError("");
 					}}
 					placeholder="Your name..."
-					className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center"
+					className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 				/>
 				<Button
 					onClick={handleSubmit}
-					className="w-full"
+					className="w-full hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 				>
 					Continue
 				</Button>

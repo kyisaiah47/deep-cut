@@ -185,7 +185,7 @@ export default function Home() {
 						onChange={(e) => setManualCode(e.target.value.toUpperCase())}
 						maxLength={6}
 						placeholder="Enter Group Code (e.g. X4Q7LB)"
-						className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center tracking-widest uppercase"
+						className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center tracking-widest uppercase hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 					/>
 					<Button
 						onClick={handleJoin}
@@ -226,7 +226,7 @@ export default function Home() {
 						</span>
 						<button
 							onClick={() => handleCopy(groupCode)}
-							className="text-zinc-400 hover:text-white transition"
+							className="text-zinc-400 hover:text-white transition hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500 p-1 rounded"
 						>
 							📋
 						</button>

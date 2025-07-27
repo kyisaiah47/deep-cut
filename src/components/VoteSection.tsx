@@ -18,7 +18,9 @@ export default function VoteSection({
 
 	return (
 		<div className="bg-zinc-700 p-4 rounded-xl">
-			<h4 className="text-lg font-medium text-white mb-2">{player}'s Vote</h4>
+			<h4 className="text-lg font-medium text-white mb-2">
+				{player}&apos;s Vote
+			</h4>
 			<div className="space-y-2">
 				{entries.map((entry) => (
 					<label
@@ -32,12 +34,12 @@ export default function VoteSection({
 							onChange={() => setSelected(entry.id)}
 							disabled={disabled}
 						/>
-						<span className="italic">"{entry.text}"</span>
+						<span className="italic">&ldquo;{entry.text}&rdquo;</span>
 					</label>
 				))}
 			</div>
 			<Button
-				className="mt-2"
+				className="mt-2 hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 				onClick={() => selected && onVote(selected)}
 				disabled={disabled || !selected}
 			>

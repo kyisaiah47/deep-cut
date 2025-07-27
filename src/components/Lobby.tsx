@@ -17,6 +17,8 @@ const tips = [
 	"Only the worthy can press Start.",
 ];
 
+const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
+
 export default function Lobby({
 	groupCode,
 	playerName,
@@ -122,7 +124,9 @@ export default function Lobby({
 				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-4">
 					<ul className="text-zinc-200 space-y-1 text-left">
 						{players.map((p, i) => (
-							<li key={i}>👤 {p}</li>
+							<li key={i}>
+								{icons[i % icons.length]} {p}
+							</li>
 						))}
 					</ul>
 				</div>
@@ -133,7 +137,7 @@ export default function Lobby({
 					onClick={() => onReady(players)}
 					disabled={players.length < 2}
 					className={
-						"w-full transition-shadow " +
+						"w-full transition-shadow hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500 " +
 						(players.length >= 2 ? "shadow-lg shadow-yellow-400/40" : "")
 					}
 				>
