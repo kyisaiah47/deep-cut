@@ -9,7 +9,6 @@ import ResultsPhase from "./game/ResultsPhase";
 import InsightsPhase from "./game/InsightsPhase";
 import GameOverPhase from "./game/GameOverPhase";
 import FloatingBackground from "./FloatingBackground";
-import KiroWhispers from "./KiroWhispers";
 
 // Enhanced prompts with associated emojis (6 rounds)
 const prompts = [
@@ -63,9 +62,6 @@ export default function GameRoom({
 	// Timer state
 	const [timeLeft, setTimeLeft] = useState(30);
 	const [timerActive, setTimerActive] = useState(false);
-
-	// Kiro Whispers state
-	const [eventWhisper, setEventWhisper] = useState<string>("");
 
 	// Initialize presence tracking
 	useEffect(() => {
