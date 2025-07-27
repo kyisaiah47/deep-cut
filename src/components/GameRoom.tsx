@@ -240,7 +240,7 @@ export default function GameRoom({
 		}
 	}, [round]);
 
-	const { text: prompt } = prompts[round - 1] ?? {
+	const { text: prompt, emoji: promptEmoji } = prompts[round - 1] ?? {
 		text: "",
 		emoji: "",
 	};

@@ -119,7 +119,6 @@ export default function VotingPhase({
 
 	return (
 		<VoteSection
-			player={playerName}
 			entries={shuffledEntries.filter((e) => e.id !== playerName)}
 			onVote={handleVote}
 			disabled={!!votes[playerName]}
