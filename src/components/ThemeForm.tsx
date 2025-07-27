@@ -17,12 +17,13 @@ const kiroMessages = [
 export default function ThemeForm({
 	onSubmit,
 }: {
-	onSubmit: (theme: string) => void;
+	onSubmit: (theme: string) => void | Promise<void>;
 }) {
 	const [selectedTheme, setSelectedTheme] = useState("");
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
 		const rotate = () => {
@@ -33,10 +34,20 @@ export default function ThemeForm({
 		return () => clearInterval(interval);
 	}, []);
 
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		if (selectedTheme.trim()) {
-			confetti({ spread: 70, particleCount: 120, origin: { y: 0.6 } });
-			onSubmit(selectedTheme.trim());
+			setIsSubmitting(true);
+			setError("");
+
+			try {
+				confetti({ spread: 70, particleCount: 120, origin: { y: 0.6 } });
+				await onSubmit(selectedTheme.trim());
+			} catch (error) {
+				console.error("Error submitting theme:", error);
+				setError("Failed to save theme. Please try again.");
+			} finally {
+				setIsSubmitting(false);
+			}
 		} else {
 			setError("Please enter a theme.");
 		}
@@ -138,10 +149,17 @@ export default function ThemeForm({
 				</div>
 				<Button
 					onClick={handleSubmit}
-					disabled={!selectedTheme.trim()}
+					disabled={!selectedTheme.trim() || isSubmitting}
 					className="w-full disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
 				>
-					Continue
+					{isSubmitting ? (
+						<>
+							<span className="animate-spin mr-2">💾</span>
+							Saving theme...
+						</>
+					) : (
+						"Continue"
+					)}
 				</Button>
 				{error && <p className="text-sm text-red-400 italic">{error}</p>}{" "}
 				<p className="text-sm text-zinc-400 italic">{message}</p>

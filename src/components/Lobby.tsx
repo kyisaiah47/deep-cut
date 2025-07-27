@@ -22,15 +22,18 @@ const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
 export default function Lobby({
 	groupCode,
 	playerName,
+	selectedTheme,
 	onReady,
 }: {
 	groupCode: string;
 	playerName: string;
+	selectedTheme?: string;
 	onReady: (players: string[]) => void;
 }) {
 	const [players, setPlayers] = useState<string[]>([]);
 	const [tip, setTip] = useState<string>("");
 	const [copied, setCopied] = useState(false);
+	const [theme, setTheme] = useState<string>(selectedTheme || "");
 
 	const handleCopyCode = async () => {
 		try {
@@ -49,6 +52,30 @@ export default function Lobby({
 		}, 7000);
 		return () => clearInterval(interval);
 	}, []);
+
+	useEffect(() => {
+		// Update theme when selectedTheme prop changes
+		if (selectedTheme && selectedTheme !== theme) {
+			setTheme(selectedTheme);
+		}
+	}, [selectedTheme, theme]);
+
+	useEffect(() => {
+		// Fetch room theme from database
+		const fetchRoomTheme = async () => {
+			const { data } = await supabase
+				.from("rooms")
+				.select("theme")
+				.eq("code", groupCode)
+				.maybeSingle();
+
+			if (data?.theme && data.theme !== theme) {
+				setTheme(data.theme);
+			}
+		};
+
+		fetchRoomTheme();
+	}, [groupCode, theme]);
 
 	useEffect(() => {
 		const upsertPlayer = async () => {
@@ -159,6 +186,21 @@ export default function Lobby({
 					</button>
 				</p>
 
+				{/* Theme Display */}
+				<div className="mb-4 p-3 bg-gradient-to-r from-pink-900/20 to-purple-900/20 border border-pink-500/30 rounded-lg">
+					<div className="flex items-center gap-2 mb-1">
+						<span className="text-pink-400 text-lg">🎭</span>
+						<span className="text-sm font-medium text-pink-300">
+							Current Theme
+						</span>
+					</div>
+					<p className="text-white font-semibold">
+						{theme || (
+							<span className="text-zinc-400 italic">Loading theme...</span>
+						)}
+					</p>
+				</div>
+
 				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-4">
 					<div className="flex justify-between items-center mb-2 px-1">
 						<span className="text-xs text-zinc-400">
@@ -228,7 +270,7 @@ export default function Lobby({
 					className={
 						"w-full py-3 text-base font-medium transition-all duration-300 ease-in-out " +
 						(players.length >= 3
-							? "text-red-200 bg-zinc-900 border border-red-700 rounded-lg hover:bg-red-900 hover:text-white shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] hover:shadow-[0_0_20px_rgba(185,28,28,0.7)] shadow-lg shadow-pink-400/40"
+							? "text-white bg-red-900 border border-red-700 rounded-lg hover:bg-zinc-900 hover:text-red-200 shadow-[0_0_20px_rgba(185,28,28,0.7)] hover:shadow-[inset_0_0_0_1px_#991b1b,0_0_10px_rgba(185,28,28,0.5)] shadow-lg shadow-pink-400/40"
 							: "text-zinc-500 bg-zinc-800 border border-zinc-600 rounded-lg cursor-not-allowed opacity-50")
 					}
 				>

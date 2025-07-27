@@ -87,6 +87,10 @@ export default function Home() {
 				setError("Room not found. Please check the code and try again.");
 			} else {
 				setGroupCode(data.code);
+				// Set the theme from the database if it exists
+				if (data.theme) {
+					setSelectedTheme(data.theme);
+				}
 				setError("");
 				setPhase("name");
 			}
@@ -129,7 +133,29 @@ export default function Home() {
 	if (phase === "theme" && groupCode) {
 		return (
 			<ThemeForm
-				onSubmit={(theme) => {
+				onSubmit={async (theme) => {
+					// First verify the room exists
+					const { data: roomCheck } = await supabase
+						.from("rooms")
+						.select("code")
+						.eq("code", groupCode)
+						.maybeSingle();
+
+					if (!roomCheck) {
+						throw new Error("Room not found. Please try creating a new room.");
+					}
+
+					// Save theme to database
+					const { error } = await supabase
+						.from("rooms")
+						.update({ theme })
+						.eq("code", groupCode);
+
+					if (error) {
+						console.error("Failed to save theme:", error);
+						throw new Error("Failed to save theme to database");
+					}
+
 					setSelectedTheme(theme);
 					setPhase("kiro-intro");
 				}}
@@ -162,6 +188,7 @@ export default function Home() {
 			<Lobby
 				groupCode={groupCode}
 				playerName={playerName}
+				selectedTheme={selectedTheme}
 				onReady={(players) => {
 					setPlayers(players);
 					setPhase("game");
