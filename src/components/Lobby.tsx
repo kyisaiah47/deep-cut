@@ -44,7 +44,10 @@ export default function Lobby({
 			setIsStartingGame(true);
 			const { error } = await supabase
 				.from("rooms")
-				.update({ game_started: true })
+				.update({
+					game_started: true,
+					current_round: 1,
+				})
 				.eq("room_code", groupCode);
 
 			if (error) {
@@ -209,7 +212,10 @@ export default function Lobby({
 				// Reset the game state if no players left
 				await supabase
 					.from("rooms")
-					.update({ game_started: false })
+					.update({
+						game_started: false,
+						current_round: 1,
+					})
 					.eq("room_code", groupCode);
 			}
 		};

@@ -58,6 +58,7 @@ export default function GameRoom({
 	// Presence tracking state
 	const [connectedPlayers, setConnectedPlayers] = useState<string[]>([]);
 	const [presenceMessage, setPresenceMessage] = useState<string>("");
+	const [roundProgression, setRoundProgression] = useState(false);
 
 	// Timer state
 	const [timeLeft, setTimeLeft] = useState(30);
@@ -113,6 +114,40 @@ export default function GameRoom({
 			presenceChannel.unsubscribe();
 		};
 	}, [groupCode, playerName, players]);
+
+	// Subscribe to round progression changes
+	useEffect(() => {
+		const roundSubscription = supabase
+			.channel(`round-progression-${groupCode}`)
+			.on(
+				"postgres_changes",
+				{
+					event: "UPDATE",
+					schema: "public",
+					table: "rooms",
+					filter: `room_code=eq.${groupCode}`,
+				},
+				(payload) => {
+					if (
+						payload.new?.current_round &&
+						payload.new.current_round !== round
+					) {
+						const newRound = payload.new.current_round;
+						setRound(newRound);
+						setPhase("submission");
+						setSubmissions({});
+						setVotes({});
+						setShuffledEntries([]);
+						setRoundProgression(false);
+					}
+				}
+			)
+			.subscribe();
+
+		return () => {
+			supabase.removeChannel(roundSubscription);
+		};
+	}, [groupCode, round]);
 
 	// Timer logic
 	useEffect(() => {
@@ -254,12 +289,24 @@ export default function GameRoom({
 		[round, submissions, prompt]
 	);
 
-	const handleNextRound = () => {
-		setRound((prev) => prev + 1);
-		setPhase("submission");
-		setSubmissions({});
-		setVotes({});
-		setShuffledEntries([]);
+	const handleNextRound = async () => {
+		if (roundProgression) return; // Prevent multiple clicks
+
+		try {
+			setRoundProgression(true);
+			const { error } = await supabase
+				.from("rooms")
+				.update({ current_round: round + 1 })
+				.eq("room_code", groupCode);
+
+			if (error) {
+				console.error("Error progressing round:", error);
+				setRoundProgression(false);
+			}
+		} catch (error) {
+			console.error("Error progressing round:", error);
+			setRoundProgression(false);
+		}
 	};
 
 	const handleContinueFromInsights = () => {
@@ -489,6 +536,7 @@ export default function GameRoom({
 									connectedPlayers.length > 0 ? connectedPlayers : players
 								}
 								onNextRound={handleNextRound}
+								isProgressing={roundProgression}
 							/>
 						</>
 					)}

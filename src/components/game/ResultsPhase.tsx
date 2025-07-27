@@ -9,6 +9,7 @@ interface ResultsPhaseProps {
 	votes: Record<string, string>;
 	players: string[];
 	onNextRound: () => void;
+	isProgressing?: boolean;
 }
 
 export default function ResultsPhase({
@@ -17,6 +18,7 @@ export default function ResultsPhase({
 	votes,
 	players,
 	onNextRound,
+	isProgressing = false,
 }: ResultsPhaseProps) {
 	// Calculate vote tally for visual representation
 	const voteTally = Object.values(votes).reduce((acc, votedFor) => {
@@ -216,11 +218,16 @@ export default function ResultsPhase({
 			>
 				<Button
 					onClick={onNextRound}
+					disabled={isProgressing}
 					size="lg"
-					className="px-6 py-3 text-base font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all duration-300"
+					className={`px-6 py-3 text-base font-bold rounded-xl transition-all duration-300 ${
+						isProgressing
+							? "bg-gray-600 text-gray-400 cursor-not-allowed"
+							: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]"
+					}`}
 				>
-					<span className="mr-2">🚀</span>
-					Continue to Next Round
+					<span className="mr-2">{isProgressing ? "⏳" : "🚀"}</span>
+					{isProgressing ? "Starting Next Round..." : "Continue to Next Round"}
 				</Button>
 			</motion.div>
 		</motion.div>
