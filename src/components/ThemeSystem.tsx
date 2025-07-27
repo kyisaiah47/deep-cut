@@ -18,8 +18,15 @@ interface CustomTheme {
 	popularity: number;
 }
 
-export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentTheme }: ThemeSystemProps) {
-	const [activeTab, setActiveTab] = useState<"preset" | "custom" | "create">("preset");
+export default function ThemeSystem({
+	isOpen,
+	onClose,
+	onSelectTheme,
+	currentTheme,
+}: ThemeSystemProps) {
+	const [activeTab, setActiveTab] = useState<"preset" | "custom" | "create">(
+		"preset"
+	);
 	const [customThemes, setCustomThemes] = useState<CustomTheme[]>([]);
 	const [newThemeName, setNewThemeName] = useState("");
 	const [newThemeDescription, setNewThemeDescription] = useState("");
@@ -28,57 +35,58 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 	const presetThemes = [
 		{
 			name: "Childhood Secrets",
-			description: "Embarrassing moments from your youth that still make you cringe",
+			description:
+				"Embarrassing moments from your youth that still make you cringe",
 			emoji: "🧸",
-			color: "bg-blue-500"
+			color: "bg-blue-500",
 		},
 		{
 			name: "Work Confessions",
 			description: "Professional mishaps and office drama you shouldn't share",
 			emoji: "💼",
-			color: "bg-green-500"
+			color: "bg-green-500",
 		},
 		{
 			name: "Relationship Drama",
 			description: "Dating disasters and romantic revelations that cut deep",
 			emoji: "💔",
-			color: "bg-red-500"
+			color: "bg-red-500",
 		},
 		{
 			name: "Family Dysfunction",
 			description: "Holiday horrors and relatives you pretend to love",
 			emoji: "🏠",
-			color: "bg-yellow-500"
+			color: "bg-yellow-500",
 		},
 		{
 			name: "Social Anxiety",
 			description: "Awkward encounters and cringe-worthy social moments",
 			emoji: "😅",
-			color: "bg-purple-500"
+			color: "bg-purple-500",
 		},
 		{
 			name: "Digital Shame",
 			description: "Online embarrassments and social media regrets",
 			emoji: "📱",
-			color: "bg-pink-500"
+			color: "bg-pink-500",
 		},
 		{
 			name: "Money Matters",
 			description: "Financial failures and expensive mistakes you hide",
 			emoji: "💸",
-			color: "bg-indigo-500"
+			color: "bg-indigo-500",
 		},
 		{
 			name: "Health Horrors",
 			description: "Medical mishaps and body-related embarrassments",
 			emoji: "🏥",
-			color: "bg-teal-500"
-		}
+			color: "bg-teal-500",
+		},
 	];
 
 	useEffect(() => {
 		// Load custom themes from localStorage
-		const saved = localStorage.getItem('deep-cut-custom-themes');
+		const saved = localStorage.getItem("deep-cut-custom-themes");
 		if (saved) {
 			setCustomThemes(JSON.parse(saved));
 		}
@@ -86,7 +94,7 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 
 	const saveCustomThemes = (themes: CustomTheme[]) => {
 		setCustomThemes(themes);
-		localStorage.setItem('deep-cut-custom-themes', JSON.stringify(themes));
+		localStorage.setItem("deep-cut-custom-themes", JSON.stringify(themes));
 	};
 
 	const generateCustomTheme = async () => {
@@ -95,24 +103,27 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 		setIsGeneratingTheme(true);
 
 		try {
-			const response = await fetch('/api/generate-theme', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ 
+			const response = await fetch("/api/generate-theme", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
 					themeName: newThemeName,
-					description: newThemeDescription || undefined
+					description: newThemeDescription || undefined,
 				}),
 			});
 
-			if (!response.ok) throw new Error('Failed to generate theme');
+			if (!response.ok) throw new Error("Failed to generate theme");
 
 			const data = await response.json();
-			
+
 			const newTheme: CustomTheme = {
 				name: data.theme || newThemeName,
-				description: data.description || newThemeDescription || "A custom theme created by the community",
+				description:
+					data.description ||
+					newThemeDescription ||
+					"A custom theme created by the community",
 				created: new Date().toLocaleDateString(),
-				popularity: 1
+				popularity: 1,
 			};
 
 			const updatedThemes = [newTheme, ...customThemes];
@@ -121,15 +132,15 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 			setNewThemeName("");
 			setNewThemeDescription("");
 			setActiveTab("custom");
-
 		} catch (error) {
-			console.error('Error generating theme:', error);
+			console.error("Error generating theme:", error);
 			// Fallback to manual creation
 			const newTheme: CustomTheme = {
 				name: newThemeName,
-				description: newThemeDescription || "A custom theme created by the community",
+				description:
+					newThemeDescription || "A custom theme created by the community",
 				created: new Date().toLocaleDateString(),
-				popularity: 1
+				popularity: 1,
 			};
 
 			const updatedThemes = [newTheme, ...customThemes];
@@ -144,7 +155,9 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 	};
 
 	const deleteCustomTheme = (themeToDelete: CustomTheme) => {
-		const updatedThemes = customThemes.filter(theme => theme.name !== themeToDelete.name);
+		const updatedThemes = customThemes.filter(
+			(theme) => theme.name !== themeToDelete.name
+		);
 		saveCustomThemes(updatedThemes);
 	};
 
@@ -171,21 +184,29 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 				{/* Header */}
 				<div className="flex justify-between items-center mb-6">
 					<div>
-						<h2 className="text-3xl font-bold text-pink-500">Choose Your Truth</h2>
-						<p className="text-zinc-400">Select a theme that will expose everyone&apos;s secrets</p>
+						<h2 className="text-3xl font-bold text-pink-500">
+							Choose Your Truth
+						</h2>
+						<p className="text-zinc-400">
+							Select a theme that will expose everyone&apos;s secrets
+						</p>
 					</div>
-					<Button onClick={onClose} variant="outline" size="sm">
+					<Button
+						onClick={onClose}
+						variant="outline"
+						size="sm"
+					>
 						✕
 					</Button>
 				</div>
 
 				{/* Tabs */}
 				<div className="flex mb-6 bg-zinc-800 rounded-lg p-1">
-					{([
+					{[
 						{ key: "preset" as const, label: "Preset Themes", icon: "🎯" },
 						{ key: "custom" as const, label: "Community Themes", icon: "👥" },
-						{ key: "create" as const, label: "Create Theme", icon: "✨" }
-					]).map(({ key, label, icon }) => (
+						{ key: "create" as const, label: "Create Theme", icon: "✨" },
+					].map(({ key, label, icon }) => (
 						<button
 							key={key}
 							onClick={() => setActiveTab(key)}
@@ -225,11 +246,15 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 									onClick={() => handleThemeSelect(theme.name)}
 								>
 									<div className="flex items-center gap-3 mb-3">
-										<div className={`w-12 h-12 rounded-full ${theme.color} flex items-center justify-center text-2xl`}>
+										<div
+											className={`w-12 h-12 rounded-full ${theme.color} flex items-center justify-center text-2xl`}
+										>
 											{theme.emoji}
 										</div>
 										<div>
-											<h3 className="text-lg font-semibold text-white">{theme.name}</h3>
+											<h3 className="text-lg font-semibold text-white">
+												{theme.name}
+											</h3>
 											<div className="text-xs text-zinc-400">Preset Theme</div>
 										</div>
 									</div>
@@ -252,9 +277,13 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 							{customThemes.length === 0 ? (
 								<div className="text-center py-12">
 									<div className="text-6xl mb-4">🎨</div>
-									<h3 className="text-xl font-semibold text-zinc-400 mb-2">No Custom Themes Yet</h3>
-									<p className="text-zinc-500 mb-4">Create your first custom theme to get started!</p>
-									<Button 
+									<h3 className="text-xl font-semibold text-zinc-400 mb-2">
+										No Custom Themes Yet
+									</h3>
+									<p className="text-zinc-500 mb-4">
+										Create your first custom theme to get started!
+									</p>
+									<Button
 										onClick={() => setActiveTab("create")}
 										className="bg-pink-600 hover:bg-pink-700"
 									>
@@ -291,8 +320,12 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 													🎭
 												</div>
 												<div>
-													<h3 className="text-lg font-semibold text-white">{theme.name}</h3>
-													<div className="text-xs text-zinc-400">Created {theme.created}</div>
+													<h3 className="text-lg font-semibold text-white">
+														{theme.name}
+													</h3>
+													<div className="text-xs text-zinc-400">
+														Created {theme.created}
+													</div>
 												</div>
 											</div>
 											<p className="text-sm text-zinc-300 group-hover:text-white transition-colors mb-3">
@@ -318,8 +351,12 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 						>
 							<div className="text-center mb-8">
 								<div className="text-6xl mb-4">🎨</div>
-								<h3 className="text-xl font-semibold text-white mb-2">Create Custom Theme</h3>
-								<p className="text-zinc-400">Design a unique theme that will challenge your group</p>
+								<h3 className="text-xl font-semibold text-white mb-2">
+									Create Custom Theme
+								</h3>
+								<p className="text-zinc-400">
+									Design a unique theme that will challenge your group
+								</p>
 							</div>
 
 							<div className="space-y-4">
@@ -360,9 +397,12 @@ export default function ThemeSystem({ isOpen, onClose, onSelectTheme, currentThe
 									<div className="flex items-start gap-3">
 										<div className="text-yellow-400 text-lg">💡</div>
 										<div>
-											<div className="font-medium text-yellow-200 mb-1">AI Enhancement</div>
+											<div className="font-medium text-yellow-200 mb-1">
+												AI Enhancement
+											</div>
 											<div className="text-sm text-yellow-300">
-												Kiro will enhance your theme with atmospheric details and generate more targeted prompts.
+												Kiro will enhance your theme with atmospheric details
+												and generate more targeted prompts.
 											</div>
 										</div>
 									</div>

@@ -30,8 +30,9 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 			try {
 				// This would query your game_history table
 				const { data, error } = await supabase
-					.from('game_sessions')
-					.select(`
+					.from("game_sessions")
+					.select(
+						`
 						id,
 						theme,
 						created_at,
@@ -39,26 +40,28 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 						winner,
 						duration_minutes,
 						total_submissions
-					`)
-					.contains('players', [playerName])
-					.order('created_at', { ascending: false })
+					`
+					)
+					.contains("players", [playerName])
+					.order("created_at", { ascending: false })
 					.limit(50);
 
 				if (error) throw error;
 
-				const formattedGames: GameHistoryEntry[] = data?.map(game => ({
-					id: game.id,
-					theme: game.theme,
-					date: new Date(game.created_at).toLocaleDateString(),
-					players: game.players || [],
-					champion: game.winner || "Unknown",
-					duration: game.duration_minutes || 0,
-					totalSubmissions: game.total_submissions || 0
-				})) || [];
+				const formattedGames: GameHistoryEntry[] =
+					data?.map((game) => ({
+						id: game.id,
+						theme: game.theme,
+						date: new Date(game.created_at).toLocaleDateString(),
+						players: game.players || [],
+						champion: game.winner || "Unknown",
+						duration: game.duration_minutes || 0,
+						totalSubmissions: game.total_submissions || 0,
+					})) || [];
 
 				setGames(formattedGames);
 			} catch (error) {
-				console.error('Error loading game history:', error);
+				console.error("Error loading game history:", error);
 				// For demo purposes, create mock data
 				setGames([
 					{
@@ -68,16 +71,16 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 						players: ["Alex", "Sam", "Jordan", playerName],
 						champion: playerName,
 						duration: 23,
-						totalSubmissions: 12
+						totalSubmissions: 12,
 					},
 					{
-						id: "2", 
+						id: "2",
 						theme: "Work Confessions",
 						date: "2024-01-10",
 						players: ["Taylor", "Morgan", playerName],
 						champion: "Morgan",
 						duration: 18,
-						totalSubmissions: 9
+						totalSubmissions: 9,
 					},
 					{
 						id: "3",
@@ -86,8 +89,8 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 						players: ["Casey", "Riley", "Devon", playerName, "Avery"],
 						champion: "Casey",
 						duration: 31,
-						totalSubmissions: 15
-					}
+						totalSubmissions: 15,
+					},
 				]);
 			} finally {
 				setLoading(false);
@@ -97,7 +100,7 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 		loadGameHistory();
 	}, [playerName]);
 
-	const filteredGames = games.filter(game => {
+	const filteredGames = games.filter((game) => {
 		if (filter === "won") return game.champion === playerName;
 		if (filter === "participated") return game.players.includes(playerName);
 		return true;
@@ -105,9 +108,12 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 
 	const stats = {
 		totalGames: games.length,
-		wins: games.filter(g => g.champion === playerName).length,
-		averageDuration: Math.round(games.reduce((acc, g) => acc + g.duration, 0) / games.length) || 0,
-		favoriteThemes: [...new Set(games.map(g => g.theme))].slice(0, 3)
+		wins: games.filter((g) => g.champion === playerName).length,
+		averageDuration:
+			Math.round(
+				games.reduce((acc, g) => acc + g.duration, 0) / games.length
+			) || 0,
+		favoriteThemes: [...new Set(games.map((g) => g.theme))].slice(0, 3),
 	};
 
 	if (loading) {
@@ -117,7 +123,9 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 				animate={{ opacity: 1 }}
 				className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
 			>
-				<div className="text-pink-500 text-xl">Loading your game history...</div>
+				<div className="text-pink-500 text-xl">
+					Loading your game history...
+				</div>
 			</motion.div>
 		);
 	}
@@ -139,7 +147,11 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 						<h2 className="text-3xl font-bold text-pink-500">Game History</h2>
 						<p className="text-zinc-400">{playerName}&apos;s Journey</p>
 					</div>
-					<Button onClick={onClose} variant="outline" size="sm">
+					<Button
+						onClick={onClose}
+						variant="outline"
+						size="sm"
+					>
 						✕
 					</Button>
 				</div>
@@ -147,20 +159,29 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 				{/* Stats Overview */}
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 					<div className="bg-zinc-800/50 rounded-lg p-4 text-center">
-						<div className="text-2xl font-bold text-pink-500">{stats.totalGames}</div>
+						<div className="text-2xl font-bold text-pink-500">
+							{stats.totalGames}
+						</div>
 						<div className="text-sm text-zinc-400">Games Played</div>
 					</div>
 					<div className="bg-zinc-800/50 rounded-lg p-4 text-center">
-						<div className="text-2xl font-bold text-yellow-500">{stats.wins}</div>
+						<div className="text-2xl font-bold text-yellow-500">
+							{stats.wins}
+						</div>
 						<div className="text-sm text-zinc-400">Wins</div>
 					</div>
 					<div className="bg-zinc-800/50 rounded-lg p-4 text-center">
-						<div className="text-2xl font-bold text-blue-500">{stats.averageDuration}m</div>
+						<div className="text-2xl font-bold text-blue-500">
+							{stats.averageDuration}m
+						</div>
 						<div className="text-sm text-zinc-400">Avg Duration</div>
 					</div>
 					<div className="bg-zinc-800/50 rounded-lg p-4 text-center">
 						<div className="text-2xl font-bold text-green-500">
-							{stats.wins > 0 ? Math.round((stats.wins / stats.totalGames) * 100) : 0}%
+							{stats.wins > 0
+								? Math.round((stats.wins / stats.totalGames) * 100)
+								: 0}
+							%
 						</div>
 						<div className="text-sm text-zinc-400">Win Rate</div>
 					</div>
@@ -168,11 +189,11 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 
 				{/* Filters */}
 				<div className="flex mb-6 bg-zinc-800 rounded-lg p-1">
-					{([
+					{[
 						{ key: "all" as const, label: "All Games" },
 						{ key: "won" as const, label: "Victories" },
-						{ key: "participated" as const, label: "Participated" }
-					]).map(({ key, label }) => (
+						{ key: "participated" as const, label: "Participated" },
+					].map(({ key, label }) => (
 						<button
 							key={key}
 							onClick={() => setFilter(key)}
@@ -205,14 +226,20 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 							>
 								<div className="flex justify-between items-start mb-3">
 									<div>
-										<h3 className="text-lg font-semibold text-white">{game.theme}</h3>
+										<h3 className="text-lg font-semibold text-white">
+											{game.theme}
+										</h3>
 										<p className="text-sm text-zinc-400">{game.date}</p>
 									</div>
 									<div className="text-right">
 										{game.champion === playerName && (
-											<div className="text-yellow-500 font-semibold mb-1">👑 Victory!</div>
+											<div className="text-yellow-500 font-semibold mb-1">
+												👑 Victory!
+											</div>
 										)}
-										<div className="text-sm text-zinc-400">{game.duration}m</div>
+										<div className="text-sm text-zinc-400">
+											{game.duration}m
+										</div>
 									</div>
 								</div>
 
@@ -235,7 +262,8 @@ export default function GameHistory({ playerName, onClose }: GameHistoryProps) {
 								</div>
 
 								<div className="text-xs text-zinc-500">
-									{game.totalSubmissions} submissions • {game.players.length} players
+									{game.totalSubmissions} submissions • {game.players.length}{" "}
+									players
 								</div>
 							</motion.div>
 						))}

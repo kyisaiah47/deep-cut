@@ -10,11 +10,11 @@ interface SoundSystemProps {
 	timerActive: boolean;
 }
 
-export default function SoundSystem({ 
-	isGameActive, 
-	currentPhase, 
-	isWhispering, 
-	timerActive 
+export default function SoundSystem({
+	isGameActive,
+	currentPhase,
+	isWhispering,
+	timerActive,
 }: SoundSystemProps) {
 	const [isEnabled, setIsEnabled] = useState(false);
 	const [volume, setVolume] = useState(0.3);
@@ -22,8 +22,11 @@ export default function SoundSystem({
 	const gainNodeRef = useRef<GainNode | null>(null);
 
 	const initializeAudio = useCallback(() => {
-		if (typeof window !== 'undefined' && !audioContextRef.current) {
-			const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+		if (typeof window !== "undefined" && !audioContextRef.current) {
+			const AudioContextClass =
+				window.AudioContext ||
+				(window as unknown as { webkitAudioContext: typeof AudioContext })
+					.webkitAudioContext;
 			audioContextRef.current = new AudioContextClass();
 			gainNodeRef.current = audioContextRef.current.createGain();
 			gainNodeRef.current.connect(audioContextRef.current.destination);
@@ -47,32 +50,42 @@ export default function SoundSystem({
 		}
 	}, [volume]);
 
-	const playTone = useCallback((frequency: number, duration: number, type: OscillatorType = 'sine') => {
-		if (!isEnabled || !audioContextRef.current || !gainNodeRef.current) return;
+	const playTone = useCallback(
+		(frequency: number, duration: number, type: OscillatorType = "sine") => {
+			if (!isEnabled || !audioContextRef.current || !gainNodeRef.current)
+				return;
 
-		const oscillator = audioContextRef.current.createOscillator();
-		const envelope = audioContextRef.current.createGain();
+			const oscillator = audioContextRef.current.createOscillator();
+			const envelope = audioContextRef.current.createGain();
 
-		oscillator.connect(envelope);
-		envelope.connect(gainNodeRef.current);
+			oscillator.connect(envelope);
+			envelope.connect(gainNodeRef.current);
 
-		oscillator.frequency.value = frequency;
-		oscillator.type = type;
+			oscillator.frequency.value = frequency;
+			oscillator.type = type;
 
-		// Envelope for smooth attack/release
-		envelope.gain.setValueAtTime(0, audioContextRef.current.currentTime);
-		envelope.gain.linearRampToValueAtTime(0.1, audioContextRef.current.currentTime + 0.01);
-		envelope.gain.linearRampToValueAtTime(0, audioContextRef.current.currentTime + duration);
+			// Envelope for smooth attack/release
+			envelope.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+			envelope.gain.linearRampToValueAtTime(
+				0.1,
+				audioContextRef.current.currentTime + 0.01
+			);
+			envelope.gain.linearRampToValueAtTime(
+				0,
+				audioContextRef.current.currentTime + duration
+			);
 
-		oscillator.start(audioContextRef.current.currentTime);
-		oscillator.stop(audioContextRef.current.currentTime + duration);
-	}, [isEnabled]);
+			oscillator.start(audioContextRef.current.currentTime);
+			oscillator.stop(audioContextRef.current.currentTime + duration);
+		},
+		[isEnabled]
+	);
 
 	const playWhisperAmbience = useCallback(() => {
 		if (!isEnabled) return;
 		// Low frequency rumble for whispers
-		playTone(60, 0.5, 'sawtooth');
-		setTimeout(() => playTone(80, 0.3, 'triangle'), 200);
+		playTone(60, 0.5, "sawtooth");
+		setTimeout(() => playTone(80, 0.3, "triangle"), 200);
 	}, [isEnabled, playTone]);
 
 	const playPhaseTransition = useCallback(() => {
@@ -86,15 +99,15 @@ export default function SoundSystem({
 	const playTimerTick = useCallback(() => {
 		if (!isEnabled) return;
 		// Quick tick sound
-		playTone(800, 0.1, 'square');
+		playTone(800, 0.1, "square");
 	}, [isEnabled, playTone]);
 
 	const playGameStart = useCallback(() => {
 		if (!isEnabled) return;
 		// Dramatic game start sequence
-		playTone(110, 0.6, 'sawtooth');
-		setTimeout(() => playTone(165, 0.6, 'sawtooth'), 300);
-		setTimeout(() => playTone(220, 0.8, 'sawtooth'), 600);
+		playTone(110, 0.6, "sawtooth");
+		setTimeout(() => playTone(165, 0.6, "sawtooth"), 300);
+		setTimeout(() => playTone(220, 0.8, "sawtooth"), 600);
 	}, [isEnabled, playTone]);
 
 	// Sound effect triggers based on props
@@ -112,7 +125,7 @@ export default function SoundSystem({
 
 	const phaseRef = useRef(currentPhase);
 	useEffect(() => {
-		if (phaseRef.current !== currentPhase && phaseRef.current !== '') {
+		if (phaseRef.current !== currentPhase && phaseRef.current !== "") {
 			playPhaseTransition();
 		}
 		phaseRef.current = currentPhase;
@@ -140,9 +153,7 @@ export default function SoundSystem({
 					<button
 						onClick={() => setIsEnabled(!isEnabled)}
 						className={`p-2 rounded transition-colors ${
-							isEnabled 
-								? "bg-pink-600 text-white" 
-								: "bg-zinc-700 text-zinc-400"
+							isEnabled ? "bg-pink-600 text-white" : "bg-zinc-700 text-zinc-400"
 						}`}
 					>
 						{isEnabled ? "🔊" : "🔇"}
@@ -169,7 +180,7 @@ export default function SoundSystem({
 							onChange={(e) => setVolume(parseFloat(e.target.value))}
 							className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer slider"
 						/>
-						
+
 						{/* Sound Test Buttons */}
 						<div className="flex gap-1">
 							<button
@@ -207,7 +218,7 @@ export default function SoundSystem({
 					background: #ec4899;
 					cursor: pointer;
 				}
-				
+
 				.slider::-moz-range-thumb {
 					height: 12px;
 					width: 12px;
