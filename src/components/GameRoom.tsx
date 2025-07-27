@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import SubmissionPhase from "./game/SubmissionPhase";
 import VotingPhase from "./game/VotingPhase";
 import ResultsPhase from "./game/ResultsPhase";
@@ -50,6 +52,53 @@ export default function GameRoom({
 			prompt: string;
 		};
 	}>({});
+
+	// Presence tracking state
+	const [connectedPlayers, setConnectedPlayers] = useState<string[]>([]);
+	const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+	const [presenceMessage, setPresenceMessage] = useState<string>("");
+
+	// Initialize presence tracking
+	useEffect(() => {
+		const presenceChannel = supabase.channel(`room:${groupCode}`, {
+			config: {
+				presence: {
+					key: playerName,
+				},
+			},
+		});
+
+		setChannel(presenceChannel);
+
+		presenceChannel.subscribe(async (status) => {
+			if (status === "SUBSCRIBED") {
+				await presenceChannel.track({
+					playerName,
+					joinedAt: new Date().toISOString(),
+				});
+			}
+		});
+
+		// Listen for presence updates
+		presenceChannel.on("presence", { event: "sync" }, () => {
+			const state = presenceChannel.presenceState();
+			const connected = Object.keys(state);
+			setConnectedPlayers(connected);
+
+			// Check for player disconnections
+			const disconnectedPlayers = players.filter((p) => !connected.includes(p));
+			if (disconnectedPlayers.length > 0 && connected.length > 0) {
+				setPresenceMessage(
+					`😱 ${disconnectedPlayers[0]} has vanished into the void...`
+				);
+				setTimeout(() => setPresenceMessage(""), 3000);
+			}
+		});
+
+		return () => {
+			presenceChannel.unsubscribe();
+		};
+	}, [groupCode, playerName, players]);
 
 	const handleCopyCode = async () => {
 		try {
@@ -130,6 +179,10 @@ export default function GameRoom({
 		return (tally[id] || 0) > (tally[top] || 0) ? id : top;
 	}, "");
 
+	const getPlayerStatus = (player: string) => {
+		return connectedPlayers.includes(player) ? "🟢" : "🔴";
+	};
+
 	return (
 		<main className="min-h-screen flex flex-col bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
 			<FloatingBackground />
@@ -150,7 +203,26 @@ export default function GameRoom({
 						</span>
 					)}
 				</span>
-				<span>Round {round}</span>
+				<span>Round {round}/6</span>
+			</div>
+
+			{/* Player presence indicator */}
+			<div className="p-2 bg-black/20 backdrop-blur-md text-xs text-zinc-400 border-b border-zinc-700/50 relative z-10">
+				<div className="flex justify-center gap-4">
+					{players.map((player) => (
+						<span
+							key={player}
+							className="flex items-center gap-1"
+						>
+							{getPlayerStatus(player)} {player}
+						</span>
+					))}
+				</div>
+				{presenceMessage && (
+					<div className="text-center mt-1 text-yellow-400 animate-pulse">
+						{presenceMessage}
+					</div>
+				)}
 			</div>
 
 			<div className="flex-grow flex items-center justify-center">
@@ -179,7 +251,7 @@ export default function GameRoom({
 						<SubmissionPhase
 							groupCode={groupCode}
 							playerName={playerName}
-							players={players}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
 							round={round}
 							prompt={prompt}
 							onAllSubmissionsComplete={handleAllSubmissionsComplete}
@@ -190,7 +262,7 @@ export default function GameRoom({
 						<VotingPhase
 							groupCode={groupCode}
 							playerName={playerName}
-							players={players}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
 							round={round}
 							shuffledEntries={shuffledEntries}
 							onAllVotesComplete={handleAllVotesComplete}
@@ -202,7 +274,7 @@ export default function GameRoom({
 							winnerId={winnerId}
 							submissions={submissions}
 							votes={votes}
-							players={players}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
 							onNextRound={handleNextRound}
 						/>
 					)}
@@ -210,7 +282,7 @@ export default function GameRoom({
 					{phase === "insights" && (
 						<InsightsPhase
 							allRoundData={allRoundData}
-							players={players}
+							players={connectedPlayers.length > 0 ? connectedPlayers : players}
 							isFinalInsights={round === 6}
 							onContinue={handleContinueFromInsights}
 							onReturnHome={onReturnHome}
