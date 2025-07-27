@@ -374,10 +374,6 @@ export default function GameRoom({
 		return (tally[id] || 0) > (tally[top] || 0) ? id : top;
 	}, "");
 
-	const getPlayerStatus = (player: string) => {
-		return connectedPlayers.includes(player) ? "🟢" : "🔴";
-	};
-
 	const shouldShowDisconnectionInsight = () => {
 		const disconnected = getDisconnectedPlayers();
 		return disconnected.length > 0 && connectedPlayers.length > 0;
@@ -404,47 +400,99 @@ export default function GameRoom({
 				timeLeft={timeLeft}
 			/>
 
-			<div className="p-4 grid grid-cols-3 items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
+			<div className="p-4 grid grid-cols-3 items-center bg-gradient-to-r from-black/30 via-zinc-900/40 to-black/30 backdrop-blur-lg text-sm relative z-10">
 				{/* Left Column - Player Info */}
-				<div className="flex items-center gap-4 justify-self-start">
-					<span>👋 {playerName}</span>
-					<div className="flex items-center gap-2">
-						{players.map((player) => (
+				<div className="flex items-center gap-2 justify-self-start">
+					{players.map((player) => (
+						<div
+							key={player}
+							className={`
+								flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-200
+								${
+									player === playerName
+										? "bg-pink-500/15 border border-pink-500/25"
+										: "bg-white/3 border border-white/8 hover:bg-white/8"
+								}
+							`}
+						>
 							<span
-								key={player}
-								className="flex items-center gap-1 text-xs"
+								className={`
+								w-1.5 h-1.5 rounded-full animate-pulse
+								${connectedPlayers.includes(player) ? "bg-green-400" : "bg-red-400"}
+							`}
+							/>
+							<span
+								className={`text-xs ${
+									player === playerName
+										? "text-pink-300 font-medium"
+										: "text-zinc-300"
+								}`}
+								style={{
+									fontFamily:
+										"'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif",
+								}}
 							>
-								{getPlayerStatus(player)}
-								<span className={player === playerName ? "text-pink-400" : ""}>
-									{player}
-								</span>
-								{!connectedPlayers.includes(player) && (
-									<span className="text-red-400 text-xs">offline</span>
-								)}
+								{player}
 							</span>
-						))}
-					</div>
+							{!connectedPlayers.includes(player) && (
+								<span className="text-red-400 text-xs opacity-75">offline</span>
+							)}
+						</div>
+					))}
 				</div>
 
 				{/* Center Column - Group Code */}
-				<span className="relative justify-self-center">
-					Group Code:{" "}
-					<button
-						onClick={handleCopyCode}
-						className="text-pink-500 font-mono cursor-pointer hover:text-pink-400 hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-pink-500 px-2 py-1 rounded transition-all duration-200"
-						title="Click to copy"
-					>
-						{groupCode}
-					</button>
-					{copied && (
-						<span className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-green-400 bg-zinc-800 px-2 py-1 rounded whitespace-nowrap">
-							Copied!
+				<div className="relative justify-self-center">
+					<div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/8 to-purple-500/8 px-3 py-1 rounded-lg border border-blue-500/15 backdrop-blur-sm">
+						<span
+							className="text-blue-300 text-xs uppercase tracking-wide font-medium"
+							style={{
+								fontFamily:
+									"'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif",
+							}}
+						>
+							Group Code
 						</span>
+						<button
+							onClick={handleCopyCode}
+							className="text-white font-mono text-base font-bold cursor-pointer hover:text-blue-300 hover:bg-blue-500/15 focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 py-1 rounded-md transition-all duration-200 hover:scale-105"
+							title="Click to copy"
+							style={{
+								fontFamily:
+									"'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace",
+							}}
+						>
+							{groupCode}
+						</button>
+					</div>
+					{copied && (
+						<motion.span
+							initial={{ opacity: 0, y: 10, scale: 0.8 }}
+							animate={{ opacity: 1, y: 0, scale: 1 }}
+							exit={{ opacity: 0, y: -10, scale: 0.8 }}
+							className="absolute top-10 left-1/2 transform -translate-x-1/2 text-xs text-green-300 bg-green-500/15 border border-green-500/25 px-2 py-1 rounded-md whitespace-nowrap backdrop-blur-sm"
+						>
+							✓ Copied to clipboard!
+						</motion.span>
 					)}
-				</span>
+				</div>
 
 				{/* Right Column - Round Info */}
-				<span className="justify-self-end">Round {round}/6</span>
+				<div className="justify-self-end">
+					<div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/8 to-pink-500/8 px-3 py-1 rounded-lg border border-purple-500/15 backdrop-blur-sm">
+						<span className="text-lg">🎯</span>
+						<span
+							className="text-white font-semibold text-sm"
+							style={{
+								fontFamily:
+									"'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif",
+								fontWeight: "600",
+							}}
+						>
+							Round {round}/6
+						</span>
+					</div>
+				</div>
 			</div>
 
 			{/* Presence message only when needed */}
