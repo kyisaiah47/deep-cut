@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import PlayerSubmission from "../PlayerSubmission";
+import ChoiceSubmissionPhase from "../ChoiceSubmissionPhase";
 
 const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -101,15 +101,19 @@ export default function SubmissionPhase({
 					onConflict: "room_code,player_name,round_number",
 				}
 			);
-		} catch (error) {
+		} catch (err) {
 			// Handle error silently
+			console.error("Submission error:", err);
 		}
 	};
 
 	return (
 		<>
-			<PlayerSubmission
-				player={playerName}
+			<ChoiceSubmissionPhase
+				prompt={prompt}
+				theme="Deep Cut Chaos" // Default theme for now
+				players={players}
+				currentPlayer={playerName}
 				onSubmit={handleSubmit}
 				disabled={!!submissions[playerName]}
 			/>
