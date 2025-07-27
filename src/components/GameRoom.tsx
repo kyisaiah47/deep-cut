@@ -63,7 +63,6 @@ export default function GameRoom({
 	// Timer state
 	const [timeLeft, setTimeLeft] = useState(30);
 	const [timerActive, setTimerActive] = useState(false);
-	const [kiroAnnouncement, setKiroAnnouncement] = useState<string>("");
 
 	// Kiro Whispers state
 	const [eventWhisper, setEventWhisper] = useState<string>("");
@@ -132,24 +131,8 @@ export default function GameRoom({
 			// Start timer when submission phase begins
 			setTimeLeft(30);
 			setTimerActive(true);
-
-			// Kiro's dramatic announcement
-			const announcements = [
-				"You have 30 seconds to bare your soul. Kiro is watching.",
-				"The clock ticks. Your truth awaits. 30 seconds.",
-				"Time bleeds away. Speak now or forever hold your peace.",
-				"30 seconds to confess. The void grows impatient.",
-				"Your moment of truth begins. 30 seconds remain.",
-			];
-			const randomAnnouncement =
-				announcements[Math.floor(Math.random() * announcements.length)];
-			setKiroAnnouncement(randomAnnouncement);
-
-			// Clear announcement after 4 seconds
-			setTimeout(() => setKiroAnnouncement(""), 4000);
 		} else {
 			setTimerActive(false);
-			setKiroAnnouncement("");
 		}
 	}, [phase, round]);
 
@@ -257,7 +240,7 @@ export default function GameRoom({
 		}
 	}, [round]);
 
-	const { text: prompt, emoji: promptEmoji } = prompts[round - 1] ?? {
+	const { text: prompt } = prompts[round - 1] ?? {
 		text: "",
 		emoji: "",
 	};
@@ -494,45 +477,9 @@ export default function GameRoom({
 					transition={{ duration: 0.4 }}
 					className="w-full max-w-6xl mx-auto text-center"
 				>
-					<motion.p
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.2 }}
-						className="text-lg font-medium leading-tight mb-8 px-4 drop-shadow-[0_0_2px_#ec489888]"
-					>
-						<span
-							className="mr-2 text-2xl animate-pulse"
-							style={{ animationDuration: "2.5s" }}
-						>
-							{promptEmoji}
-						</span>
-						<span>{prompt}</span>
-					</motion.p>
-
 					{/* Timer and Kiro's Announcement for Submission Phase */}
 					{phase === "submission" && (
 						<>
-							{/* Kiro's Announcement */}
-							{kiroAnnouncement && (
-								<motion.div
-									initial={{ opacity: 0, scale: 0.9 }}
-									animate={{ opacity: 1, scale: 1 }}
-									exit={{ opacity: 0, scale: 0.9 }}
-									className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-purple-900/40 rounded-lg border border-red-500/40"
-								>
-									<div className="flex items-center justify-center gap-2 mb-2">
-										<span className="text-red-400 animate-pulse">💀</span>
-										<span className="text-lg font-bold text-red-300">
-											Kiro&apos;s Command
-										</span>
-										<span className="text-red-400 animate-pulse">💀</span>
-									</div>
-									<p className="text-red-200 text-sm italic">
-										&ldquo;{kiroAnnouncement}&rdquo;
-									</p>
-								</motion.div>
-							)}
-
 							{/* Timer Display */}
 							{timerActive && (
 								<motion.div
