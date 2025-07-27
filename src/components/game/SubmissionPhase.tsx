@@ -17,6 +17,7 @@ interface SubmissionPhaseProps {
 	players: string[];
 	round: number;
 	prompt: string;
+	theme: string;
 	onAllSubmissionsComplete: (
 		shuffledEntries: { id: string; text: string }[]
 	) => void;
@@ -28,6 +29,7 @@ export default function SubmissionPhase({
 	players,
 	round,
 	prompt,
+	theme,
 	onAllSubmissionsComplete,
 }: SubmissionPhaseProps) {
 	const [submissions, setSubmissions] = useState<Record<string, string>>({});
@@ -111,7 +113,7 @@ export default function SubmissionPhase({
 		<>
 			<ChoiceSubmissionPhase
 				prompt={prompt}
-				theme="Deep Cut Chaos" // Default theme for now
+				theme={theme}
 				players={players}
 				currentPlayer={playerName}
 				onSubmit={handleSubmit}

@@ -3,12 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import type { RealtimeChannel } from "@supabase/supabase-js";
 import SubmissionPhase from "./game/SubmissionPhase";
 import VotingPhase from "./game/VotingPhase";
 import ResultsPhase from "./game/ResultsPhase";
 import InsightsPhase from "./game/InsightsPhase";
 import GameOverPhase from "./game/GameOverPhase";
+import GameStartRitual from "./GameStartRitual";
 import FloatingBackground from "./FloatingBackground";
 
 // Enhanced prompts with associated emojis (6 rounds)
@@ -24,7 +24,13 @@ const prompts = [
 	},
 ];
 
-type Phase = "submission" | "voting" | "results" | "insights" | "gameOver";
+type Phase =
+	| "ritual"
+	| "submission"
+	| "voting"
+	| "results"
+	| "insights"
+	| "gameOver";
 
 export default function GameRoom({
 	groupCode,
@@ -37,8 +43,9 @@ export default function GameRoom({
 	players: string[];
 	onReturnHome: () => void;
 }) {
-	const [phase, setPhase] = useState<Phase>("submission");
+	const [phase, setPhase] = useState<Phase>("ritual");
 	const [round, setRound] = useState(1);
+	const [theme] = useState("Deep Cut: Revelations"); // TODO: Get from lobby/theme selection
 	const [shuffledEntries, setShuffledEntries] = useState<
 		{ id: string; text: string }[]
 	>([]);
@@ -55,7 +62,6 @@ export default function GameRoom({
 
 	// Presence tracking state
 	const [connectedPlayers, setConnectedPlayers] = useState<string[]>([]);
-	const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 	const [presenceMessage, setPresenceMessage] = useState<string>("");
 
 	// Timer state
@@ -72,8 +78,6 @@ export default function GameRoom({
 				},
 			},
 		});
-
-		setChannel(presenceChannel);
 
 		presenceChannel.subscribe(async (status) => {
 			if (status === "SUBSCRIBED") {
@@ -154,6 +158,34 @@ export default function GameRoom({
 		return () => clearTimeout(timer);
 	}, [timerActive, timeLeft]);
 
+	const getDisconnectedPlayers = useCallback(() => {
+		return players.filter((p) => !connectedPlayers.includes(p));
+	}, [players, connectedPlayers]);
+
+	const handleAllSubmissionsComplete = useCallback(
+		(entries: { id: string; text: string }[]) => {
+			// Add submissions for disconnected players
+			const disconnectedPlayers = getDisconnectedPlayers();
+			const allEntries = [...entries];
+
+			disconnectedPlayers.forEach((player) => {
+				allEntries.push({
+					id: player,
+					text: "— Left the void unanswered —",
+				});
+			});
+
+			setShuffledEntries(allEntries);
+			const submissionsMap = allEntries.reduce((acc, entry) => {
+				acc[entry.id] = entry.text;
+				return acc;
+			}, {} as Record<string, string>);
+			setSubmissions(submissionsMap);
+			setPhase("voting");
+		},
+		[getDisconnectedPlayers]
+	);
+
 	const handleTimeExpired = useCallback(() => {
 		const connectedPlayersList =
 			connectedPlayers.length > 0 ? connectedPlayers : players;
@@ -219,34 +251,6 @@ export default function GameRoom({
 		emoji: "",
 	};
 
-	const getDisconnectedPlayers = useCallback(() => {
-		return players.filter((p) => !connectedPlayers.includes(p));
-	}, [players, connectedPlayers]);
-
-	const handleAllSubmissionsComplete = useCallback(
-		(entries: { id: string; text: string }[]) => {
-			// Add submissions for disconnected players
-			const disconnectedPlayers = getDisconnectedPlayers();
-			const allEntries = [...entries];
-
-			disconnectedPlayers.forEach((player) => {
-				allEntries.push({
-					id: player,
-					text: "— Left the void unanswered —",
-				});
-			});
-
-			setShuffledEntries(allEntries);
-			const submissionsMap = allEntries.reduce((acc, entry) => {
-				acc[entry.id] = entry.text;
-				return acc;
-			}, {} as Record<string, string>);
-			setSubmissions(submissionsMap);
-			setPhase("voting");
-		},
-		[getDisconnectedPlayers]
-	);
-
 	const handleAllVotesComplete = (allVotes: Record<string, string>) => {
 		setVotes(allVotes);
 
@@ -274,6 +278,10 @@ export default function GameRoom({
 		setSubmissions({});
 		setVotes({});
 		setShuffledEntries([]);
+	};
+
+	const handleRitualComplete = () => {
+		setPhase("submission");
 	};
 
 	const handleContinueFromInsights = () => {
@@ -348,163 +356,179 @@ export default function GameRoom({
 			</div>
 
 			<div className="flex-grow flex items-center justify-center">
-				<motion.div
-					initial={{ opacity: 0, scale: 0.9 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ duration: 0.4 }}
-					className="w-full max-w-4xl p-6 mx-auto text-center"
-				>
-					<motion.p
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.2 }}
-						className="text-lg font-medium leading-tight mb-8 px-4 drop-shadow-[0_0_2px_#ec489888]"
+				{phase === "ritual" && (
+					<GameStartRitual
+						theme={theme}
+						onRitualComplete={handleRitualComplete}
+					/>
+				)}
+
+				{phase !== "ritual" && (
+					<motion.div
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.4 }}
+						className="w-full max-w-4xl p-6 mx-auto text-center"
 					>
-						<span
-							className="mr-2 text-2xl animate-pulse"
-							style={{ animationDuration: "2.5s" }}
+						<motion.p
+							initial={{ opacity: 0, y: 10 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.2 }}
+							className="text-lg font-medium leading-tight mb-8 px-4 drop-shadow-[0_0_2px_#ec489888]"
 						>
-							{promptEmoji}
-						</span>
-						<span>{prompt}</span>
-					</motion.p>
+							<span
+								className="mr-2 text-2xl animate-pulse"
+								style={{ animationDuration: "2.5s" }}
+							>
+								{promptEmoji}
+							</span>
+							<span>{prompt}</span>
+						</motion.p>
 
-					{/* Timer and Kiro's Announcement for Submission Phase */}
-					{phase === "submission" && (
-						<>
-							{/* Kiro's Announcement */}
-							{kiroAnnouncement && (
-								<motion.div
-									initial={{ opacity: 0, scale: 0.9 }}
-									animate={{ opacity: 1, scale: 1 }}
-									exit={{ opacity: 0, scale: 0.9 }}
-									className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-purple-900/40 rounded-lg border border-red-500/40"
-								>
-									<div className="flex items-center justify-center gap-2 mb-2">
-										<span className="text-red-400 animate-pulse">💀</span>
-										<span className="text-lg font-bold text-red-300">
-											Kiro&apos;s Command
-										</span>
-										<span className="text-red-400 animate-pulse">💀</span>
-									</div>
-									<p className="text-red-200 text-sm italic">
-										&ldquo;{kiroAnnouncement}&rdquo;
-									</p>
-								</motion.div>
-							)}
+						{/* Timer and Kiro's Announcement for Submission Phase */}
+						{phase === "submission" && (
+							<>
+								{/* Kiro's Announcement */}
+								{kiroAnnouncement && (
+									<motion.div
+										initial={{ opacity: 0, scale: 0.9 }}
+										animate={{ opacity: 1, scale: 1 }}
+										exit={{ opacity: 0, scale: 0.9 }}
+										className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-purple-900/40 rounded-lg border border-red-500/40"
+									>
+										<div className="flex items-center justify-center gap-2 mb-2">
+											<span className="text-red-400 animate-pulse">💀</span>
+											<span className="text-lg font-bold text-red-300">
+												Kiro&apos;s Command
+											</span>
+											<span className="text-red-400 animate-pulse">💀</span>
+										</div>
+										<p className="text-red-200 text-sm italic">
+											&ldquo;{kiroAnnouncement}&rdquo;
+										</p>
+									</motion.div>
+								)}
 
-							{/* Timer Display */}
-							{timerActive && (
-								<motion.div
-									initial={{ opacity: 0, y: -10 }}
-									animate={{ opacity: 1, y: 0 }}
-									className="mb-6 flex items-center justify-center gap-4"
-								>
-									<div className="flex items-center gap-2">
-										<span className="text-2xl animate-pulse">⏰</span>
-										<span
-											className={`text-2xl font-bold ${
-												timeLeft <= 10
-													? "text-red-400 animate-pulse"
-													: timeLeft <= 20
-													? "text-yellow-400"
-													: "text-green-400"
-											}`}
-										>
-											{timeLeft}s
-										</span>
-									</div>
+								{/* Timer Display */}
+								{timerActive && (
+									<motion.div
+										initial={{ opacity: 0, y: -10 }}
+										animate={{ opacity: 1, y: 0 }}
+										className="mb-6 flex items-center justify-center gap-4"
+									>
+										<div className="flex items-center gap-2">
+											<span className="text-2xl animate-pulse">⏰</span>
+											<span
+												className={`text-2xl font-bold ${
+													timeLeft <= 10
+														? "text-red-400 animate-pulse"
+														: timeLeft <= 20
+														? "text-yellow-400"
+														: "text-green-400"
+												}`}
+											>
+												{timeLeft}s
+											</span>
+										</div>
 
-									{/* Subtle glow bar */}
-									<div className="w-32 h-2 bg-zinc-700 rounded-full overflow-hidden">
-										<motion.div
-											className={`h-full rounded-full ${
-												timeLeft <= 10
-													? "bg-red-500"
-													: timeLeft <= 20
-													? "bg-yellow-500"
-													: "bg-green-500"
-											}`}
-											initial={{ width: "100%" }}
-											animate={{ width: `${(timeLeft / 30) * 100}%` }}
-											transition={{ duration: 1, ease: "linear" }}
-										/>
-									</div>
-								</motion.div>
-							)}
-						</>
-					)}
+										{/* Subtle glow bar */}
+										<div className="w-32 h-2 bg-zinc-700 rounded-full overflow-hidden">
+											<motion.div
+												className={`h-full rounded-full ${
+													timeLeft <= 10
+														? "bg-red-500"
+														: timeLeft <= 20
+														? "bg-yellow-500"
+														: "bg-green-500"
+												}`}
+												initial={{ width: "100%" }}
+												animate={{ width: `${(timeLeft / 30) * 100}%` }}
+												transition={{ duration: 1, ease: "linear" }}
+											/>
+										</div>
+									</motion.div>
+								)}
+							</>
+						)}
 
-					{phase === "submission" && (
-						<SubmissionPhase
-							groupCode={groupCode}
-							playerName={playerName}
-							players={connectedPlayers.length > 0 ? connectedPlayers : players}
-							round={round}
-							prompt={prompt}
-							onAllSubmissionsComplete={handleAllSubmissionsComplete}
-						/>
-					)}
-
-					{phase === "voting" && (
-						<VotingPhase
-							groupCode={groupCode}
-							playerName={playerName}
-							players={connectedPlayers.length > 0 ? connectedPlayers : players}
-							round={round}
-							shuffledEntries={shuffledEntries}
-							onAllVotesComplete={handleAllVotesComplete}
-						/>
-					)}
-
-					{phase === "results" && (
-						<>
-							{shouldShowDisconnectionInsight() && (
-								<motion.div
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									className="mb-6 p-4 bg-gradient-to-r from-red-900/30 to-purple-900/30 rounded-lg border border-red-500/30"
-								>
-									<div className="flex items-center justify-center gap-2 mb-2">
-										<span className="text-red-400">💀</span>
-										<span className="text-lg font-bold text-red-300">
-											Kiro&apos;s Observation
-										</span>
-										<span className="text-red-400">💀</span>
-									</div>
-									<p className="text-red-200 text-sm">
-										{getDisconnectedPlayers().length === 1
-											? "Kiro noticed someone disappeared. Not everyone can handle the pressure."
-											: "You've shed the dead weight. The circle grows stronger."}
-									</p>
-								</motion.div>
-							)}
-							<ResultsPhase
-								winnerId={winnerId}
-								submissions={submissions}
-								votes={votes}
+						{phase === "submission" && (
+							<SubmissionPhase
+								groupCode={groupCode}
+								playerName={playerName}
 								players={
 									connectedPlayers.length > 0 ? connectedPlayers : players
 								}
-								onNextRound={handleNextRound}
+								round={round}
+								prompt={prompt}
+								theme={theme}
+								onAllSubmissionsComplete={handleAllSubmissionsComplete}
 							/>
-						</>
-					)}
+						)}
 
-					{phase === "insights" && (
-						<InsightsPhase
-							allRoundData={allRoundData}
-							players={connectedPlayers.length > 0 ? connectedPlayers : players}
-							isFinalInsights={round === 6}
-							onContinue={handleContinueFromInsights}
-							onReturnHome={onReturnHome}
-						/>
-					)}
+						{phase === "voting" && (
+							<VotingPhase
+								groupCode={groupCode}
+								playerName={playerName}
+								players={
+									connectedPlayers.length > 0 ? connectedPlayers : players
+								}
+								round={round}
+								shuffledEntries={shuffledEntries}
+								onAllVotesComplete={handleAllVotesComplete}
+							/>
+						)}
 
-					{phase === "gameOver" && (
-						<GameOverPhase onReturnHome={onReturnHome} />
-					)}
-				</motion.div>
+						{phase === "results" && (
+							<>
+								{shouldShowDisconnectionInsight() && (
+									<motion.div
+										initial={{ opacity: 0, y: 20 }}
+										animate={{ opacity: 1, y: 0 }}
+										className="mb-6 p-4 bg-gradient-to-r from-red-900/30 to-purple-900/30 rounded-lg border border-red-500/30"
+									>
+										<div className="flex items-center justify-center gap-2 mb-2">
+											<span className="text-red-400">💀</span>
+											<span className="text-lg font-bold text-red-300">
+												Kiro&apos;s Observation
+											</span>
+											<span className="text-red-400">💀</span>
+										</div>
+										<p className="text-red-200 text-sm">
+											{getDisconnectedPlayers().length === 1
+												? "Kiro noticed someone disappeared. Not everyone can handle the pressure."
+												: "You've shed the dead weight. The circle grows stronger."}
+										</p>
+									</motion.div>
+								)}
+								<ResultsPhase
+									winnerId={winnerId}
+									submissions={submissions}
+									votes={votes}
+									players={
+										connectedPlayers.length > 0 ? connectedPlayers : players
+									}
+									onNextRound={handleNextRound}
+								/>
+							</>
+						)}
+
+						{phase === "insights" && (
+							<InsightsPhase
+								allRoundData={allRoundData}
+								players={
+									connectedPlayers.length > 0 ? connectedPlayers : players
+								}
+								isFinalInsights={round === 6}
+								onContinue={handleContinueFromInsights}
+								onReturnHome={onReturnHome}
+							/>
+						)}
+
+						{phase === "gameOver" && (
+							<GameOverPhase onReturnHome={onReturnHome} />
+						)}
+					</motion.div>
+				)}
 			</div>
 		</main>
 	);
