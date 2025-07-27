@@ -166,3 +166,17 @@
 	text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff,
 		0 0 40px #ff00ff88;
 }
+
+@keyframes text-glow {
+	0%,
+	100% {
+		filter: brightness(1);
+	}
+	50% {
+		filter: brightness(1.3);
+	}
+}
+
+.animate-text-glow {
+	animation: text-glow 3.5s ease-in-out infinite;
+}
