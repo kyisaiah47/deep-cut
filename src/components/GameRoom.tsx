@@ -405,7 +405,25 @@ export default function GameRoom({
 			/>
 
 			<div className="p-4 flex justify-between items-center bg-black/30 backdrop-blur-md text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
-				<span>👋 {playerName}</span>
+				<div className="flex items-center gap-4">
+					<span>👋 {playerName}</span>
+					<div className="flex items-center gap-2">
+						{players.map((player) => (
+							<span
+								key={player}
+								className="flex items-center gap-1 text-xs"
+							>
+								{getPlayerStatus(player)}
+								<span className={player === playerName ? "text-pink-400" : ""}>
+									{player}
+								</span>
+								{!connectedPlayers.includes(player) && (
+									<span className="text-red-400 text-xs">offline</span>
+								)}
+							</span>
+						))}
+					</div>
+				</div>
 				<span className="relative">
 					Group Code:{" "}
 					<button
@@ -424,29 +442,14 @@ export default function GameRoom({
 				<span>Round {round}/6</span>
 			</div>
 
-			{/* Player presence indicator */}
-			<div className="p-2 bg-black/20 backdrop-blur-md text-xs text-zinc-400 border-b border-zinc-700/50 relative z-10">
-				<div className="flex justify-center gap-4">
-					{players.map((player) => (
-						<span
-							key={player}
-							className="flex items-center gap-1"
-						>
-							{getPlayerStatus(player)} {player}
-							{!connectedPlayers.includes(player) && (
-								<span className="text-red-400 ml-1 text-xs">disconnected</span>
-							)}
-						</span>
-					))}
+			{/* Presence message only when needed */}
+			{presenceMessage && (
+				<div className="p-2 bg-red-900/20 backdrop-blur-md text-xs text-center text-yellow-400 animate-pulse border-b border-zinc-700/50 relative z-10">
+					{presenceMessage}
 				</div>
-				{presenceMessage && (
-					<div className="text-center mt-1 text-yellow-400 animate-pulse">
-						{presenceMessage}
-					</div>
-				)}
-			</div>
+			)}
 
-			<div className="flex-grow flex items-center justify-center">
+			<div className="flex-1 flex items-center justify-center p-4">
 				{phase === "ritual" && (
 					<GameStartRitual
 						theme={theme}
@@ -459,7 +462,7 @@ export default function GameRoom({
 						initial={{ opacity: 0, scale: 0.9 }}
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ duration: 0.4 }}
-						className="w-full max-w-4xl p-6 mx-auto text-center"
+						className="w-full max-w-6xl mx-auto text-center"
 					>
 						<motion.p
 							initial={{ opacity: 0, y: 10 }}
