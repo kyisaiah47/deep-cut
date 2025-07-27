@@ -37,16 +37,18 @@ export default function GameRoom({
 	groupCode,
 	playerName,
 	players,
+	theme: selectedTheme,
 	onReturnHome,
 }: {
 	groupCode: string;
 	playerName: string;
 	players: string[];
+	theme: string;
 	onReturnHome: () => void;
 }) {
 	const [phase, setPhase] = useState<Phase>("ritual");
 	const [round, setRound] = useState(1);
-	const [theme] = useState("Deep Cut: Revelations"); // TODO: Get from lobby/theme selection
+	const [theme] = useState(selectedTheme || "Deep Cut: Revelations");
 	const [shuffledEntries, setShuffledEntries] = useState<
 		{ id: string; text: string }[]
 	>([]);

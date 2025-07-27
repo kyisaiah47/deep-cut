@@ -176,6 +176,7 @@ export default function Home() {
 				groupCode={groupCode}
 				playerName={playerName}
 				players={players}
+				theme={selectedTheme}
 				onReturnHome={handleReturnHome}
 			/>
 		);
