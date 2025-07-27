@@ -114,42 +114,21 @@ export default function VotingPhase({
 	}, [groupCode, round, voteCompletionChecked]);
 
 	useEffect(() => {
-		console.log("VotingPhase: Checking votes completion", {
-			votesCount: Object.keys(votes).length,
-			playersCount: players.length,
-			votes,
-			players,
-			voteCompletionChecked,
-		});
-
 		if (Object.keys(votes).length >= players.length && !voteCompletionChecked) {
-			console.log(
-				"VotingPhase: All votes collected, calling onAllVotesComplete"
-			);
 			setVoteCompletionChecked(true);
 			onAllVotesComplete(votes);
 		}
 	}, [votes, players, onAllVotesComplete, voteCompletionChecked]);
 
 	const handleVote = async (voteFor: string) => {
-		console.log("VotingPhase: handleVote called", { playerName, voteFor });
-
 		// Immediately update local state to disable the form
 		setVotes((prev) => {
 			const newVotes = { ...prev, [playerName]: voteFor };
-			console.log("VotingPhase: Updated local votes", newVotes);
 			return newVotes;
 		});
 
 		try {
-			console.log("VotingPhase: Submitting vote to database", {
-				room_code: groupCode,
-				round_number: round,
-				voter_name: playerName,
-				vote_for: voteFor,
-			});
-
-			const result = await supabase.from("votes").upsert(
+			await supabase.from("votes").upsert(
 				{
 					room_code: groupCode,
 					round_number: round,
@@ -158,8 +137,6 @@ export default function VotingPhase({
 				},
 				{ onConflict: "room_code,round_number,voter_name" }
 			);
-
-			console.log("VotingPhase: Vote submission result", result);
 		} catch (error) {
 			console.error("VotingPhase: Vote submission failed", error);
 		}

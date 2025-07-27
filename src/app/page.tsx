@@ -14,6 +14,16 @@ import GameRoom from "@/components/GameRoom";
 import FloatingBackground from "@/components/FloatingBackground";
 import useSound from "use-sound";
 import { useTypewriter } from "react-simple-typewriter";
+import { Syne } from "next/font/google";
+import {
+	InputOTP,
+	InputOTPGroup,
+	InputOTPSeparator,
+	InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { cn } from "@/lib/utils";
+
+const syne = Syne({ subsets: ["latin"], weight: ["800"] });
 
 const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -219,7 +229,9 @@ export default function Home() {
 				transition={{ delay: 0.3, duration: 0.6 }}
 				className="text-center mb-8"
 			>
-				<h1 className="text-5xl sm:text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]">
+				<h1
+					className={`${syne.className} text-5xl tracking-tight sm:text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]`}
+				>
 					🎭 Deep Cut 💬
 				</h1>
 				<p className="mt-2 text-sm sm:text-base text-zinc-400 italic">
@@ -241,19 +253,49 @@ export default function Home() {
 				</p>
 				{easterEgg && (
 					<p className="text-red-500 text-sm italic animate-pulse">
-						👁 Chaos Mode Unlocked. Kiro is watching.
+						👁 Kiro is watching.
 					</p>
 				)}
 
 				<div className="space-y-3">
-					<input
+					<div className="flex flex-col items-center mt-6">
+						<p className="mb-3 text-sm text-zinc-400 italic tracking-wide">
+							Paste your room code to enter the abyss.
+						</p>
+
+						<InputOTP
+							maxLength={6}
+							value={manualCode}
+							onChange={(e) => setManualCode(e.toUpperCase())}
+							className="flex gap-3 sm:gap-4"
+						>
+							<InputOTPGroup className="flex gap-3 sm:gap-4">
+								{[...Array(6)].map((_, i) => (
+									<InputOTPSlot
+										key={i}
+										index={i}
+										className={cn(
+											"w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-black",
+											"rounded-lg bg-zinc-900 text-white border border-zinc-700",
+											"focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500",
+											"focus:shadow-[0_0_15px_rgba(168,85,247,0.5)]",
+											"transition-all duration-200 ease-in-out",
+											"hover:scale-[1.05] hover:border-fuchsia-500"
+										)}
+									/>
+								))}
+							</InputOTPGroup>
+						</InputOTP>
+					</div>
+
+					{/* <input
 						type="text"
 						value={manualCode}
 						onChange={(e) => setManualCode(e.target.value.toUpperCase())}
 						maxLength={6}
 						placeholder="Enter Group Code (e.g. X4Q7LB)"
 						className="w-full px-4 py-2 rounded bg-zinc-700 text-white outline-none placeholder:text-zinc-400 text-center tracking-widest uppercase hover:shadow-lg hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
-					/>
+					/> */}
 
 					<motion.button
 						whileHover={{
@@ -264,7 +306,9 @@ export default function Home() {
 						onClick={handleJoin}
 						className="relative w-full px-6 py-3 font-bold text-white rounded-md bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-500 shadow-[0_0_20px_rgba(180,0,255,0.5)]"
 					>
-						<span className="relative z-10">🎭 Join the Cut</span>
+						<span className={`relative z-10 ${syne.className} text-sm`}>
+							🎭 Join the Cut
+						</span>
 						<div className="absolute inset-0 rounded-md bg-black opacity-30 blur-sm animate-pulse z-0" />
 					</motion.button>
 
@@ -284,7 +328,9 @@ export default function Home() {
 					onClick={handleNewGroup}
 					className="relative px-6 py-3 font-bold text-white rounded-md bg-gradient-to-r from-red-700 via-orange-600 to-yellow-500 shadow-[0_0_20px_rgba(255,50,0,0.6)]"
 				>
-					<span className="relative z-10">🔥 Summon Kiro 🔥</span>
+					<span className={`relative z-10 ${syne.className} text-sm`}>
+						🔥 Summon Kiro 🔥
+					</span>
 					<div className="absolute inset-0 rounded-md bg-black opacity-30 blur-sm animate-pulse z-0" />
 				</motion.button>
 

@@ -232,6 +232,12 @@ export default function GameRoom({
 
 	const handleAllVotesComplete = useCallback(
 		(allVotes: Record<string, string>) => {
+			console.log("GameRoom: handleAllVotesComplete called", {
+				allVotes,
+				round,
+				phase,
+			});
+
 			setVotes(allVotes);
 
 			// Store this round's data
@@ -246,12 +252,14 @@ export default function GameRoom({
 
 			// Show insights after round 3, and comprehensive insights after round 6 (final)
 			if (round === 3 || round === 6) {
+				console.log("GameRoom: Setting phase to insights");
 				setPhase("insights");
 			} else {
+				console.log("GameRoom: Setting phase to results");
 				setPhase("results");
 			}
 		},
-		[round, submissions, prompt]
+		[round, phase, submissions, prompt]
 	);
 
 	const handleNextRound = () => {
