@@ -6,6 +6,7 @@ import SubmissionPhase from "./game/SubmissionPhase";
 import VotingPhase from "./game/VotingPhase";
 import ResultsPhase from "./game/ResultsPhase";
 import GameOverPhase from "./game/GameOverPhase";
+import FloatingBackground from "./FloatingBackground";
 
 // Enhanced prompts with associated emojis
 const prompts = [
@@ -81,8 +82,9 @@ export default function GameRoom({
 	}, "");
 
 	return (
-		<main className="min-h-screen flex flex-col bg-gradient-to-br from-black to-zinc-900 text-white">
-			<div className="p-4 flex justify-between items-center bg-zinc-800 text-sm text-zinc-300 border-b border-zinc-700">
+		<main className="min-h-screen flex flex-col bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
+			<FloatingBackground />
+			<div className="p-4 flex justify-between items-center bg-zinc-800 text-sm text-zinc-300 border-b border-zinc-700 relative z-10">
 				<span>👋 {playerName}</span>
 				<span>
 					Group Code:{" "}

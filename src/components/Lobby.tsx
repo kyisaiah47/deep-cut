@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import FloatingBackground from "./FloatingBackground";
 
 const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,8 +16,6 @@ const tips = [
 	"Someone in this room will betray you.",
 	"Only the worthy can press Start.",
 ];
-
-const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
 
 export default function Lobby({
 	groupCode,
@@ -104,22 +103,7 @@ export default function Lobby({
 
 	return (
 		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
-			{/* Floating Emojis */}
-			{[...Array(12)].map((_, i) => (
-				<motion.div
-					key={i}
-					className="absolute text-5xl pointer-events-none"
-					style={{
-						top: `${Math.random() * 100}%`,
-						left: `${Math.random() * 100}%`,
-						rotate: `${Math.random() * 360}deg`,
-					}}
-					animate={{ y: [0, -10, 0], opacity: [0.2, 0.7, 0.2] }}
-					transition={{ repeat: Infinity, duration: 4 + Math.random() * 2 }}
-				>
-					{icons[i % icons.length]}
-				</motion.div>
-			))}
+			<FloatingBackground />
 
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}
@@ -138,9 +122,7 @@ export default function Lobby({
 				<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 border border-zinc-700 rounded-md p-2 mb-4">
 					<ul className="text-zinc-200 space-y-1 text-left">
 						{players.map((p, i) => (
-							<li key={i}>
-								{icons[i % icons.length]} {p}
-							</li>
+							<li key={i}>👤 {p}</li>
 						))}
 					</ul>
 				</div>

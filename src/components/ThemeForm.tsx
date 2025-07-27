@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
+import FloatingBackground from "./FloatingBackground";
 
 const kiroMessages = [
 	"Choose your arena of destruction...",
@@ -41,6 +42,7 @@ export default function ThemeForm({
 
 	return (
 		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
+			<FloatingBackground />
 			{/* Theme Selection Form */}
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}

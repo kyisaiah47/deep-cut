@@ -10,6 +10,7 @@ import PlayerForm from "@/components/PlayerForm";
 import ThemeForm from "@/components/ThemeForm";
 import Lobby from "@/components/Lobby";
 import GameRoom from "@/components/GameRoom";
+import FloatingBackground from "@/components/FloatingBackground";
 import useSound from "use-sound";
 import { useTypewriter } from "react-simple-typewriter";
 
@@ -31,7 +32,6 @@ export default function Home() {
 	>("entry");
 	const [clickCount, setClickCount] = useState(0);
 	const [easterEgg, setEasterEgg] = useState(false);
-	const icons = ["😈", "👻", "🤡", "😎", "🧠", "🎩"];
 
 	const [playWhisper] = useSound("/sounds/whisper.mp3", { volume: 0.4 });
 
@@ -155,21 +155,7 @@ export default function Home() {
 
 	return (
 		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-zinc-950 text-white relative overflow-hidden">
-			{[...Array(12)].map((_, i) => (
-				<motion.div
-					key={i}
-					className="absolute text-5xl pointer-events-none"
-					style={{
-						top: `${Math.random() * 100}%`,
-						left: `${Math.random() * 100}%`,
-						rotate: `${Math.random() * 360}deg`,
-					}}
-					animate={{ y: [0, -10, 0], opacity: [0.2, 0.7, 0.2] }}
-					transition={{ repeat: Infinity, duration: 4 + Math.random() * 2 }}
-				>
-					{icons[i % icons.length]}
-				</motion.div>
-			))}
+			<FloatingBackground />
 			<motion.div
 				initial={{ opacity: 0, y: 40 }}
 				animate={{ opacity: 1, y: 0 }}

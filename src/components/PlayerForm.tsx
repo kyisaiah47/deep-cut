@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
+import FloatingBackground from "./FloatingBackground";
 
 const kiroMessages = [
 	"Kiro sees into your soul...",
@@ -41,19 +42,7 @@ export default function PlayerForm({
 
 	return (
 		<main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-zinc-900 text-white relative overflow-hidden">
-			{/* Floating Emojis */}
-			{["💀", "✂️", "🎭"].map((emoji, i) => (
-				<motion.div
-					key={i}
-					className="absolute text-7xl pointer-events-none"
-					style={{ top: `${20 + i * 20}%`, left: `${20 + i * 30}%` }}
-					animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
-					transition={{ repeat: Infinity, duration: 4 + i }}
-				>
-					{emoji}
-				</motion.div>
-			))}
-
+			<FloatingBackground />
 			{/* Neon Glow & Form */}
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}
