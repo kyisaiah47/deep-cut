@@ -64,17 +64,30 @@ export default function ThemeForm({
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					prompt:
-						"Generate a fun, weird, or emotionally charged game theme for a chaotic friend group. Make it unexpected and slightly unhinged but appropriate for adults. Examples: 'Daddy Issues & Deli Meats', 'Corporate Nightmares', 'Childhood Traumas & Snacks'. Just return the theme name, nothing else.",
+					contents: [
+						{
+							parts: [
+								{
+									text: `
+Generate a fun, weird, or emotionally charged game theme for a chaotic friend group. 
+Make it unexpected and slightly unhinged but still appropriate for adults. 
+Examples: 'Daddy Issues & Deli Meats', 'Corporate Nightmares', 'Childhood Traumas & Snacks'. 
+Just return the theme name only, nothing else.`,
+								},
+							],
+						},
+					],
 				}),
 			});
 
-			if (!response.ok) {
-				throw new Error("Failed to generate theme");
-			}
+			if (!response.ok) throw new Error("Gemini API request failed");
 
 			const data = await response.json();
-			setSelectedTheme(data.theme || "Chaotic Friendship Dynamics");
+			const theme =
+				data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+				"Chaotic Friendship Dynamics";
+
+			setSelectedTheme(theme);
 		} catch (error) {
 			console.error("Error generating theme:", error);
 			// Fallback to predefined chaotic themes
