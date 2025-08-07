@@ -1,151 +1,125 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Submission } from "../types/game";
 import { Card } from "./Card";
-import { ANIMATION_DURATIONS } from "../lib/constants";
+import { Submission, Card as CardType } from "@/types/game";
 
 interface SubmissionCardProps {
 	submission: Submission;
-	isVotable?: boolean;
+	promptCard: CardType;
+	showPlayerName?: boolean;
+	playerName?: string;
+	isVotingPhase?: boolean;
 	hasVoted?: boolean;
-	isWinner?: boolean;
-	showVoteCount?: boolean;
-	onClick?: (submissionId: string) => void;
+	onVote?: (submissionId: string) => void;
 	animationDelay?: number;
 	className?: string;
 }
 
 export function SubmissionCard({
 	submission,
-	isVotable = false,
+	promptCard,
+	showPlayerName = false,
+	playerName,
+	isVotingPhase = false,
 	hasVoted = false,
-	isWinner = false,
-	showVoteCount = false,
-	onClick,
+	onVote,
 	animationDelay = 0,
 	className = "",
 }: SubmissionCardProps) {
-	const handleClick = () => {
-		if (isVotable && !hasVoted && onClick) {
-			onClick(submission.id);
+	const handleVote = () => {
+		if (isVotingPhase && !hasVoted && onVote) {
+			onVote(submission.id);
 		}
 	};
 
-	const canClick = isVotable && !hasVoted;
+	const canVote = isVotingPhase && !hasVoted && onVote;
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 30, scale: 0.9 }}
-			animate={{ opacity: 1, y: 0, scale: 1 }}
-			transition={{
-				duration: ANIMATION_DURATIONS.CARD_SELECT,
-				delay: animationDelay,
-				ease: "easeOut",
-			}}
-			whileHover={
-				canClick
-					? {
-							scale: 1.02,
-							y: -4,
-							transition: { duration: ANIMATION_DURATIONS.CARD_HOVER },
-					  }
-					: {}
-			}
-			whileTap={
-				canClick
-					? {
-							scale: 0.98,
-							transition: { duration: 0.1 },
-					  }
-					: {}
-			}
-			className={`
-				relative bg-white rounded-xl shadow-lg border-2 p-6 transition-all duration-200
-				${
-					isWinner
-						? "border-yellow-400 bg-yellow-50 shadow-yellow-200/50"
-						: "border-gray-200"
-				}
-				${
-					canClick
-						? "cursor-pointer hover:shadow-xl hover:border-blue-300"
-						: hasVoted
-						? "opacity-75"
-						: ""
-				}
-				${className}
-			`
-				.trim()
-				.replace(/\s+/g, " ")}
-			onClick={handleClick}
+			initial={{ opacity: 0, y: 20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ delay: animationDelay }}
+			className={`bg-white border rounded-lg p-4 space-y-4 ${
+				canVote
+					? "cursor-pointer hover:shadow-lg hover:border-blue-300 transition-all duration-200"
+					: ""
+			} ${className}`}
+			onClick={handleVote}
+			whileHover={canVote ? { scale: 1.02 } : undefined}
+			whileTap={canVote ? { scale: 0.98 } : undefined}
 		>
-			{/* Winner badge */}
-			{isWinner && (
-				<motion.div
-					initial={{ scale: 0, rotate: -180 }}
-					animate={{ scale: 1, rotate: 0 }}
-					transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-					className="absolute -top-3 -right-3 bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold shadow-lg"
-				>
-					👑
-				</motion.div>
-			)}
-
-			{/* Vote count badge */}
-			{showVoteCount && (
-				<motion.div
-					initial={{ scale: 0 }}
-					animate={{ scale: 1 }}
-					transition={{ delay: 0.2 }}
-					className="absolute -top-2 -left-2 bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-lg"
-				>
-					{submission.votes}
-				</motion.div>
-			)}
-
-			{/* Cards display */}
-			<div className="space-y-4">
-				{/* Find and display prompt card */}
-				{submission.response_cards.find((card) => card.type === "prompt") && (
-					<div className="mb-4">
-						<Card
-							card={
-								submission.response_cards.find(
-									(card) => card.type === "prompt"
-								)!
-							}
-							className="border-blue-300 bg-blue-50"
-						/>
-					</div>
+			{/* Header with player info and votes */}
+			<div className="flex items-center justify-between">
+				{showPlayerName && playerName && (
+					<span className="text-sm font-medium text-gray-700">
+						{playerName}
+					</span>
+				)}
+				{!showPlayerName && (
+					<span className="text-sm text-gray-500">Anonymous Submission</span>
 				)}
 
-				{/* Display response cards */}
-				<div className="space-y-2">
-					{submission.response_cards
-						.filter((card) => card.type === "response")
-						.map((card, index) => (
-							<Card
-								key={card.id}
-								card={card}
-								animationDelay={index * 0.05}
-								className="border-gray-300 bg-gray-50"
-							/>
-						))}
+				{submission.votes > 0 && (
+					<div className="flex items-center space-x-1">
+						<span className="text-sm font-medium text-blue-600">
+							{submission.votes}
+						</span>
+						<span className="text-sm text-gray-500">
+							vote{submission.votes !== 1 ? "s" : ""}
+						</span>
+					</div>
+				)}
+			</div>
+
+			{/* Prompt card */}
+			<div className="space-y-2">
+				<h4 className="text-sm font-medium text-gray-600">Prompt:</h4>
+				<Card
+					card={promptCard}
+					isSelected={false}
+					isSelectable={false}
+					onClick={() => {}}
+					className="pointer-events-none"
+				/>
+			</div>
+
+			{/* Response cards */}
+			<div className="space-y-2">
+				<h4 className="text-sm font-medium text-gray-600">Response:</h4>
+				<div className="grid gap-2">
+					{submission.response_cards.map((responseCard, index) => (
+						<Card
+							key={responseCard.id || index}
+							card={responseCard as CardType}
+							isSelected={false}
+							isSelectable={false}
+							onClick={() => {}}
+							className="pointer-events-none"
+						/>
+					))}
 				</div>
 			</div>
 
 			{/* Voting indicator */}
-			{canClick && (
+			{canVote && (
 				<motion.div
-					className="absolute inset-0 rounded-xl bg-blue-500 opacity-0"
-					whileHover={{ opacity: 0.05 }}
-					transition={{ duration: ANIMATION_DURATIONS.CARD_HOVER }}
-				/>
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					className="text-center pt-2 border-t border-gray-100"
+				>
+					<span className="text-sm text-blue-600 font-medium">
+						Click to vote for this combination
+					</span>
+				</motion.div>
 			)}
 
-			{/* Voted indicator */}
-			{hasVoted && (
-				<div className="absolute inset-0 rounded-xl bg-green-500 opacity-10 pointer-events-none" />
+			{/* Already voted indicator */}
+			{isVotingPhase && hasVoted && (
+				<div className="text-center pt-2 border-t border-gray-100">
+					<span className="text-sm text-gray-500">
+						You have already voted this round
+					</span>
+				</div>
 			)}
 		</motion.div>
 	);

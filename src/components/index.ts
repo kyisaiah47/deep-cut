@@ -17,6 +17,13 @@ export { SubmissionCard } from "./SubmissionCard";
 export { CardGrid, SubmissionGrid, ResponseCardGrid } from "./CardGrid";
 export { CardDisplayDemo } from "./CardDisplayDemo";
 
+// Export submission components
+export { SubmissionInterface } from "./SubmissionInterface";
+export { SubmissionStatusIndicator } from "./SubmissionStatusIndicator";
+
+// Export UI components
+export { Timer } from "./Timer";
+
 // Export round management components
 export { RoundManager } from "./RoundManager";
 

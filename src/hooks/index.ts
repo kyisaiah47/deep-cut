@@ -14,6 +14,7 @@ export {
 } from "./useCardGeneration";
 export { useRoundManagement } from "./useRoundManagement";
 export { useRoundOrchestrator } from "./useRoundOrchestrator";
+export { useSubmissionManagement } from "./useSubmissionManagement";
 
 // Re-export context hooks for convenience
 export {
