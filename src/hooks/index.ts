@@ -5,6 +5,8 @@ export {
 	broadcastGameEvent,
 } from "./useRealtimeSubscription";
 export { useGameActions } from "./useGameActions";
+export { usePlayerManagement } from "./usePlayerManagement";
+export { usePlayerEvents, usePlayerNotifications } from "./usePlayerEvents";
 
 // Re-export context hooks for convenience
 export {

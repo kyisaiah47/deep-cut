@@ -8,6 +8,11 @@ import {
 	useRealtimeSubscription,
 	broadcastGameEvent,
 } from "@/hooks/useRealtimeSubscription";
+import { usePlayerManagement } from "@/hooks/usePlayerManagement";
+import {
+	usePlayerEvents,
+	usePlayerNotifications,
+} from "@/hooks/usePlayerEvents";
 
 interface GameContextValue {
 	// Game state
@@ -32,11 +37,18 @@ interface GameContextValue {
 		event: Omit<GameEvent, "gameId" | "timestamp">
 	) => Promise<void>;
 
+	// Player management actions
+	transferHost: (newHostId: string) => Promise<void>;
+	handlePlayerLeave: (playerId: string) => Promise<void>;
+	updateConnectionStatus: (connected: boolean) => Promise<void>;
+
 	// Computed values
 	canStartGame: boolean;
 	isGameActive: boolean;
 	currentRoundCards: Card[];
 	playerSubmissions: Submission[];
+	connectedPlayers: Player[];
+	disconnectedPlayers: Player[];
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -68,6 +80,59 @@ export function GameProvider({
 	} = useGameState({
 		gameId,
 		playerId,
+		onError,
+	});
+
+	// Player notifications
+	const { showPlayerJoined, showPlayerLeft, showHostTransferred } =
+		usePlayerNotifications();
+
+	// Handle player events
+	const handlePlayerJoined = useCallback(
+		(player: Player) => {
+			showPlayerJoined(player);
+		},
+		[showPlayerJoined]
+	);
+
+	const handlePlayerLeft = useCallback(
+		(leftPlayerId: string) => {
+			const leftPlayer = players.find((p) => p.id === leftPlayerId);
+			if (leftPlayer) {
+				showPlayerLeft(leftPlayer.name);
+			}
+		},
+		[players, showPlayerLeft]
+	);
+
+	const handleHostTransferred = useCallback(
+		(newHostId: string) => {
+			const newHost = players.find((p) => p.id === newHostId);
+			if (newHost) {
+				showHostTransferred(newHost.name);
+			}
+		},
+		[players, showHostTransferred]
+	);
+
+	// Use player management hooks
+	const { updateConnectionStatus, transferHost, handlePlayerLeave } =
+		usePlayerManagement({
+			gameId,
+			playerId,
+			players,
+			gameState,
+			onError,
+			onHostTransfer: handleHostTransferred,
+		});
+
+	// Use player events for real-time updates
+	usePlayerEvents({
+		gameId,
+		playerId,
+		onPlayerJoined: handlePlayerJoined,
+		onPlayerLeft: handlePlayerLeft,
+		onHostTransferred: handleHostTransferred,
 		onError,
 	});
 
@@ -134,6 +199,10 @@ export function GameProvider({
 			  )
 			: [];
 
+		// Connected and disconnected players
+		const connectedPlayers = players.filter((p) => p.is_connected);
+		const disconnectedPlayers = players.filter((p) => !p.is_connected);
+
 		return {
 			// Game state
 			gameState,
@@ -155,11 +224,18 @@ export function GameProvider({
 			refetchGameState,
 			broadcastEvent,
 
+			// Player management actions
+			transferHost,
+			handlePlayerLeave,
+			updateConnectionStatus,
+
 			// Computed values
 			canStartGame,
 			isGameActive,
 			currentRoundCards,
 			playerSubmissions,
+			connectedPlayers,
+			disconnectedPlayers,
 		};
 	}, [
 		gameState,
@@ -174,6 +250,9 @@ export function GameProvider({
 		updateGamePhase,
 		refetchGameState,
 		broadcastEvent,
+		transferHost,
+		handlePlayerLeave,
+		updateConnectionStatus,
 	]);
 
 	return (
