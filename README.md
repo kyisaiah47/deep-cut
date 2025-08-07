@@ -1,4 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Cards Game
+
+A Cards Against Humanity-style multiplayer game with AI-generated content, built with Next.js 15, Supabase, and Framer Motion.
+
+## Features
+
+- Real-time multiplayer gameplay
+- AI-generated prompt and response cards
+- Interactive voting system
+- Smooth animations with Framer Motion
+- Responsive design for mobile and desktop
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables by copying `.env.local` and filling in your values:
+   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
+   - `OPENAI_API_KEY`: Your OpenAI API key for card generation
 
 ## Getting Started
 
