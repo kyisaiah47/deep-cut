@@ -7,7 +7,7 @@
   - Set up TypeScript interfaces for core game data structures
   - _Requirements: All requirements depend on proper setup_
 
-- [ ] 2. Implement Supabase database schema and setup
+- [x] 2. Implement Supabase database schema and setup
 
   - Create database tables for games, players, cards, submissions, and votes
   - Set up Row Level Security (RLS) policies for multiplayer game access
