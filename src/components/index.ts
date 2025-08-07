@@ -10,5 +10,12 @@ export { JoinGameForm } from "./JoinGameForm";
 export { PlayerList, CompactPlayerList } from "./PlayerList";
 export { GameLobby } from "./GameLobby";
 
+// Export card components
+export { Card } from "./Card";
+export { CardDisplay } from "./CardDisplay";
+export { SubmissionCard } from "./SubmissionCard";
+export { CardGrid, SubmissionGrid, ResponseCardGrid } from "./CardGrid";
+export { CardDisplayDemo } from "./CardDisplayDemo";
+
 // Re-export context provider for convenience
 export { GameProvider } from "../contexts/GameContext";

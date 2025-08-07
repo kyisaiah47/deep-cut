@@ -4,18 +4,14 @@ import {
 	getPromptCard,
 	getResponseCards,
 	getPlayerCards,
-} from "../../../../../../lib/card-generation";
+} from "../../../../../lib/card-generation";
 
-interface RouteParams {
-	params: {
-		gameId: string;
-		roundNumber: string;
-	};
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: Promise<{ gameId: string; roundNumber: string }> }
+) {
 	try {
-		const { gameId, roundNumber } = params;
+		const { gameId, roundNumber } = await params;
 		const { searchParams } = new URL(request.url);
 		const playerId = searchParams.get("playerId");
 		const type = searchParams.get("type"); // 'all', 'prompt', 'response', 'player'
@@ -92,9 +88,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 	}
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: Promise<{ gameId: string; roundNumber: string }> }
+) {
 	try {
-		const { gameId, roundNumber } = params;
+		const { gameId, roundNumber } = await params;
 
 		// Validate parameters
 		if (!gameId || gameId.trim().length === 0) {
@@ -113,7 +112,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 		}
 
 		// Import supabase here to avoid circular dependencies
-		const { supabase } = await import("../../../../../../lib/supabase");
+		const { supabase } = await import("../../../../../lib/supabase");
 
 		// Delete all cards for the specified game and round
 		const { error } = await supabase
