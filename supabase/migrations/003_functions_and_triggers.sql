@@ -209,3 +209,13 @@ BEGIN
       AND joined_at < NOW() - INTERVAL '5 minutes';
 END;
 $$ LANGUAGE plpgsql;
+-- Function
+ to increment submission votes (used by client)
+CREATE OR REPLACE FUNCTION increment_submission_votes(submission_id UUID)
+RETURNS VOID AS $
+BEGIN
+    UPDATE submissions 
+    SET votes = votes + 1 
+    WHERE id = submission_id;
+END;
+$ LANGUAGE plpgsql;
