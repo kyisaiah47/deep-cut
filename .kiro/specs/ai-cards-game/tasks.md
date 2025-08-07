@@ -39,7 +39,7 @@
   - Write real-time subscription handlers for player join/leave events
   - _Requirements: 1.5, 5.1, 5.2, 5.3, 5.4, 5.5, 7.4_
 
-- [ ] 6. Create AI card generation system
+- [x] 6. Create AI card generation system
 
   - Set up Supabase Edge Functions for AI-powered card generation
   - Implement OpenAI API integration for generating prompts and responses
