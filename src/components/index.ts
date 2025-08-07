@@ -17,5 +17,8 @@ export { SubmissionCard } from "./SubmissionCard";
 export { CardGrid, SubmissionGrid, ResponseCardGrid } from "./CardGrid";
 export { CardDisplayDemo } from "./CardDisplayDemo";
 
+// Export round management components
+export { RoundManager } from "./RoundManager";
+
 // Re-export context provider for convenience
 export { GameProvider } from "../contexts/GameContext";

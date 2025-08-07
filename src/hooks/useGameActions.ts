@@ -8,6 +8,7 @@ import {
 	getNextPhase,
 } from "@/lib/game-utils";
 import { useGame } from "@/contexts/GameContext";
+import { useRoundOrchestrator } from "./useRoundOrchestrator";
 
 interface UseGameActionsOptions {
 	onError?: (error: GameError) => void;
@@ -16,6 +17,7 @@ interface UseGameActionsOptions {
 interface GameActionsHook {
 	// Game flow actions
 	startGame: () => Promise<void>;
+	startNewRound: () => Promise<void>;
 	transitionToNextPhase: () => Promise<void>;
 	transitionToPhase: (phase: GameState["phase"]) => Promise<void>;
 
@@ -33,6 +35,11 @@ interface GameActionsHook {
 	// Utility actions
 	leaveGame: () => Promise<void>;
 	reconnectToGame: () => Promise<void>;
+
+	// Round management status
+	isRoundInProgress: boolean;
+	canStartNewRound: boolean;
+	roundPhase: "initializing" | "distributing" | "ready" | "complete" | null;
 }
 
 export function useGameActions({
@@ -48,6 +55,16 @@ export function useGameActions({
 		refetchGameState,
 		broadcastEvent,
 	} = useGame();
+
+	const {
+		isRoundInProgress,
+		roundPhase,
+		canStartNewRound,
+		startNewRound: startRound,
+		handlePhaseTransition,
+	} = useRoundOrchestrator({
+		onError,
+	});
 
 	const handleError = useCallback(
 		(error: GameError) => {
@@ -96,6 +113,24 @@ export function useGameActions({
 		handleError,
 	]);
 
+	// Start a new round with card generation and distribution
+	const startNewRound = useCallback(async () => {
+		if (!canStartNewRound) {
+			throw new GameStateError("Cannot start new round");
+		}
+
+		try {
+			await startRound();
+		} catch (error) {
+			const gameError =
+				error instanceof GameError
+					? error
+					: new GameStateError("Failed to start new round");
+			handleError(gameError);
+			throw gameError;
+		}
+	}, [canStartNewRound, startRound, handleError]);
+
 	// Transition to a specific phase
 	const transitionToPhase = useCallback(
 		async (targetPhase: GameState["phase"]) => {
@@ -139,6 +174,9 @@ export function useGameActions({
 					await updateGamePhase(targetPhase);
 				}
 
+				// Notify round orchestrator of phase change
+				await handlePhaseTransition(targetPhase);
+
 				await broadcastEvent({
 					type: "phase_change",
 					data: {
@@ -163,6 +201,7 @@ export function useGameActions({
 			submissions,
 			updateGamePhase,
 			broadcastEvent,
+			handlePhaseTransition,
 			handleError,
 		]
 	);
@@ -537,6 +576,7 @@ export function useGameActions({
 
 	return {
 		startGame,
+		startNewRound,
 		transitionToNextPhase,
 		transitionToPhase,
 		submitCards,
@@ -545,5 +585,8 @@ export function useGameActions({
 		kickPlayer,
 		leaveGame,
 		reconnectToGame,
+		isRoundInProgress,
+		canStartNewRound,
+		roundPhase,
 	};
 }
