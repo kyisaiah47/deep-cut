@@ -18,6 +18,7 @@ export { useSubmissionManagement } from "./useSubmissionManagement";
 export { useVotingManagement } from "./useVotingManagement";
 export { useScoringManagement } from "./useScoringManagement";
 export { useHostControls } from "./useHostControls";
+export { useErrorRecovery, useAutoErrorRecovery } from "./useErrorRecovery";
 
 // Re-export context hooks for convenience
 export {

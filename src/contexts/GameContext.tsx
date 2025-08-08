@@ -13,6 +13,7 @@ import {
 	usePlayerEvents,
 	usePlayerNotifications,
 } from "@/hooks/usePlayerEvents";
+import { useErrorRecovery } from "@/hooks/useErrorRecovery";
 
 interface GameContextValue {
 	// Game state
@@ -42,6 +43,10 @@ interface GameContextValue {
 	handlePlayerLeave: (playerId: string) => Promise<void>;
 	updateConnectionStatus: (connected: boolean) => Promise<void>;
 
+	// Error recovery
+	recoverFromError: () => Promise<void>;
+	isRecovering: boolean;
+
 	// Computed values
 	canStartGame: boolean;
 	isGameActive: boolean;
@@ -66,6 +71,19 @@ export function GameProvider({
 	playerId,
 	onError,
 }: GameProviderProps) {
+	// Use error recovery for centralized error handling
+	const errorRecovery = useErrorRecovery({
+		gameId,
+		playerId,
+		onError,
+		onRecoverySuccess: () => {
+			console.log("Error recovery successful");
+		},
+		onRecoveryFailure: (error) => {
+			console.error("Error recovery failed:", error);
+		},
+	});
+
 	// Use the game state hook
 	const {
 		gameState,
@@ -73,15 +91,24 @@ export function GameProvider({
 		cards,
 		submissions,
 		loading,
-		error,
+		error: gameStateError,
 		isConnected: gameStateConnected,
 		updateGamePhase,
 		refetchGameState,
+		recoverFromError: gameStateRecover,
+		isRecovering: gameStateRecovering,
 	} = useGameState({
 		gameId,
 		playerId,
-		onError,
+		onError: errorRecovery.reportError,
 	});
+
+	// Sync game state errors with error recovery
+	React.useEffect(() => {
+		if (gameStateError && gameStateError !== errorRecovery.error) {
+			errorRecovery.setError(gameStateError);
+		}
+	}, [gameStateError, errorRecovery]);
 
 	// Player notifications
 	const { showPlayerJoined, showPlayerLeft, showHostTransferred } =
@@ -122,7 +149,7 @@ export function GameProvider({
 			playerId,
 			players,
 			gameState,
-			onError,
+			onError: errorRecovery.reportError,
 			onHostTransfer: handleHostTransferred,
 		});
 
@@ -133,7 +160,7 @@ export function GameProvider({
 		onPlayerJoined: handlePlayerJoined,
 		onPlayerLeft: handlePlayerLeft,
 		onHostTransferred: handleHostTransferred,
-		onError,
+		onError: errorRecovery.reportError,
 	});
 
 	// Handle game events from real-time subscriptions
@@ -154,11 +181,22 @@ export function GameProvider({
 	}, []);
 
 	// Use real-time subscription for game events
-	const { isConnected: realtimeConnected } = useRealtimeSubscription({
+	const {
+		isConnected: realtimeConnected,
+		reconnectAttempts,
+		lastError: realtimeError,
+	} = useRealtimeSubscription({
 		gameId,
 		onGameEvent: handleGameEvent,
-		onError,
+		onError: errorRecovery.reportError,
 	});
+
+	// Sync realtime errors with error recovery
+	React.useEffect(() => {
+		if (realtimeError && realtimeError !== errorRecovery.error) {
+			errorRecovery.setError(realtimeError);
+		}
+	}, [realtimeError, errorRecovery]);
 
 	// Broadcast game event
 	const broadcastEvent = useCallback(
@@ -212,7 +250,7 @@ export function GameProvider({
 
 			// Connection state
 			loading,
-			error,
+			error: errorRecovery.error || gameStateError,
 			isConnected,
 
 			// Current player info
@@ -229,6 +267,10 @@ export function GameProvider({
 			handlePlayerLeave,
 			updateConnectionStatus,
 
+			// Error recovery
+			recoverFromError: errorRecovery.recoverFromError,
+			isRecovering: errorRecovery.isRecovering || gameStateRecovering,
+
 			// Computed values
 			canStartGame,
 			isGameActive,
@@ -243,7 +285,8 @@ export function GameProvider({
 		cards,
 		submissions,
 		loading,
-		error,
+		gameStateError,
+		errorRecovery.error,
 		gameStateConnected,
 		realtimeConnected,
 		playerId,
@@ -253,6 +296,9 @@ export function GameProvider({
 		transferHost,
 		handlePlayerLeave,
 		updateConnectionStatus,
+		errorRecovery.recoverFromError,
+		errorRecovery.isRecovering,
+		gameStateRecovering,
 	]);
 
 	return (

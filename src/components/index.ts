@@ -1,6 +1,11 @@
 // Export error handling components
 export { ErrorBoundary, GameErrorBoundary } from "./ErrorBoundary";
-export { ConnectionStatus, DetailedConnectionStatus } from "./ConnectionStatus";
+export {
+	ConnectionStatus,
+	DetailedConnectionStatus,
+	EnhancedConnectionStatus,
+} from "./ConnectionStatus";
+export { ErrorRecovery, ErrorRecoveryNotification } from "./ErrorRecovery";
 
 // Export form components
 export { CreateGameForm } from "./CreateGameForm";

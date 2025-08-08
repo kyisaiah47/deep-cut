@@ -237,6 +237,23 @@ function GameErrorFallback({ error, retry, gameId }: GameErrorFallbackProps) {
 		}
 	};
 
+	const handleReportError = () => {
+		// Get error details for reporting
+		const errorReport = {
+			message: error.message,
+			type: error.type,
+			timestamp: error.timestamp,
+			context: error.context,
+			gameId,
+			userAgent: navigator.userAgent,
+			url: window.location.href,
+		};
+
+		// Copy to clipboard
+		navigator.clipboard.writeText(JSON.stringify(errorReport, null, 2));
+		alert("Error details copied to clipboard. Please share with support.");
+	};
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 px-4">
 			<div className="max-w-md w-full bg-white rounded-lg shadow-xl p-6 text-center">
@@ -302,7 +319,7 @@ function GameErrorFallback({ error, retry, gameId }: GameErrorFallbackProps) {
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={2}
-									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+									d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"
 								/>
 							</svg>
 							<p className="text-xs text-yellow-800">
@@ -311,6 +328,43 @@ function GameErrorFallback({ error, retry, gameId }: GameErrorFallbackProps) {
 						</div>
 					</div>
 				)}
+
+				{error.type === "game_state" && (
+					<div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-md">
+						<div className="flex items-center">
+							<svg
+								className="h-4 w-4 text-blue-600 mr-2"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+								/>
+							</svg>
+							<p className="text-xs text-blue-800">
+								Game state may have changed. Reconnecting will sync your
+								progress.
+							</p>
+						</div>
+					</div>
+				)}
+
+				<div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+					<button
+						onClick={handleReportError}
+						className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+					>
+						Copy error details
+					</button>
+
+					<span className="text-xs text-gray-400">
+						Error ID: {error.timestamp}
+					</span>
+				</div>
 			</div>
 		</div>
 	);

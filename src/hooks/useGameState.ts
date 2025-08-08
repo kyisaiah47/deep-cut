@@ -5,7 +5,10 @@ import {
 	GameError,
 	ConnectionError,
 	GameStateError,
+	SynchronizationError,
 	retryWithBackoff,
+	recoverGameState,
+	errorLogger,
 } from "@/lib/error-handling";
 // Removed unused imports
 
@@ -26,6 +29,8 @@ interface GameStateHook {
 	updateGamePhase: (phase: GameState["phase"]) => Promise<void>;
 	updatePlayerConnection: (connected: boolean) => Promise<void>;
 	refetchGameState: () => Promise<void>;
+	recoverFromError: () => Promise<void>;
+	isRecovering: boolean;
 }
 
 export function useGameState({
@@ -40,6 +45,7 @@ export function useGameState({
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<GameError | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
+	const [isRecovering, setIsRecovering] = useState(false);
 
 	const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(
 		null
@@ -65,7 +71,11 @@ export function useGameState({
 				.single();
 
 			if (gameError) {
-				throw new GameStateError(`Failed to fetch game: ${gameError.message}`);
+				throw new GameStateError(`Failed to fetch game: ${gameError.message}`, {
+					gameId,
+					playerId,
+					operation: "fetchGame",
+				});
 			}
 
 			setGameState(game);
@@ -79,7 +89,8 @@ export function useGameState({
 
 			if (playersError) {
 				throw new GameStateError(
-					`Failed to fetch players: ${playersError.message}`
+					`Failed to fetch players: ${playersError.message}`,
+					{ gameId, playerId, operation: "fetchPlayers" }
 				);
 			}
 
@@ -94,7 +105,13 @@ export function useGameState({
 
 			if (cardsError) {
 				throw new GameStateError(
-					`Failed to fetch cards: ${cardsError.message}`
+					`Failed to fetch cards: ${cardsError.message}`,
+					{
+						gameId,
+						playerId,
+						operation: "fetchCards",
+						round: game.current_round,
+					}
 				);
 			}
 
@@ -109,7 +126,13 @@ export function useGameState({
 
 			if (submissionsError) {
 				throw new GameStateError(
-					`Failed to fetch submissions: ${submissionsError.message}`
+					`Failed to fetch submissions: ${submissionsError.message}`,
+					{
+						gameId,
+						playerId,
+						operation: "fetchSubmissions",
+						round: game.current_round,
+					}
 				);
 			}
 
@@ -119,27 +142,77 @@ export function useGameState({
 			const gameError =
 				err instanceof GameError
 					? err
-					: new GameStateError("Failed to fetch game state");
+					: new GameStateError("Failed to fetch game state", {
+							gameId,
+							playerId,
+					  });
 			setError(gameError);
+			errorLogger.log(gameError, gameId, playerId);
 			onError?.(gameError);
 		} finally {
 			setLoading(false);
 		}
-	}, [gameId, onError]);
+	}, [gameId, playerId, onError]);
 
 	// Refetch game state with retry logic
 	const refetchGameState = useCallback(async () => {
 		try {
-			await retryWithBackoff(fetchGameState, 3, 1000);
+			await retryWithBackoff(fetchGameState, 3, 1000, {
+				gameId,
+				playerId,
+				operation: "refetchGameState",
+			});
 		} catch (err) {
 			const gameError =
 				err instanceof GameError
 					? err
-					: new ConnectionError("Failed to reconnect");
+					: new ConnectionError("Failed to reconnect", { gameId, playerId });
 			setError(gameError);
+			errorLogger.log(gameError, gameId, playerId);
 			onError?.(gameError);
 		}
-	}, [fetchGameState, onError]);
+	}, [fetchGameState, gameId, playerId, onError]);
+
+	// Recover from error with game state synchronization
+	const recoverFromError = useCallback(async () => {
+		setIsRecovering(true);
+		try {
+			const recovery = await recoverGameState(
+				gameId,
+				playerId,
+				gameState?.phase
+			);
+
+			if (recovery.success) {
+				// Clear error and refetch state
+				setError(null);
+				await refetchGameState();
+
+				if (!recovery.synchronized) {
+					// Game state has changed, notify user
+					const syncError = new SynchronizationError(
+						"Game state has changed while you were disconnected",
+						{ gameId, playerId, expectedPhase: gameState?.phase }
+					);
+					setError(syncError);
+					errorLogger.log(syncError, gameId, playerId);
+					onError?.(syncError);
+				}
+			} else {
+				setError(recovery.error || new GameStateError("Recovery failed"));
+			}
+		} catch (err) {
+			const recoveryError = new GameStateError("Failed to recover from error", {
+				gameId,
+				playerId,
+			});
+			setError(recoveryError);
+			errorLogger.log(recoveryError, gameId, playerId);
+			onError?.(recoveryError);
+		} finally {
+			setIsRecovering(false);
+		}
+	}, [gameId, playerId, gameState?.phase, refetchGameState, onError]);
 
 	// Update game phase
 	const updateGamePhase = useCallback(
@@ -155,20 +228,26 @@ export function useGameState({
 
 				if (updateError) {
 					throw new GameStateError(
-						`Failed to update game phase: ${updateError.message}`
+						`Failed to update game phase: ${updateError.message}`,
+						{ gameId, playerId, phase, operation: "updateGamePhase" }
 					);
 				}
 			} catch (err) {
 				const gameError =
 					err instanceof GameError
 						? err
-						: new GameStateError("Failed to update game phase");
+						: new GameStateError("Failed to update game phase", {
+								gameId,
+								playerId,
+								phase,
+						  });
 				setError(gameError);
+				errorLogger.log(gameError, gameId, playerId);
 				onError?.(gameError);
 				throw gameError;
 			}
 		},
-		[gameId, onError]
+		[gameId, playerId, onError]
 	);
 
 	// Update player connection status
@@ -183,15 +262,21 @@ export function useGameState({
 
 				if (updateError) {
 					throw new GameStateError(
-						`Failed to update connection status: ${updateError.message}`
+						`Failed to update connection status: ${updateError.message}`,
+						{ gameId, playerId, connected, operation: "updatePlayerConnection" }
 					);
 				}
 			} catch (err) {
 				const gameError =
 					err instanceof GameError
 						? err
-						: new GameStateError("Failed to update connection");
+						: new GameStateError("Failed to update connection", {
+								gameId,
+								playerId,
+								connected,
+						  });
 				setError(gameError);
+				errorLogger.log(gameError, gameId, playerId);
 				onError?.(gameError);
 			}
 		},
@@ -380,5 +465,7 @@ export function useGameState({
 		updateGamePhase,
 		updatePlayerConnection,
 		refetchGameState,
+		recoverFromError,
+		isRecovering,
 	};
 }

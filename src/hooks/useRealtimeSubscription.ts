@@ -1,7 +1,11 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { GameEvent } from "@/types/game";
-import { ConnectionError } from "@/lib/error-handling";
+import {
+	ConnectionError,
+	ConnectionRecovery,
+	errorLogger,
+} from "@/lib/error-handling";
 
 interface UseRealtimeSubscriptionOptions {
 	gameId: string;
@@ -14,6 +18,8 @@ interface RealtimeSubscriptionHook {
 	isConnected: boolean;
 	reconnect: () => void;
 	disconnect: () => void;
+	reconnectAttempts: number;
+	lastError: ConnectionError | null;
 }
 
 export function useRealtimeSubscription({
@@ -24,26 +30,30 @@ export function useRealtimeSubscription({
 }: UseRealtimeSubscriptionOptions): RealtimeSubscriptionHook {
 	const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 	const isConnectedRef = useRef(false);
-	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const connectionRecoveryRef = useRef(new ConnectionRecovery());
+	const [reconnectAttempts, setReconnectAttempts] = useState(0);
+	const [lastError, setLastError] = useState<ConnectionError | null>(null);
 
 	const disconnect = useCallback(() => {
 		if (channelRef.current) {
 			supabase.removeChannel(channelRef.current);
 			channelRef.current = null;
 		}
-		if (reconnectTimeoutRef.current) {
-			clearTimeout(reconnectTimeoutRef.current);
-			reconnectTimeoutRef.current = null;
-		}
+		connectionRecoveryRef.current.reset();
 		isConnectedRef.current = false;
+		setReconnectAttempts(0);
+		setLastError(null);
 		onConnectionChange?.(false);
 	}, [onConnectionChange]);
 
-	const connect = useCallback(() => {
+	const connect = useCallback(async () => {
 		if (!gameId) return;
 
 		// Clean up existing connection
-		disconnect();
+		if (channelRef.current) {
+			supabase.removeChannel(channelRef.current);
+			channelRef.current = null;
+		}
 
 		try {
 			const channel = supabase
@@ -58,30 +68,50 @@ export function useRealtimeSubscription({
 						onConnectionChange?.(isNowConnected);
 					}
 
-					if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+					if (isNowConnected) {
+						// Connection successful, reset recovery state
+						connectionRecoveryRef.current.reset();
+						setReconnectAttempts(0);
+						setLastError(null);
+					} else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
 						const error = new ConnectionError(
-							`Real-time connection ${status.toLowerCase().replace("_", " ")}`
+							`Real-time connection ${status.toLowerCase().replace("_", " ")}`,
+							{ gameId, status }
 						);
+
+						setLastError(error);
+						errorLogger.log(error, gameId);
 						onError?.(error);
 
-						// Attempt to reconnect after a delay
-						if (reconnectTimeoutRef.current) {
-							clearTimeout(reconnectTimeoutRef.current);
-						}
-						reconnectTimeoutRef.current = setTimeout(() => {
-							connect();
-						}, 3000);
+						// Use connection recovery for automatic reconnection
+						connectionRecoveryRef.current.attemptReconnection(
+							connect,
+							() => {
+								setReconnectAttempts(0);
+								setLastError(null);
+							},
+							(finalError) => {
+								setLastError(finalError);
+								onError?.(finalError);
+							},
+							{ gameId }
+						);
+
+						setReconnectAttempts(connectionRecoveryRef.current.getAttempts());
 					}
 				});
 
 			channelRef.current = channel;
 		} catch (err) {
 			const error = new ConnectionError(
-				"Failed to establish real-time connection"
+				"Failed to establish real-time connection",
+				{ gameId }
 			);
+			setLastError(error);
+			errorLogger.log(error, gameId);
 			onError?.(error);
 		}
-	}, [gameId, onConnectionChange, onError, disconnect]);
+	}, [gameId, onConnectionChange, onError]);
 
 	const reconnect = useCallback(() => {
 		connect();
@@ -138,6 +168,8 @@ export function useRealtimeSubscription({
 		isConnected: isConnectedRef.current,
 		reconnect,
 		disconnect,
+		reconnectAttempts,
+		lastError,
 	};
 }
 

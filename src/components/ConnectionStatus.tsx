@@ -2,17 +2,20 @@
 
 import React from "react";
 import { useGame } from "@/contexts/GameContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ConnectionStatusProps {
 	className?: string;
 	showText?: boolean;
+	showRecovery?: boolean;
 }
 
 export function ConnectionStatus({
 	className = "",
 	showText = true,
+	showRecovery = false,
 }: ConnectionStatusProps) {
-	const { isConnected, error } = useGame();
+	const { isConnected, error, recoverFromError, isRecovering } = useGame();
 
 	if (isConnected && !error) {
 		return showText ? (
@@ -28,13 +31,26 @@ export function ConnectionStatus({
 	}
 
 	if (error?.type === "connection") {
-		return showText ? (
+		return (
 			<div className={`flex items-center text-red-600 ${className}`}>
 				<div className="w-2 h-2 bg-red-500 rounded-full mr-2" />
-				<span className="text-sm font-medium">Connection Lost</span>
+				{showText && (
+					<div className="flex items-center gap-2">
+						<span className="text-sm font-medium">Connection Lost</span>
+						{showRecovery && !isRecovering && (
+							<button
+								onClick={recoverFromError}
+								className="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 rounded transition-colors"
+							>
+								Retry
+							</button>
+						)}
+						{isRecovering && (
+							<span className="text-xs text-red-500">Reconnecting...</span>
+						)}
+					</div>
+				)}
 			</div>
-		) : (
-			<div className={`w-2 h-2 bg-red-500 rounded-full ${className}`} />
 		);
 	}
 
@@ -50,9 +66,80 @@ export function ConnectionStatus({
 	);
 }
 
+// Enhanced connection status with recovery options
+export function EnhancedConnectionStatus() {
+	const {
+		isConnected,
+		error,
+		loading,
+		gameState,
+		recoverFromError,
+		isRecovering,
+	} = useGame();
+
+	const handleRecovery = async () => {
+		try {
+			await recoverFromError();
+		} catch (err) {
+			console.error("Recovery failed:", err);
+		}
+	};
+
+	return (
+		<AnimatePresence>
+			{(error || !isConnected) && (
+				<motion.div
+					initial={{ opacity: 0, y: -20 }}
+					animate={{ opacity: 1, y: 0 }}
+					exit={{ opacity: 0, y: -20 }}
+					className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+				>
+					<div className="flex items-start justify-between">
+						<div className="flex items-center">
+							<div className="w-3 h-3 bg-red-500 rounded-full mr-3 animate-pulse" />
+							<div>
+								<h4 className="text-sm font-medium text-red-800">
+									Connection Issue
+								</h4>
+								<p className="text-sm text-red-600 mt-1">
+									{error?.message || "Connection lost"}
+								</p>
+							</div>
+						</div>
+
+						{!isRecovering && (
+							<button
+								onClick={handleRecovery}
+								className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+							>
+								Reconnect
+							</button>
+						)}
+
+						{isRecovering && (
+							<div className="flex items-center text-sm text-red-600">
+								<div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2" />
+								Reconnecting...
+							</div>
+						)}
+					</div>
+
+					{error?.type === "game_state" && (
+						<div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+							<strong>Game State Issue:</strong> The game may have progressed
+							while you were disconnected. Reconnecting will sync you with the
+							current state.
+						</div>
+					)}
+				</motion.div>
+			)}
+		</AnimatePresence>
+	);
+}
+
 // Detailed connection status for debugging/admin
 export function DetailedConnectionStatus() {
-	const { isConnected, error, loading, gameState } = useGame();
+	const { isConnected, error, loading, gameState, isRecovering } = useGame();
 
 	return (
 		<div className="bg-gray-100 p-3 rounded-lg text-xs font-mono">
@@ -67,6 +154,12 @@ export function DetailedConnectionStatus() {
 					<span className="font-semibold">Loading:</span>{" "}
 					<span className={loading ? "text-yellow-600" : "text-gray-600"}>
 						{loading ? "Yes" : "No"}
+					</span>
+				</div>
+				<div>
+					<span className="font-semibold">Recovering:</span>{" "}
+					<span className={isRecovering ? "text-blue-600" : "text-gray-600"}>
+						{isRecovering ? "Yes" : "No"}
 					</span>
 				</div>
 				<div>
