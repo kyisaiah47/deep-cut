@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CardDisplay } from "./CardDisplay";
-import { Timer } from "./Timer";
+
 import { Button } from "./ui/button";
 import { useGame } from "@/contexts/GameContext";
 import { useGameActions } from "@/hooks/useGameActions";
@@ -198,9 +198,9 @@ export function SubmissionInterface({
 			exit={{ opacity: 0, y: -20 }}
 			className={`space-y-6 ${className}`}
 		>
-			{/* Header with timer and status */}
-			<div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-				<div className="text-center sm:text-left">
+			{/* Header and status */}
+			<div className="flex flex-col items-center justify-center gap-4 p-4 bg-gray-50 rounded-lg">
+				<div className="text-center">
 					<h2 className="text-xl font-bold text-gray-900">
 						{hasSubmitted ? "Submission Complete!" : "Submit Your Cards"}
 					</h2>
@@ -210,16 +210,6 @@ export function SubmissionInterface({
 							: "Select your response cards and submit before time runs out"}
 					</p>
 				</div>
-
-				{!hasSubmitted && (
-					<Timer
-						duration={gameState?.submission_timer || 60}
-						onExpire={handleTimerExpire}
-						isActive={!hasSubmitted}
-						label="Time Remaining"
-						className="flex-shrink-0"
-					/>
-				)}
 			</div>
 
 			{/* Submission status indicator */}

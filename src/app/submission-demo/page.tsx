@@ -211,6 +211,7 @@ export default function SubmissionDemoPage() {
 					<div className="flex justify-center">
 						<Timer
 							duration={timerDuration}
+							timeRemaining={timerDuration}
 							onExpire={handleTimerExpire}
 							isActive={timerActive}
 							label="Submission Time Remaining"

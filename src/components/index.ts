@@ -32,6 +32,7 @@ export { ScoreManager } from "./ScoreManager";
 
 // Export UI components
 export { Timer } from "./Timer";
+export { SynchronizedTimer } from "./SynchronizedTimer";
 
 // Export round management components
 export { RoundManager } from "./RoundManager";

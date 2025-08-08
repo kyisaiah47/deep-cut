@@ -5,29 +5,51 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGame } from "@/contexts/GameContext";
 import { GAME_PHASES } from "@/lib/constants";
 import { GameError } from "@/lib/error-handling";
+import { GameState } from "@/types/game";
 
 // Import all game phase components
 import { GameLobby } from "./GameLobby";
 import { RoundManager } from "./RoundManager";
-import { CardDisplay } from "./CardDisplay";
 import { SubmissionInterface } from "./SubmissionInterface";
 import { VotingInterface } from "./VotingInterface";
 import { ScoreManager } from "./ScoreManager";
 import { PlayerList } from "./PlayerList";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { SynchronizedTimer } from "./SynchronizedTimer";
 
 interface GameInterfaceProps {
 	className?: string;
 }
 
 export function GameInterface({ className = "" }: GameInterfaceProps) {
-	const { gameState, players, currentPlayer, isConnected } = useGame();
+	const { gameState, players, currentPlayer, updateGamePhase } = useGame();
 	const [gameError, setGameError] = useState<GameError | null>(null);
 
 	const handleError = (error: GameError) => {
 		setGameError(error);
 		console.error("Game error:", error);
+	};
+
+	const handlePhaseTransition = async (phase: GameState["phase"]) => {
+		try {
+			// Handle automatic phase transitions when timers expire
+			switch (phase) {
+				case "submission":
+					// Move to voting phase when submission timer expires
+					await updateGamePhase("voting");
+					break;
+				case "voting":
+					// Move to results phase when voting timer expires
+					await updateGamePhase("results");
+					break;
+				default:
+					console.log(`No automatic transition defined for phase: ${phase}`);
+			}
+		} catch (error) {
+			console.error("Failed to handle phase transition:", error);
+			handleError(error as GameError);
+		}
 	};
 
 	if (!gameState || !currentPlayer) {
@@ -124,6 +146,14 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 								<div className="text-sm text-gray-600">
 									Round {gameState.current_round}
 								</div>
+							</div>
+
+							{/* Timer */}
+							<div className="flex-1 flex justify-center">
+								<SynchronizedTimer
+									onPhaseTransition={handlePhaseTransition}
+									showControls={true}
+								/>
 							</div>
 
 							{/* Connection status */}

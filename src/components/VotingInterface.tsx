@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Timer } from "./Timer";
+
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { useGame } from "@/contexts/GameContext";
@@ -222,9 +222,9 @@ export function VotingInterface({
 			exit={{ opacity: 0, y: -20 }}
 			className={`space-y-6 ${className}`}
 		>
-			{/* Header with timer and status */}
-			<div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-				<div className="text-center sm:text-left">
+			{/* Header and status */}
+			<div className="flex flex-col items-center justify-center gap-4 p-4 bg-gray-50 rounded-lg">
+				<div className="text-center">
 					<h2 className="text-xl font-bold text-gray-900">
 						{hasVoted ? "Vote Submitted!" : "Vote for the Funniest"}
 					</h2>
@@ -234,16 +234,6 @@ export function VotingInterface({
 							: "Select the submission you think is the funniest"}
 					</p>
 				</div>
-
-				{!hasVoted && (
-					<Timer
-						duration={gameState?.voting_timer || 30}
-						onExpire={handleTimerExpire}
-						isActive={!hasVoted}
-						label="Voting Time"
-						className="flex-shrink-0"
-					/>
-				)}
 			</div>
 
 			{/* Voting status indicator */}

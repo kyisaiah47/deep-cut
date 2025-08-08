@@ -44,6 +44,7 @@ function generateSetupScript() {
 		"001_initial_schema.sql",
 		"002_rls_policies.sql",
 		"003_functions_and_triggers.sql",
+		"004_timer_synchronization.sql",
 	];
 
 	let setupScript = `-- Complete database setup script for AI Cards Game
