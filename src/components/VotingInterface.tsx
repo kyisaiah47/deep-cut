@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Timer } from "./Timer";
@@ -7,6 +9,7 @@ import { useGame } from "@/contexts/GameContext";
 import { useGameActions } from "@/hooks/useGameActions";
 import { Submission, Card } from "@/types/game";
 import { GAME_PHASES } from "@/lib/constants";
+import { supabase } from "@/lib/supabase";
 
 interface VotingInterfaceProps {
 	onVotingComplete?: () => void;
@@ -22,14 +25,30 @@ export function VotingInterface({
 	onVotingComplete,
 	className = "",
 }: VotingInterfaceProps) {
-	const {
-		gameState,
-		currentPlayer,
-		submissions,
-		votes,
-		players,
-		currentRoundCards,
-	} = useGame();
+	const { gameState, currentPlayer, submissions, players, currentRoundCards } =
+		useGame();
+
+	// TODO: This should be moved to GameContext for better performance
+	const [votes, setVotes] = useState<any[]>([]);
+
+	// Fetch votes for current round
+	useEffect(() => {
+		if (!gameState) return;
+
+		const fetchVotes = async () => {
+			const { data, error } = await supabase
+				.from("votes")
+				.select("*")
+				.eq("game_id", gameState.id)
+				.eq("round_number", gameState.current_round);
+
+			if (!error && data) {
+				setVotes(data);
+			}
+		};
+
+		fetchVotes();
+	}, [gameState]);
 
 	const { submitVote } = useGameActions();
 

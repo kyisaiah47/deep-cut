@@ -16,6 +16,7 @@ export { useRoundManagement } from "./useRoundManagement";
 export { useRoundOrchestrator } from "./useRoundOrchestrator";
 export { useSubmissionManagement } from "./useSubmissionManagement";
 export { useVotingManagement } from "./useVotingManagement";
+export { useScoringManagement } from "./useScoringManagement";
 
 // Re-export context hooks for convenience
 export {

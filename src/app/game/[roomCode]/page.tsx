@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { GameProvider } from "@/contexts/GameContext";
+import { GameInterface } from "@/components/GameInterface";
 import { supabase } from "@/lib/supabase";
 
 interface GamePageProps {
@@ -113,15 +114,7 @@ export default function GamePage({ params }: GamePageProps) {
 			gameId={gameId}
 			playerId={playerId}
 		>
-			<div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-				<div className="text-white text-center">
-					<h1 className="text-4xl font-bold mb-4">Game Room: {roomCode}</h1>
-					<p className="text-xl mb-2">Player ID: {playerId}</p>
-					<p className="text-white/80">
-						Game room functionality coming soon...
-					</p>
-				</div>
-			</div>
+			<GameInterface />
 		</GameProvider>
 	);
 }

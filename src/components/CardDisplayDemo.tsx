@@ -263,14 +263,10 @@ export function CardDisplayDemo() {
 									<SubmissionCard
 										key={submission.id}
 										submission={submission}
-										isVotable={!votedSubmissionId}
+										promptCard={mockPromptCard}
+										isVotingPhase={!votedSubmissionId}
 										hasVoted={votedSubmissionId === submission.id}
-										isWinner={
-											submission.votes ===
-											Math.max(...mockSubmissions.map((s) => s.votes))
-										}
-										showVoteCount={true}
-										onClick={handleVote}
+										onVote={handleVote}
 										animationDelay={index * 0.2}
 									/>
 								))}

@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import {
-	GameError,
-	GameStateError,
-	ValidationError,
-} from "@/lib/error-handling";
+import { GameError, GameStateError } from "@/lib/error-handling";
 import { canPlayerPerformAction } from "@/lib/game-utils";
 
 export async function POST(request: NextRequest) {

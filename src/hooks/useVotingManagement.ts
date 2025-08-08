@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { useGameActions } from "./useGameActions";
 import { Submission, Vote, Card } from "@/types/game";
+import { supabase } from "@/lib/supabase";
 import { GAME_PHASES } from "@/lib/constants";
 import { GameError, GameStateError } from "@/lib/error-handling";
 
@@ -62,14 +63,29 @@ export function useVotingManagement({
 	onError,
 	autoVoteOnTimeout = true,
 }: UseVotingManagementOptions = {}): VotingManagementHook {
-	const {
-		gameState,
-		currentPlayer,
-		submissions,
-		votes,
-		players,
-		currentRoundCards,
-	} = useGame();
+	const { gameState, currentPlayer, submissions, players, currentRoundCards } =
+		useGame();
+
+	// TODO: This should be moved to GameContext for better performance
+	const [votes, setVotes] = useState<Vote[]>([]);
+
+	// Fetch votes for current game
+	useEffect(() => {
+		if (!gameState) return;
+
+		const fetchVotes = async () => {
+			const { data, error } = await supabase
+				.from("votes")
+				.select("*")
+				.eq("game_id", gameState.id);
+
+			if (!error && data) {
+				setVotes(data);
+			}
+		};
+
+		fetchVotes();
+	}, [gameState]);
 
 	const { submitVote: submitVoteAction } = useGameActions({ onError });
 

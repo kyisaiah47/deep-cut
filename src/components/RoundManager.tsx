@@ -7,7 +7,7 @@ import { GAME_PHASES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Play, Users, Cards, CheckCircle } from "lucide-react";
+import { Loader2, Play, Users, CreditCard, CheckCircle } from "lucide-react";
 
 interface RoundManagerProps {
 	className?: string;
@@ -62,7 +62,7 @@ export function RoundManager({ className }: RoundManagerProps) {
 			case "distributing":
 				return {
 					label: "Distributing Cards",
-					icon: <Cards className="h-4 w-4" />,
+					icon: <CreditCard className="h-4 w-4" />,
 					color: "bg-yellow-500",
 				};
 			case "ready":

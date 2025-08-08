@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase";
-import { GameError, ValidationError } from "@/lib/error-handling";
+import { supabase } from "@/lib/supabase";
+import { GameError, GameStateError } from "@/lib/error-handling";
 import {
 	determineVotingWinners,
 	calculateVotingProgress,
@@ -8,7 +8,6 @@ import {
 
 export async function POST(request: NextRequest) {
 	try {
-		const supabase = createClient();
 		const { submissionId, playerId, gameId } = await request.json();
 
 		// Validate required fields
@@ -279,7 +278,6 @@ async function handleVotingComplete(
 
 export async function GET(request: NextRequest) {
 	try {
-		const supabase = createClient();
 		const { searchParams } = new URL(request.url);
 		const gameId = searchParams.get("gameId");
 		const roundNumber = searchParams.get("roundNumber");
