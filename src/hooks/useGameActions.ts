@@ -26,6 +26,7 @@ interface GameActionsHook {
 		promptCardId: string,
 		responseCardIds: string[]
 	) => Promise<void>;
+	submitVote: (submissionId: string) => Promise<void>;
 	voteForSubmission: (submissionId: string) => Promise<void>;
 
 	// Host actions
@@ -302,7 +303,53 @@ export function useGameActions({
 		]
 	);
 
-	// Vote for a submission
+	// Submit vote using API route
+	const submitVote = useCallback(
+		async (submissionId: string) => {
+			if (!gameState || !currentPlayer) {
+				throw new GameStateError("Game state not available");
+			}
+
+			try {
+				const response = await fetch("/api/votes", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						submissionId,
+						playerId: currentPlayer.id,
+						gameId: gameState.id,
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new GameStateError(errorData.error || "Failed to submit vote");
+				}
+
+				await broadcastEvent({
+					type: "submission_received", // Using generic event for vote updates
+					data: {
+						type: "vote",
+						submissionId,
+						voterId: currentPlayer.id,
+						round: gameState.current_round,
+					},
+				});
+			} catch (error) {
+				const gameError =
+					error instanceof GameError
+						? error
+						: new GameStateError("Failed to submit vote");
+				handleError(gameError);
+				throw gameError;
+			}
+		},
+		[gameState, currentPlayer, broadcastEvent, handleError]
+	);
+
+	// Vote for a submission (legacy method using direct Supabase)
 	const voteForSubmission = useCallback(
 		async (submissionId: string) => {
 			if (!gameState || !currentPlayer) {
@@ -580,6 +627,7 @@ export function useGameActions({
 		transitionToNextPhase,
 		transitionToPhase,
 		submitCards,
+		submitVote,
 		voteForSubmission,
 		updateGameSettings,
 		kickPlayer,

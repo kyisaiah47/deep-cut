@@ -267,6 +267,66 @@ export function getPhaseTimerDuration(
 }
 
 /**
+ * Determine voting winners and handle tie-breaking
+ */
+export function determineVotingWinners(submissions: Submission[]): {
+	winners: Submission[];
+	maxVotes: number;
+	hasTie: boolean;
+} {
+	if (submissions.length === 0) {
+		return { winners: [], maxVotes: 0, hasTie: false };
+	}
+
+	const maxVotes = Math.max(...submissions.map((s) => s.votes));
+	const winners = submissions.filter((s) => s.votes === maxVotes);
+	const hasTie = winners.length > 1;
+
+	return { winners, maxVotes, hasTie };
+}
+
+/**
+ * Calculate voting progress for a round
+ */
+export function calculateVotingProgress(
+	gameState: GameState,
+	players: Player[],
+	submissions: Submission[],
+	votes: any[]
+): {
+	eligibleVoters: number;
+	votesReceived: number;
+	votingComplete: boolean;
+	percentage: number;
+} {
+	// Get players who submitted in this round (they can't vote)
+	const submissionPlayerIds = submissions
+		.filter((s) => s.round_number === gameState.current_round)
+		.map((s) => s.player_id);
+
+	// Eligible voters are connected players who didn't submit
+	const eligibleVoters = players.filter(
+		(p) => p.is_connected && !submissionPlayerIds.includes(p.id)
+	).length;
+
+	// Count votes for this round
+	const votesReceived = votes.filter(
+		(v) => v.round_number === gameState.current_round
+	).length;
+
+	const votingComplete = votesReceived >= eligibleVoters;
+	const percentage =
+		eligibleVoters > 0 ? (votesReceived / eligibleVoters) * 100 : 0;
+
+	return {
+		eligibleVoters,
+		votesReceived,
+		votingComplete,
+		percentage,
+	};
+}
+
+/**
  * Check if player can perform action in current phase
  */
 export function canPlayerPerformAction(

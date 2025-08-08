@@ -21,6 +21,9 @@ export { CardDisplayDemo } from "./CardDisplayDemo";
 export { SubmissionInterface } from "./SubmissionInterface";
 export { SubmissionStatusIndicator } from "./SubmissionStatusIndicator";
 
+// Export voting components
+export { VotingInterface } from "./VotingInterface";
+
 // Export UI components
 export { Timer } from "./Timer";
 
