@@ -37,6 +37,10 @@ export { SynchronizedTimer } from "./SynchronizedTimer";
 // Export round management components
 export { RoundManager } from "./RoundManager";
 
+// Export host control components
+export { GameSettingsPanel } from "./GameSettingsPanel";
+export { HostControlPanel } from "./HostControlPanel";
+
 // Export main game interface
 export { GameInterface } from "./GameInterface";
 

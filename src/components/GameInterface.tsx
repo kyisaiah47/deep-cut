@@ -17,13 +17,15 @@ import { PlayerList } from "./PlayerList";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { SynchronizedTimer } from "./SynchronizedTimer";
+import { HostControlPanel } from "./HostControlPanel";
 
 interface GameInterfaceProps {
 	className?: string;
 }
 
 export function GameInterface({ className = "" }: GameInterfaceProps) {
-	const { gameState, players, currentPlayer, updateGamePhase } = useGame();
+	const { gameState, players, currentPlayer, isHost, updateGamePhase } =
+		useGame();
 	const [gameError, setGameError] = useState<GameError | null>(null);
 
 	const handleError = (error: GameError) => {
@@ -197,6 +199,17 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 									currentPlayerId={currentPlayer.id}
 								/>
 							</div>
+
+							{/* Host Controls (when not in lobby) */}
+							{isHost && gameState.phase !== GAME_PHASES.LOBBY && (
+								<HostControlPanel
+									gameState={gameState}
+									players={players}
+									currentPlayerId={currentPlayer.id}
+									isHost={isHost}
+									onError={(error) => handleError(error as GameError)}
+								/>
+							)}
 
 							{/* Score display (when not in results phase) */}
 							{gameState.phase !== GAME_PHASES.RESULTS &&

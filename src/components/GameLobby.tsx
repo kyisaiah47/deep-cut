@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { useGame } from "@/contexts/GameContext";
 import { PlayerList } from "./PlayerList";
 import { ConnectionStatus } from "./ConnectionStatus";
+import { GameSettingsPanel } from "./GameSettingsPanel";
+import { HostControlPanel } from "./HostControlPanel";
 
 interface GameLobbyProps {
 	className?: string;
@@ -16,22 +18,12 @@ export function GameLobby({ className = "" }: GameLobbyProps) {
 		players,
 		currentPlayer,
 		isHost,
-		canStartGame,
-		updateGamePhase,
 		handlePlayerLeave,
 		connectedPlayers,
 		disconnectedPlayers,
 	} = useGame();
 
-	const handleStartGame = async () => {
-		if (!canStartGame) return;
-
-		try {
-			await updateGamePhase("distribution");
-		} catch (error) {
-			console.error("Failed to start game:", error);
-		}
-	};
+	// Game start is now handled by HostControlPanel
 
 	// Host transfer functionality (currently unused but available for future use)
 	// const handleTransferHost = async (newHostId: string) => {
@@ -132,15 +124,25 @@ export function GameLobby({ className = "" }: GameLobbyProps) {
 
 					{/* Game Controls */}
 					<div className="space-y-4">
-						{/* Game Settings */}
+						{/* Game Settings Display */}
 						<motion.div
 							initial={{ opacity: 0, x: 20 }}
 							animate={{ opacity: 1, x: 0 }}
 							className="bg-white rounded-lg shadow-md p-4"
 						>
-							<h3 className="text-lg font-semibold text-gray-800 mb-3">
-								Game Settings
-							</h3>
+							<div className="flex items-center justify-between mb-3">
+								<h3 className="text-lg font-semibold text-gray-800">
+									Game Settings
+								</h3>
+								{isHost && (
+									<GameSettingsPanel
+										gameState={gameState}
+										playerId={currentPlayer.id}
+										isHost={isHost}
+										onError={(error) => console.error("Settings error:", error)}
+									/>
+								)}
+							</div>
 							<div className="space-y-2 text-sm">
 								<div className="flex justify-between">
 									<span className="text-gray-600">Target Score:</span>
@@ -169,35 +171,16 @@ export function GameLobby({ className = "" }: GameLobbyProps) {
 								initial={{ opacity: 0, x: 20 }}
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: 0.1 }}
-								className="bg-white rounded-lg shadow-md p-4"
 							>
-								<h3 className="text-lg font-semibold text-gray-800 mb-3">
-									Host Controls
-								</h3>
-								<div className="space-y-3">
-									<button
-										onClick={handleStartGame}
-										disabled={!canStartGame}
-										className={`
-											w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200
-											${
-												canStartGame
-													? "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
-													: "bg-gray-300 text-gray-500 cursor-not-allowed"
-											}
-										`}
-									>
-										{canStartGame
-											? "Start Game"
-											: `Need ${3 - connectedPlayers.length} more players`}
-									</button>
-
-									{connectedPlayers.length >= 3 && !canStartGame && (
-										<p className="text-xs text-gray-500 text-center">
-											Waiting for all players to connect...
-										</p>
-									)}
-								</div>
+								<HostControlPanel
+									gameState={gameState}
+									players={players}
+									currentPlayerId={currentPlayer.id}
+									isHost={isHost}
+									onError={(error) =>
+										console.error("Host control error:", error)
+									}
+								/>
 							</motion.div>
 						)}
 

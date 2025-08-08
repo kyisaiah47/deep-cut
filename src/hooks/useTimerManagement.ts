@@ -320,7 +320,13 @@ export function useTimerManagement({
 				intervalRef.current = null;
 			}
 		};
-	}, [timerState.isActive, timerState.isPaused, onTimerExpire]);
+	}, [
+		timerState.isActive,
+		timerState.isPaused,
+		onTimerExpire,
+		onAutoSubmission,
+		onAutoVoting,
+	]);
 
 	// Periodic sync with server (every 10 seconds)
 	useEffect(() => {
@@ -438,9 +444,9 @@ export function useTimerManagement({
 			stopTimer();
 		}
 	}, [
-		gameState.phase,
-		gameState.submission_timer,
-		gameState.voting_timer,
+		gameState?.phase,
+		gameState?.submission_timer,
+		gameState?.voting_timer,
 		timerState.isActive,
 		timerState.phase,
 		startTimer,
