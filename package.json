@@ -17,7 +17,12 @@
 		"db:list": "node scripts/db-setup.js list",
 		"db:generate": "node scripts/db-setup.js generate",
 		"db:validate": "node scripts/validate-db.js",
-		"db:test": "node scripts/test-db-integration.js"
+		"db:test": "node scripts/test-db-integration.js",
+		"db:optimize": "node scripts/optimize-database.js",
+		"optimize": "node scripts/optimize-performance.js",
+		"deploy:check": "npm run test:ci && npm run lint:check && npm run optimize && npm run db:optimize",
+		"docker:build": "docker build -t ai-cards-game .",
+		"docker:run": "docker run -p 3000:3000 --env-file .env.local ai-cards-game"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.54.0",
