@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useResponsive } from "@/hooks/useResponsive";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface TimerProps {
 	duration: number; // Duration in seconds
@@ -31,6 +33,8 @@ export function Timer({
 	className = "",
 }: TimerProps) {
 	const [isExpired, setIsExpired] = useState(false);
+	const { isMobile } = useResponsive();
+	const prefersReducedMotion = useReducedMotion();
 
 	// Reset expired state when timer becomes active
 	useEffect(() => {
@@ -114,17 +118,26 @@ export function Timer({
 
 				<div className="flex items-center space-x-3">
 					<motion.div
-						className={`text-3xl font-bold ${getTimerColor()}`}
-						animate={{
-							scale:
-								timeRemaining <= 10 && timeRemaining > 0 && !isPaused
-									? [1, 1.1, 1]
-									: 1,
-						}}
+						className={`font-bold ${getTimerColor()} ${
+							isMobile ? "text-2xl" : "text-3xl"
+						}`}
+						animate={
+							prefersReducedMotion
+								? {}
+								: {
+										scale:
+											timeRemaining <= 10 && timeRemaining > 0 && !isPaused
+												? [1, 1.1, 1]
+												: 1,
+								  }
+						}
 						transition={{
 							duration: 0.5,
 							repeat:
-								timeRemaining <= 10 && timeRemaining > 0 && !isPaused
+								timeRemaining <= 10 &&
+								timeRemaining > 0 &&
+								!isPaused &&
+								!prefersReducedMotion
 									? Infinity
 									: 0,
 						}}
@@ -170,13 +183,17 @@ export function Timer({
 				</div>
 
 				{showProgress && (
-					<div className="w-40 h-3 bg-gray-200 rounded-full overflow-hidden">
+					<div
+						className={`bg-gray-200 rounded-full overflow-hidden ${
+							isMobile ? "w-32 h-2" : "w-40 h-3"
+						}`}
+					>
 						<motion.div
 							className={`h-full ${getProgressColor()} transition-colors duration-300`}
 							initial={{ width: "0%" }}
 							animate={{ width: `${progress}%` }}
 							transition={{
-								duration: isPaused ? 0 : 0.3,
+								duration: isPaused || prefersReducedMotion ? 0 : 0.3,
 								ease: "easeOut",
 							}}
 						/>
@@ -187,22 +204,33 @@ export function Timer({
 					{timeRemaining <= 5 && timeRemaining > 0 && !isPaused && (
 						<motion.div
 							initial={{ opacity: 0, y: 10 }}
-							animate={{
-								opacity: 1,
-								y: 0,
-								scale: [1, 1.05, 1],
-							}}
+							animate={
+								prefersReducedMotion
+									? {
+											opacity: 1,
+											y: 0,
+									  }
+									: {
+											opacity: 1,
+											y: 0,
+											scale: [1, 1.05, 1],
+									  }
+							}
 							exit={{ opacity: 0, y: -10 }}
 							transition={{
-								scale: {
-									duration: 0.5,
-									repeat: Infinity,
-									repeatType: "reverse",
-								},
+								scale: prefersReducedMotion
+									? {}
+									: {
+											duration: 0.5,
+											repeat: Infinity,
+											repeatType: "reverse",
+									  },
 							}}
-							className="text-sm text-red-600 font-medium bg-red-50 px-3 py-1 rounded-full"
+							className={`text-red-600 font-medium bg-red-50 px-3 py-1 rounded-full ${
+								isMobile ? "text-xs" : "text-sm"
+							}`}
 						>
-							⚠️ Time running out!
+							⚠️ {isMobile ? "Time up!" : "Time running out!"}
 						</motion.div>
 					)}
 				</AnimatePresence>

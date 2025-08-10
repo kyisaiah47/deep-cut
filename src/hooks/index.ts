@@ -19,6 +19,12 @@ export { useVotingManagement } from "./useVotingManagement";
 export { useScoringManagement } from "./useScoringManagement";
 export { useHostControls } from "./useHostControls";
 export { useErrorRecovery, useAutoErrorRecovery } from "./useErrorRecovery";
+export { useReducedMotion, useAnimationVariants } from "./useReducedMotion";
+export {
+	useResponsive,
+	useResponsiveGrid,
+	useTouchDevice,
+} from "./useResponsive";
 
 // Re-export context hooks for convenience
 export {

@@ -49,5 +49,29 @@ export { HostControlPanel } from "./HostControlPanel";
 // Export main game interface
 export { GameInterface } from "./GameInterface";
 
+// Export responsive and touch components
+export {
+	ResponsiveLayout,
+	ResponsiveGrid,
+	ResponsiveCard,
+	ResponsiveModal,
+	ResponsiveNav,
+} from "./ResponsiveLayout";
+export {
+	TouchFeedback,
+	TouchButton,
+	FloatingActionButton,
+} from "./TouchFeedback";
+
+// Export enhanced loading components
+export {
+	Skeleton,
+	CardSkeleton,
+	PlayerSkeleton,
+	GameInterfaceSkeleton,
+	LoadingSpinner,
+	AIGenerationLoader,
+} from "./SkeletonLoader";
+
 // Re-export context provider for convenience
 export { GameProvider } from "../contexts/GameContext";

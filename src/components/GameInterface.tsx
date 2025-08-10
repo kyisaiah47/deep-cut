@@ -6,6 +6,9 @@ import { useGame } from "@/contexts/GameContext";
 import { GAME_PHASES } from "@/lib/constants";
 import { GameError } from "@/lib/error-handling";
 import { GameState } from "@/types/game";
+import { GameInterfaceSkeleton, AIGenerationLoader } from "./SkeletonLoader";
+import { useResponsive } from "@/hooks/useResponsive";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 // Import all game phase components
 import { GameLobby } from "./GameLobby";
@@ -27,6 +30,8 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 	const { gameState, players, currentPlayer, isHost, updateGamePhase } =
 		useGame();
 	const [gameError, setGameError] = useState<GameError | null>(null);
+	const { isMobile, isTablet } = useResponsive();
+	const prefersReducedMotion = useReducedMotion();
 
 	const handleError = (error: GameError) => {
 		setGameError(error);
@@ -55,16 +60,7 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 	};
 
 	if (!gameState || !currentPlayer) {
-		return (
-			<div
-				className={`min-h-screen flex items-center justify-center ${className}`}
-			>
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-					<p className="text-gray-600">Loading game...</p>
-				</div>
-			</div>
-		);
+		return <GameInterfaceSkeleton />;
 	}
 
 	const renderPhaseContent = () => {
@@ -81,21 +77,7 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 				return (
 					<div className="space-y-6">
 						<RoundManager />
-						<div className="text-center py-8">
-							<motion.div
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								className="space-y-4"
-							>
-								<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto" />
-								<h3 className="text-lg font-semibold text-gray-900">
-									Preparing Round {gameState.current_round}
-								</h3>
-								<p className="text-gray-600">
-									AI is generating cards and distributing them to players...
-								</p>
-							</motion.div>
-						</div>
+						<AIGenerationLoader />
 					</div>
 				);
 
@@ -136,62 +118,112 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 			<div
 				className={`min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 ${className}`}
 			>
-				{/* Header */}
+				{/* Header - responsive */}
 				<div className="bg-white shadow-sm border-b">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
+						<div
+							className={`flex items-center justify-between ${
+								isMobile ? "h-14" : "h-16"
+							}`}
+						>
 							{/* Game info */}
-							<div className="flex items-center space-x-4">
-								<h1 className="text-xl font-bold text-gray-900">
-									Room: {gameState.room_code}
+							<div className="flex items-center space-x-2 sm:space-x-4">
+								<h1
+									className={`font-bold text-gray-900 ${
+										isMobile ? "text-lg" : "text-xl"
+									}`}
+								>
+									{isMobile
+										? gameState.room_code
+										: `Room: ${gameState.room_code}`}
 								</h1>
-								<div className="text-sm text-gray-600">
-									Round {gameState.current_round}
+								<div
+									className={`text-gray-600 ${
+										isMobile ? "text-xs" : "text-sm"
+									}`}
+								>
+									R{gameState.current_round}
 								</div>
 							</div>
 
-							{/* Timer */}
-							<div className="flex-1 flex justify-center">
-								<SynchronizedTimer
-									onPhaseTransition={handlePhaseTransition}
-									showControls={true}
-								/>
-							</div>
+							{/* Timer - responsive */}
+							{!isMobile && (
+								<div className="flex-1 flex justify-center">
+									<SynchronizedTimer
+										onPhaseTransition={handlePhaseTransition}
+										showControls={true}
+									/>
+								</div>
+							)}
 
 							{/* Connection status */}
-							<div className="flex items-center space-x-4">
-								<ConnectionStatus showText={false} />
-								<div className="text-sm text-gray-600">
-									{currentPlayer.name}
-								</div>
+							<div className="flex items-center space-x-2 sm:space-x-4">
+								<ConnectionStatus showText={!isMobile} />
+								{!isMobile && (
+									<div className="text-sm text-gray-600">
+										{currentPlayer.name}
+									</div>
+								)}
 							</div>
 						</div>
+
+						{/* Mobile timer */}
+						{isMobile && (
+							<div className="pb-3 flex justify-center">
+								<SynchronizedTimer
+									onPhaseTransition={handlePhaseTransition}
+									showControls={false}
+								/>
+							</div>
+						)}
 					</div>
 				</div>
 
-				{/* Main content */}
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-					<div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+				{/* Main content - responsive layout */}
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+					<div
+						className={`${
+							isMobile || isTablet
+								? "space-y-6"
+								: "grid grid-cols-1 lg:grid-cols-4 gap-8"
+						}`}
+					>
 						{/* Main game area */}
-						<div className="lg:col-span-3">
+						<div className={isMobile || isTablet ? "" : "lg:col-span-3"}>
 							<AnimatePresence mode="wait">
 								<motion.div
 									key={gameState.phase}
-									initial={{ opacity: 0, y: 20 }}
+									initial={
+										prefersReducedMotion
+											? { opacity: 0 }
+											: { opacity: 0, y: 20 }
+									}
 									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									transition={{ duration: 0.3 }}
+									exit={
+										prefersReducedMotion
+											? { opacity: 0 }
+											: { opacity: 0, y: -20 }
+									}
+									transition={{ duration: prefersReducedMotion ? 0.01 : 0.3 }}
 								>
 									{renderPhaseContent()}
 								</motion.div>
 							</AnimatePresence>
 						</div>
 
-						{/* Sidebar */}
-						<div className="lg:col-span-1 space-y-6">
+						{/* Sidebar - responsive */}
+						<div
+							className={`${
+								isMobile || isTablet ? "space-y-4" : "lg:col-span-1 space-y-6"
+							}`}
+						>
 							{/* Players list */}
 							<div className="bg-white rounded-lg shadow-sm border p-4">
-								<h3 className="text-lg font-semibold text-gray-900 mb-4">
+								<h3
+									className={`font-semibold text-gray-900 mb-4 ${
+										isMobile ? "text-base" : "text-lg"
+									}`}
+								>
 									Players ({players.length})
 								</h3>
 								<PlayerList
@@ -219,12 +251,18 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 									</div>
 								)}
 
-							{/* Game info */}
+							{/* Game info - collapsible on mobile */}
 							<div className="bg-white rounded-lg shadow-sm border p-4">
-								<h3 className="text-lg font-semibold text-gray-900 mb-4">
+								<h3
+									className={`font-semibold text-gray-900 mb-4 ${
+										isMobile ? "text-base" : "text-lg"
+									}`}
+								>
 									Game Info
 								</h3>
-								<div className="space-y-2 text-sm">
+								<div
+									className={`space-y-2 ${isMobile ? "text-xs" : "text-sm"}`}
+								>
 									<div className="flex justify-between">
 										<span className="text-gray-600">Phase:</span>
 										<span className="font-medium capitalize">

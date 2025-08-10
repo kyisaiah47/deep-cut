@@ -1,10 +1,13 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { Timer } from "./Timer";
 import { useTimerManagement } from "@/hooks/useTimerManagement";
 import { useAutoActions } from "@/hooks/useAutoActions";
 import { useGame } from "@/contexts/GameContext";
+import { useResponsive } from "@/hooks/useResponsive";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { GameState } from "@/types/game";
 
 interface SynchronizedTimerProps {
@@ -20,6 +23,8 @@ export function SynchronizedTimer({
 }: SynchronizedTimerProps) {
 	const { gameState, isHost } = useGame();
 	const { handleAutoSubmission, handleAutoVoting } = useAutoActions();
+	const { isMobile } = useResponsive();
+	const prefersReducedMotion = useReducedMotion();
 
 	const handleTimerExpire = (phase: GameState["phase"]) => {
 		console.log(`Timer expired for phase: ${phase}`);
@@ -45,15 +50,15 @@ export function SynchronizedTimer({
 		},
 	});
 
-	// Get phase-specific label
-	const getPhaseLabel = (currentPhase: GameState["phase"] | null) => {
+	// Get phase-specific label and emoji
+	const getPhaseInfo = (currentPhase: GameState["phase"] | null) => {
 		switch (currentPhase) {
 			case "submission":
-				return "Submission Time";
+				return { label: isMobile ? "Submit" : "Submission Time", emoji: "✏️" };
 			case "voting":
-				return "Voting Time";
+				return { label: isMobile ? "Vote" : "Voting Time", emoji: "🗳️" };
 			default:
-				return "Timer";
+				return { label: "Timer", emoji: "⏱️" };
 		}
 	};
 
@@ -64,19 +69,66 @@ export function SynchronizedTimer({
 		return null;
 	}
 
+	const phaseInfo = getPhaseInfo(phase);
+
 	return (
-		<Timer
-			duration={duration}
-			timeRemaining={timeRemaining}
-			onExpire={() => phase && handleTimerExpire(phase)}
-			isActive={isActive}
-			isPaused={isPaused}
-			label={getPhaseLabel(phase)}
-			showProgress={true}
-			showControls={shouldShowControls}
-			onPause={shouldShowControls ? pauseTimer : undefined}
-			onResume={shouldShowControls ? resumeTimer : undefined}
-			className={className}
-		/>
+		<motion.div
+			initial={{ opacity: 0, scale: 0.9 }}
+			animate={{ opacity: 1, scale: 1 }}
+			exit={{ opacity: 0, scale: 0.9 }}
+			className={`${className}`}
+		>
+			{/* Phase indicator for mobile */}
+			{isMobile && (
+				<motion.div
+					initial={{ opacity: 0, y: -10 }}
+					animate={{ opacity: 1, y: 0 }}
+					className="text-center mb-2"
+				>
+					<span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+						{phaseInfo.emoji} {phaseInfo.label}
+					</span>
+				</motion.div>
+			)}
+
+			<Timer
+				duration={duration}
+				timeRemaining={timeRemaining}
+				onExpire={() => phase && handleTimerExpire(phase)}
+				isActive={isActive}
+				isPaused={isPaused}
+				label={!isMobile ? phaseInfo.label : undefined}
+				showProgress={true}
+				showControls={shouldShowControls}
+				onPause={shouldShowControls ? pauseTimer : undefined}
+				onResume={shouldShowControls ? resumeTimer : undefined}
+				className="flex flex-col items-center"
+			/>
+
+			{/* Mobile-specific timer warnings */}
+			{isMobile && timeRemaining <= 10 && timeRemaining > 0 && !isPaused && (
+				<motion.div
+					initial={{ opacity: 0, scale: 0.8 }}
+					animate={
+						prefersReducedMotion
+							? { opacity: 1, scale: 1 }
+							: {
+									opacity: 1,
+									scale: [0.8, 1.1, 1],
+							  }
+					}
+					transition={{
+						duration: 0.3,
+						repeat: prefersReducedMotion ? 0 : Infinity,
+						repeatDelay: 1,
+					}}
+					className="mt-2 text-center"
+				>
+					<span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full animate-pulse">
+						⚠️ Hurry up!
+					</span>
+				</motion.div>
+			)}
+		</motion.div>
 	);
 }

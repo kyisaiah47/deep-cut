@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useResponsive } from "@/hooks/useResponsive";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -27,6 +29,8 @@ export function VotingInterface({
 }: VotingInterfaceProps) {
 	const { gameState, currentPlayer, submissions, players, currentRoundCards } =
 		useGame();
+	const { isMobile, isTablet } = useResponsive();
+	const prefersReducedMotion = useReducedMotion();
 
 	// TODO: This should be moved to GameContext for better performance
 	const [votes, setVotes] = useState<any[]>([]);
@@ -282,16 +286,28 @@ export function VotingInterface({
 						exit={{ opacity: 0 }}
 						className="space-y-4"
 					>
-						{/* Submissions grid */}
-						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{/* Submissions grid - responsive */}
+						<div
+							className={`grid gap-4 ${
+								isMobile
+									? "grid-cols-1"
+									: isTablet
+									? "grid-cols-2"
+									: "md:grid-cols-2 lg:grid-cols-3"
+							}`}
+						>
 							{currentRoundSubmissions.map((submission, index) => (
 								<motion.div
 									key={submission.id}
-									initial={{ opacity: 0, y: 20 }}
+									initial={
+										prefersReducedMotion
+											? { opacity: 0 }
+											: { opacity: 0, y: 20 }
+									}
 									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: index * 0.1 }}
+									transition={{ delay: prefersReducedMotion ? 0 : index * 0.1 }}
 									className={`
-										relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200
+										relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 touch-manipulation
 										${
 											selectedSubmissionId === submission.id
 												? "border-purple-500 bg-purple-50 shadow-lg"
@@ -299,8 +315,18 @@ export function VotingInterface({
 										}
 									`}
 									onClick={() => handleSubmissionSelect(submission.id)}
-									whileHover={{ scale: 1.02 }}
-									whileTap={{ scale: 0.98 }}
+									whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+									whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											handleSubmissionSelect(submission.id);
+										}
+									}}
+									aria-pressed={selectedSubmissionId === submission.id}
+									aria-label={`Vote for submission: ${submission.promptCard.text}`}
 								>
 									{/* Selection indicator */}
 									{selectedSubmissionId === submission.id && (
@@ -315,23 +341,37 @@ export function VotingInterface({
 
 									{/* Prompt card */}
 									<div className="mb-3">
-										<div className="text-xs font-medium text-gray-500 mb-1">
+										<div
+											className={`font-medium text-gray-500 mb-1 ${
+												isMobile ? "text-xs" : "text-xs"
+											}`}
+										>
 											PROMPT
 										</div>
-										<div className="p-3 bg-gray-900 text-white rounded-lg text-sm font-medium">
+										<div
+											className={`p-3 bg-gray-900 text-white rounded-lg font-medium ${
+												isMobile ? "text-xs" : "text-sm"
+											}`}
+										>
 											{submission.promptCard.text}
 										</div>
 									</div>
 
 									{/* Response cards */}
 									<div className="space-y-2">
-										<div className="text-xs font-medium text-gray-500">
+										<div
+											className={`font-medium text-gray-500 ${
+												isMobile ? "text-xs" : "text-xs"
+											}`}
+										>
 											RESPONSE
 										</div>
 										{submission.responseCardsData.map((card, cardIndex) => (
 											<div
 												key={cardIndex}
-												className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm"
+												className={`p-3 bg-blue-50 border border-blue-200 rounded-lg ${
+													isMobile ? "text-xs" : "text-sm"
+												}`}
 											>
 												{card.text}
 											</div>
