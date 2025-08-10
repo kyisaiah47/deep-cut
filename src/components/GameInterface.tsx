@@ -10,17 +10,21 @@ import { GameInterfaceSkeleton, AIGenerationLoader } from "./SkeletonLoader";
 import { useResponsive } from "@/hooks/useResponsive";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-// Import all game phase components
-import { GameLobby } from "./GameLobby";
+// Import lightweight components directly
 import { RoundManager } from "./RoundManager";
-import { SubmissionInterface } from "./SubmissionInterface";
-import { VotingInterface } from "./VotingInterface";
-import { ScoreManager } from "./ScoreManager";
 import { PlayerList } from "./PlayerList";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { SynchronizedTimer } from "./SynchronizedTimer";
-import { HostControlPanel } from "./HostControlPanel";
+
+// Import lazy-loaded components
+import {
+	SuspenseGameLobby,
+	SuspenseSubmissionInterface,
+	SuspenseVotingInterface,
+	SuspenseScoreManager,
+	SuspenseHostControlPanel,
+} from "./LazyComponents";
 
 interface GameInterfaceProps {
 	className?: string;
@@ -68,7 +72,7 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 			case GAME_PHASES.LOBBY:
 				return (
 					<div className="space-y-6">
-						<GameLobby />
+						<SuspenseGameLobby />
 						<RoundManager />
 					</div>
 				);
@@ -84,21 +88,21 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 			case GAME_PHASES.SUBMISSION:
 				return (
 					<div className="space-y-6">
-						<SubmissionInterface />
+						<SuspenseSubmissionInterface />
 					</div>
 				);
 
 			case GAME_PHASES.VOTING:
 				return (
 					<div className="space-y-6">
-						<VotingInterface />
+						<SuspenseVotingInterface />
 					</div>
 				);
 
 			case GAME_PHASES.RESULTS:
 				return (
 					<div className="space-y-6">
-						<ScoreManager onError={handleError} />
+						<SuspenseScoreManager onError={handleError} />
 					</div>
 				);
 
@@ -234,12 +238,12 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 
 							{/* Host Controls (when not in lobby) */}
 							{isHost && gameState.phase !== GAME_PHASES.LOBBY && (
-								<HostControlPanel
+								<SuspenseHostControlPanel
 									gameState={gameState}
 									players={players}
 									currentPlayerId={currentPlayer.id}
 									isHost={isHost}
-									onError={(error) => handleError(error as GameError)}
+									onError={(error: unknown) => handleError(error as GameError)}
 								/>
 							)}
 
@@ -247,7 +251,7 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 							{gameState.phase !== GAME_PHASES.RESULTS &&
 								gameState.phase !== GAME_PHASES.LOBBY && (
 									<div className="bg-white rounded-lg shadow-sm border p-4">
-										<ScoreManager onError={handleError} />
+										<SuspenseScoreManager onError={handleError} />
 									</div>
 								)}
 

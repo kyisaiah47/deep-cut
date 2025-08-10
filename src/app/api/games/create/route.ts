@@ -6,6 +6,7 @@ import {
 	DEFAULT_GAME_SETTINGS,
 } from "@/lib/game-utils";
 import { GAME_LIMITS } from "@/lib/constants";
+import { withRateLimit, RATE_LIMITS, abuseDetector } from "@/lib/rate-limiting";
 
 interface CreateGameRequest {
 	playerName: string;
@@ -17,7 +18,7 @@ interface CreateGameRequest {
 	};
 }
 
-export async function POST(request: NextRequest) {
+async function createGameHandler(request: NextRequest) {
 	try {
 		const body: CreateGameRequest = await request.json();
 
@@ -191,3 +192,24 @@ export async function POST(request: NextRequest) {
 		);
 	}
 }
+
+// Apply rate limiting to the POST handler
+export const POST = withRateLimit(
+	createGameHandler,
+	RATE_LIMITS.GAME_CREATION,
+	(req) => {
+		// Use IP address for rate limiting
+		const forwarded = req.headers.get("x-forwarded-for");
+		const ip = forwarded ? forwarded.split(",")[0] : req.ip || "unknown";
+
+		// Record game creation event for abuse detection
+		abuseDetector.recordEvent({
+			type: "game_creation",
+			timestamp: Date.now(),
+			identifier: ip,
+			metadata: { userAgent: req.headers.get("user-agent") },
+		});
+
+		return ip;
+	}
+);

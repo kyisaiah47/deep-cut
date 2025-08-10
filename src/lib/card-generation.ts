@@ -16,6 +16,7 @@ export interface GeneratedCardsResult {
 	promptCard?: Card;
 	responseCardsCount: number;
 	error?: string;
+	fallbackUsed?: boolean;
 }
 
 export interface CardCache {

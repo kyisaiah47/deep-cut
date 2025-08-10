@@ -6,6 +6,7 @@ import {
 	ConnectionRecovery,
 	errorLogger,
 } from "@/lib/error-handling";
+import { performanceMonitor } from "@/lib/performance-monitor";
 
 interface UseRealtimeSubscriptionOptions {
 	gameId: string;
@@ -49,6 +50,10 @@ export function useRealtimeSubscription({
 	const connect = useCallback(async () => {
 		if (!gameId) return;
 
+		// Start measuring connection time
+		const endConnectionTimer =
+			performanceMonitor.measureRealtimeLatency("connection");
+
 		// Clean up existing connection
 		if (channelRef.current) {
 			supabase.removeChannel(channelRef.current);
@@ -69,11 +74,17 @@ export function useRealtimeSubscription({
 					}
 
 					if (isNowConnected) {
-						// Connection successful, reset recovery state
+						// Connection successful, measure latency
+						endConnectionTimer({ gameId, status });
+
+						// Reset recovery state
 						connectionRecoveryRef.current.reset();
 						setReconnectAttempts(0);
 						setLastError(null);
 					} else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+						// Record connection failure
+						endConnectionTimer({ gameId, status, success: false });
+
 						const error = new ConnectionError(
 							`Real-time connection ${status.toLowerCase().replace("_", " ")}`,
 							{ gameId, status }
@@ -82,6 +93,9 @@ export function useRealtimeSubscription({
 						setLastError(error);
 						errorLogger.log(error, gameId);
 						onError?.(error);
+
+						// Record reconnection attempt
+						performanceMonitor.recordReconnection();
 
 						// Use connection recovery for automatic reconnection
 						connectionRecoveryRef.current.attemptReconnection(
@@ -103,6 +117,8 @@ export function useRealtimeSubscription({
 
 			channelRef.current = channel;
 		} catch (err) {
+			endConnectionTimer({ gameId, success: false, error: err });
+
 			const error = new ConnectionError(
 				"Failed to establish real-time connection",
 				{ gameId }

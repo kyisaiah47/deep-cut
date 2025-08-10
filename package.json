@@ -6,11 +6,13 @@
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
+		"lint": "next lint --fix",
+		"lint:check": "next lint",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
 		"test:ci": "jest --ci --coverage --watchAll=false",
+		"analyze": "ANALYZE=true npm run build",
 		"db:setup": "node scripts/db-setup.js",
 		"db:list": "node scripts/db-setup.js list",
 		"db:generate": "node scripts/db-setup.js generate",
@@ -46,6 +48,7 @@
 		"tailwindcss": "^4",
 		"ts-jest": "^29.4.1",
 		"typescript": "^5",
-		"uuid": "^11.1.0"
+		"uuid": "^11.1.0",
+		"webpack-bundle-analyzer": "^4.10.1"
 	}
 }

@@ -11,6 +11,7 @@ import {
 	GeneratedCardsResult,
 } from "../lib/card-generation";
 import { Database } from "../lib/database.types";
+import { performanceMonitor } from "../lib/performance-monitor";
 
 type Card = Database["public"]["Tables"]["cards"]["Row"];
 
@@ -39,12 +40,18 @@ export function useCardGeneration(): UseCardGenerationReturn {
 			setIsGenerating(true);
 			setGenerationError(null);
 
+			// Start measuring AI generation performance
+			const endAITimer = performanceMonitor.measureAIGeneration(false);
+
 			try {
 				const result = await generateCards(options);
 				setLastGenerationResult(result);
 
 				if (!result.success) {
 					setGenerationError(result.error || "Failed to generate cards");
+					endAITimer(false, undefined, result.fallbackUsed || false);
+				} else {
+					endAITimer(true, result.cardsGenerated, result.fallbackUsed || false);
 				}
 
 				return result;
@@ -52,6 +59,9 @@ export function useCardGeneration(): UseCardGenerationReturn {
 				const errorMessage =
 					error instanceof Error ? error.message : "Unknown error occurred";
 				setGenerationError(errorMessage);
+
+				// Record AI generation failure
+				endAITimer(false, undefined, true);
 
 				const failureResult: GeneratedCardsResult = {
 					success: false,
@@ -304,6 +314,11 @@ export function useCardDistribution(): UseCardDistributionReturn {
 			setDistributionError(null);
 			setDistributionComplete(false);
 
+			// Measure card distribution performance
+			const endDistributionTimer = performanceMonitor.measureGameOperation(
+				"cardDistributionTime"
+			);
+
 			try {
 				await distributeCardsToPlayers(
 					gameId,
@@ -312,12 +327,27 @@ export function useCardDistribution(): UseCardDistributionReturn {
 					cardsPerPlayer
 				);
 				setDistributionComplete(true);
+
+				// Record successful distribution
+				endDistributionTimer(playerIds.length, {
+					cardsPerPlayer,
+					totalCards: playerIds.length * cardsPerPlayer,
+				});
+
 				return true;
 			} catch (error) {
 				const errorMessage =
 					error instanceof Error ? error.message : "Failed to distribute cards";
 				setDistributionError(errorMessage);
 				console.error("Card distribution error:", error);
+
+				// Record failed distribution
+				endDistributionTimer(playerIds.length, {
+					cardsPerPlayer,
+					success: false,
+					error: errorMessage,
+				});
+
 				return false;
 			} finally {
 				setIsDistributing(false);

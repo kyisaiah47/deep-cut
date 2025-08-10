@@ -293,3 +293,240 @@ export function AIGenerationLoader({ className = "" }: { className?: string }) {
 		</motion.div>
 	);
 }
+// Additional skeleton variants for lazy-loaded components
+interface SkeletonLoaderProps {
+	variant?:
+		| "game-lobby"
+		| "submission"
+		| "voting"
+		| "score"
+		| "results"
+		| "host-controls"
+		| "settings";
+	className?: string;
+}
+
+export function SkeletonLoader({
+	variant = "game-lobby",
+	className = "",
+}: SkeletonLoaderProps) {
+	switch (variant) {
+		case "game-lobby":
+			return <GameLobbySkeleton className={className} />;
+		case "submission":
+			return <SubmissionSkeleton className={className} />;
+		case "voting":
+			return <VotingSkeleton className={className} />;
+		case "score":
+			return <ScoreSkeleton className={className} />;
+		case "results":
+			return <ResultsSkeleton className={className} />;
+		case "host-controls":
+			return <HostControlsSkeleton className={className} />;
+		case "settings":
+			return <SettingsSkeleton className={className} />;
+		default:
+			return <GameLobbySkeleton className={className} />;
+	}
+}
+
+function GameLobbySkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div className={`space-y-6 ${className}`}>
+			<div className="bg-white rounded-lg shadow-sm border p-6">
+				<Skeleton
+					height="2rem"
+					className="mb-4"
+				/>
+				<Skeleton
+					height="1rem"
+					width="70%"
+					className="mb-6"
+				/>
+				<div className="flex space-x-4">
+					<Skeleton
+						width="8rem"
+						height="2.5rem"
+					/>
+					<Skeleton
+						width="8rem"
+						height="2.5rem"
+					/>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function SubmissionSkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div className={`space-y-6 ${className}`}>
+			<div className="bg-white rounded-lg shadow-sm border p-6">
+				<Skeleton
+					height="1.5rem"
+					className="mb-4"
+				/>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+					{Array.from({ length: 6 }).map((_, i) => (
+						<CardSkeleton key={i} />
+					))}
+				</div>
+				<Skeleton
+					width="10rem"
+					height="2.5rem"
+				/>
+			</div>
+		</div>
+	);
+}
+
+function VotingSkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div className={`space-y-6 ${className}`}>
+			<div className="bg-white rounded-lg shadow-sm border p-6">
+				<Skeleton
+					height="1.5rem"
+					className="mb-4"
+				/>
+				<div className="space-y-4">
+					{Array.from({ length: 4 }).map((_, i) => (
+						<div
+							key={i}
+							className="border rounded-lg p-4"
+						>
+							<Skeleton
+								height="1rem"
+								className="mb-2"
+							/>
+							<Skeleton
+								height="1rem"
+								width="80%"
+							/>
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function ScoreSkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div className={`space-y-4 ${className}`}>
+			<Skeleton
+				height="1.5rem"
+				className="mb-4"
+			/>
+			<div className="space-y-3">
+				{Array.from({ length: 4 }).map((_, i) => (
+					<div
+						key={i}
+						className="flex justify-between items-center"
+					>
+						<Skeleton
+							width="6rem"
+							height="1rem"
+						/>
+						<Skeleton
+							width="2rem"
+							height="1rem"
+						/>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function ResultsSkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div className={`space-y-6 ${className}`}>
+			<div className="bg-white rounded-lg shadow-sm border p-6 text-center">
+				<Skeleton
+					height="2rem"
+					className="mb-4 mx-auto"
+					width="12rem"
+				/>
+				<Skeleton
+					height="1rem"
+					className="mb-6 mx-auto"
+					width="8rem"
+				/>
+				<div className="space-y-3">
+					{Array.from({ length: 5 }).map((_, i) => (
+						<div
+							key={i}
+							className="flex justify-between items-center"
+						>
+							<Skeleton
+								width="8rem"
+								height="1rem"
+							/>
+							<Skeleton
+								width="3rem"
+								height="1rem"
+							/>
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function HostControlsSkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div
+			className={`bg-white rounded-lg shadow-sm border p-4 space-y-4 ${className}`}
+		>
+			<Skeleton
+				height="1.5rem"
+				className="mb-4"
+			/>
+			<div className="space-y-3">
+				<Skeleton
+					width="8rem"
+					height="2rem"
+				/>
+				<Skeleton
+					width="8rem"
+					height="2rem"
+				/>
+				<Skeleton
+					width="8rem"
+					height="2rem"
+				/>
+			</div>
+		</div>
+	);
+}
+
+function SettingsSkeleton({ className = "" }: { className?: string }) {
+	return (
+		<div
+			className={`bg-white rounded-lg shadow-sm border p-4 space-y-4 ${className}`}
+		>
+			<Skeleton
+				height="1.5rem"
+				className="mb-4"
+			/>
+			<div className="space-y-4">
+				{Array.from({ length: 4 }).map((_, i) => (
+					<div
+						key={i}
+						className="space-y-2"
+					>
+						<Skeleton
+							width="6rem"
+							height="1rem"
+						/>
+						<Skeleton
+							width="100%"
+							height="2rem"
+						/>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
