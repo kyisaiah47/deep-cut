@@ -2,12 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	// Enable experimental features
-	experimental: {
-		// Enable React 19 features
-		reactCompiler: true,
-		// Optimize package imports
-		optimizePackageImports: ["framer-motion", "lucide-react"],
-	},
+	// experimental: {
+	// 	// Enable React 19 features
+	// 	reactCompiler: true,
+	// 	// Optimize package imports
+	// 	optimizePackageImports: ["framer-motion", "lucide-react"],
+	// },
 
 	// Compiler options
 	compiler: {
@@ -128,12 +128,6 @@ const nextConfig: NextConfig = {
 
 	// Enable source maps in production for debugging
 	productionBrowserSourceMaps: false,
-
-	// Optimize CSS
-	optimizeFonts: true,
-
-	// Enable SWC minification
-	swcMinify: true,
 
 	// Redirect configuration
 	async redirects() {

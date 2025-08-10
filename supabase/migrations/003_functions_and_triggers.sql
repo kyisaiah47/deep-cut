@@ -209,13 +209,33 @@ BEGIN
       AND joined_at < NOW() - INTERVAL '5 minutes';
 END;
 $$ LANGUAGE plpgsql;
--- Function
- to increment submission votes (used by client)
-CREATE OR REPLACE FUNCTION increment_submission_votes(submission_id UUID)
-RETURNS VOID AS $
+-- Function to increment submission votes (used by client)
+CREATE OR REPLACE FUNCTION increment_submission_votes(p_submission_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+AS $func$
 BEGIN
-    UPDATE submissions 
-    SET votes = votes + 1 
-    WHERE id = submission_id;
+  UPDATE submissions
+  SET votes = votes + 1
+  WHERE id = p_submission_id;
 END;
-$ LANGUAGE plpgsql;
+$func$;
+
+-- (Re)create triggers safely
+DROP TRIGGER IF EXISTS trigger_set_first_player_as_host ON players;
+CREATE TRIGGER trigger_set_first_player_as_host
+  AFTER INSERT ON players
+  FOR EACH ROW
+  EXECUTE FUNCTION set_first_player_as_host();
+
+DROP TRIGGER IF EXISTS trigger_transfer_host_on_leave ON players;
+CREATE TRIGGER trigger_transfer_host_on_leave
+  AFTER DELETE ON players
+  FOR EACH ROW
+  EXECUTE FUNCTION transfer_host_on_leave();
+
+DROP TRIGGER IF EXISTS trigger_update_submission_vote_count ON votes;
+CREATE TRIGGER trigger_update_submission_vote_count
+  AFTER INSERT ON votes
+  FOR EACH ROW
+  EXECUTE FUNCTION update_submission_vote_count();
