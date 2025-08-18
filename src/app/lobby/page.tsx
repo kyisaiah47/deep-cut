@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { CreateGameForm } from "@/components/CreateGameFormChaos";
 import { JoinGameForm } from "@/components/JoinGameFormChaos";
 
-// Chaotic floating emojis and icons
+// Meme-fueled chaos emojis and stickers
 const CHAOS_EMOJIS = [
 	"🔥",
 	"💀",
@@ -24,6 +24,20 @@ const CHAOS_EMOJIS = [
 	"⭐",
 	"🎊",
 	"🎉",
+	"🤡",
+	"💩",
+	"🍕",
+	"🦄",
+	"🐸",
+	"🔫",
+	"💊",
+	"🎮",
+	"📱",
+	"💻",
+	"🖥️",
+	"⌨️",
+	"🖱️",
+	"🕹️",
 ];
 const GRAFFITI_WORDS = [
 	"EPIC",
@@ -33,6 +47,25 @@ const GRAFFITI_WORDS = [
 	"BOOM",
 	"ZAP",
 	"POW",
+	"YEET",
+	"BRUH",
+	"SALTY",
+	"NOOB",
+	"GG",
+	"REKT",
+	"CRINGE",
+];
+const MEME_STICKERS = [
+	"POGGERS",
+	"BASED",
+	"SUS",
+	"NO CAP",
+	"FR FR",
+	"PERIODT",
+	"SLAY",
+	"VIBE CHECK",
+	"MAIN CHARACTER",
+	"IT'S GIVING",
 ];
 
 export default function LobbyPage() {
@@ -209,8 +242,33 @@ export default function LobbyPage() {
 				))}
 			</div>
 
-			{/* Random glitch text overlays */}
+			{/* Meme stickers and glitch text overlays */}
 			<div className="absolute inset-0 pointer-events-none">
+				{/* Meme stickers scattered around */}
+				{MEME_STICKERS.map((sticker, i) => (
+					<motion.div
+						key={sticker}
+						className="absolute font-body font-bold text-white bg-neon-magenta/80 px-2 py-1 rounded-lg text-xs transform"
+						style={{
+							left: `${15 + i * 12}%`,
+							top: `${25 + i * 8}%`,
+							rotate: `${-15 + i * 6}deg`,
+						}}
+						animate={{
+							scale: [0.8, 1.1, 0.8],
+							opacity: [0.6, 1, 0.6],
+						}}
+						transition={{
+							duration: 3 + i,
+							repeat: Infinity,
+							ease: "easeInOut",
+						}}
+					>
+						{sticker}
+					</motion.div>
+				))}
+
+				{/* Glitch text overlays */}
 				<motion.div
 					className="absolute top-1/4 right-10 font-display text-neon-cyan/30 text-lg transform rotate-45"
 					animate={{
@@ -223,7 +281,7 @@ export default function LobbyPage() {
 						repeatDelay: 5,
 					}}
 				>
-					ERROR_404_FUN_NOT_FOUND
+					ERROR_404_VIBES_NOT_FOUND
 				</motion.div>
 
 				<motion.div
@@ -238,7 +296,7 @@ export default function LobbyPage() {
 						repeatDelay: 7,
 					}}
 				>
-					SYSTEM_OVERLOAD.EXE
+					MEME_OVERLOAD.EXE
 				</motion.div>
 
 				<motion.div
@@ -253,7 +311,7 @@ export default function LobbyPage() {
 						repeatDelay: 3,
 					}}
 				>
-					CHAOS_PROTOCOL_ACTIVE
+					CHAOS_MODE_ACTIVATED
 				</motion.div>
 
 				<motion.div
@@ -268,7 +326,22 @@ export default function LobbyPage() {
 						repeatDelay: 4,
 					}}
 				>
-					LOADING_MAYHEM...
+					LOADING_MAYHEM.GIF
+				</motion.div>
+
+				<motion.div
+					className="absolute top-10 left-1/2 font-body font-bold text-neon-magenta/40 text-sm transform -rotate-6"
+					animate={{
+						opacity: [0, 0.8, 0],
+						scale: [0.8, 1.2, 0.8],
+					}}
+					transition={{
+						duration: 4,
+						repeat: Infinity,
+						repeatDelay: 6,
+					}}
+				>
+					BIG MOOD ENERGY
 				</motion.div>
 			</div>
 
@@ -279,9 +352,9 @@ export default function LobbyPage() {
 				animate={{ scale: 1, rotate: 0 }}
 				transition={{ type: "spring", stiffness: 200, damping: 20 }}
 			>
-				{/* Bleeding chaotic header */}
+				{/* CTRL+LOL Chaotic Branding */}
 				<div className="relative mb-8 -mx-8">
-					{/* Main title bleeding out */}
+					{/* Main CTRL+LOL title bleeding out */}
 					<motion.div
 						className="tilt-bleed mb-4"
 						animate={{
@@ -290,47 +363,94 @@ export default function LobbyPage() {
 						}}
 						transition={{ duration: 4, repeat: Infinity }}
 					>
-						<motion.h1
-							className="punk-heading neon-text-cyan text-4xl relative"
-							animate={{
-								textShadow: [
-									"0 0 20px rgba(0, 229, 255, 0.8), 2px 2px 0px rgba(0, 0, 0, 0.8)",
-									"0 0 40px rgba(0, 229, 255, 1), 3px 3px 0px rgba(0, 0, 0, 1)",
-									"0 0 20px rgba(0, 229, 255, 0.8), 2px 2px 0px rgba(0, 0, 0, 0.8)",
-								],
-							}}
-							transition={{ duration: 2, repeat: Infinity }}
-						>
-							NEON CARDS
-							{/* Multiple graffiti strikes */}
-							<svg className="absolute inset-0 w-full h-full pointer-events-none">
-								<line
-									x1="5%"
-									y1="45%"
-									x2="95%"
-									y2="50%"
-									stroke="#FF3AF2"
-									strokeWidth="4"
-									opacity="0.8"
-								/>
-								<line
-									x1="10%"
-									y1="55%"
-									x2="90%"
-									y2="48%"
-									stroke="#B6FF3A"
-									strokeWidth="2"
-									opacity="0.6"
-								/>
-								<path
-									d="M15%,40% Q50%,35% 85%,45%"
-									stroke="#FFD23A"
-									strokeWidth="3"
-									fill="none"
-									opacity="0.7"
-								/>
-							</svg>
-						</motion.h1>
+						<div className="flex items-center justify-center gap-2">
+							{/* CTRL as glowing keyboard key */}
+							<motion.div
+								className="relative"
+								animate={{
+									boxShadow: [
+										"0 0 20px rgba(0, 229, 255, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.3)",
+										"0 0 40px rgba(0, 229, 255, 1), inset 0 2px 8px rgba(255, 255, 255, 0.5)",
+										"0 0 20px rgba(0, 229, 255, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.3)",
+									],
+								}}
+								transition={{ duration: 2, repeat: Infinity }}
+							>
+								<div className="bg-gradient-to-b from-surface-dark to-surface-darker border-2 border-neon-cyan rounded-lg px-4 py-2 shadow-lg">
+									<span className="punk-heading neon-text-cyan text-3xl">
+										CTRL
+									</span>
+								</div>
+								{/* Keyboard key highlight */}
+								<div className="absolute top-1 left-1 right-1 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-t-lg"></div>
+							</motion.div>
+
+							{/* Plus symbol */}
+							<motion.span
+								className="punk-heading neon-text-lime text-4xl"
+								animate={{ rotate: [0, 180, 360] }}
+								transition={{ duration: 4, repeat: Infinity }}
+							>
+								+
+							</motion.span>
+
+							{/* LOL as neon graffiti */}
+							<motion.div
+								className="relative"
+								animate={{
+									textShadow: [
+										"0 0 20px rgba(255, 58, 242, 0.8), 2px 2px 0px rgba(0, 0, 0, 0.8)",
+										"0 0 40px rgba(255, 58, 242, 1), 3px 3px 0px rgba(0, 0, 0, 1)",
+										"0 0 20px rgba(255, 58, 242, 0.8), 2px 2px 0px rgba(0, 0, 0, 0.8)",
+									],
+								}}
+								transition={{ duration: 2, repeat: Infinity }}
+							>
+								<span className="punk-heading neon-text-magenta text-4xl transform -rotate-3">
+									LOL
+								</span>
+								{/* Graffiti drips */}
+								<svg className="absolute inset-0 w-full h-full pointer-events-none">
+									<path
+										d="M10,80% L10,95% M30,85% L30,100% M50,80% L50,90%"
+										stroke="#FF3AF2"
+										strokeWidth="2"
+										opacity="0.6"
+									/>
+								</svg>
+								{/* Spray paint texture */}
+								<div className="absolute inset-0 bg-gradient-radial from-neon-magenta/20 via-transparent to-transparent opacity-50"></div>
+							</motion.div>
+						</div>
+
+						{/* Multiple graffiti strikes across the whole title */}
+						<svg className="absolute inset-0 w-full h-full pointer-events-none">
+							<line
+								x1="5%"
+								y1="45%"
+								x2="95%"
+								y2="50%"
+								stroke="#FF3AF2"
+								strokeWidth="4"
+								opacity="0.8"
+							/>
+							<line
+								x1="10%"
+								y1="55%"
+								x2="90%"
+								y2="48%"
+								stroke="#B6FF3A"
+								strokeWidth="2"
+								opacity="0.6"
+							/>
+							<path
+								d="M15%,40% Q50%,35% 85%,45%"
+								stroke="#FFD23A"
+								strokeWidth="3"
+								fill="none"
+								opacity="0.7"
+							/>
+						</svg>
 					</motion.div>
 
 					{/* Subtitle bleeding right */}
@@ -343,7 +463,7 @@ export default function LobbyPage() {
 						transition={{ duration: 3, repeat: Infinity }}
 					>
 						<div className="punk-heading neon-text-magenta text-lg relative bg-surface-darker/80 px-4 py-2 border-l-4 border-neon-magenta">
-							ARCADE CHAOS SHOW
+							MEME ARCADE MAYHEM
 							{/* Scribbled decorations */}
 							<svg className="absolute -right-6 top-0 w-8 h-full pointer-events-none">
 								<path
@@ -366,7 +486,7 @@ export default function LobbyPage() {
 						transition={{ duration: 5, repeat: Infinity }}
 					>
 						<p className="text-soft-lavender font-body text-sm bg-surface-dark/60 px-3 py-1 border-r-2 border-acid-lime">
-							💥 Create hilarious chaos with AI cards! 💥
+							💀 Cards Against Humanity meets neon arcade chaos! 🔥
 						</p>
 					</motion.div>
 

@@ -4,8 +4,9 @@ import { PerformanceToggle } from "@/components/PerformanceDashboard";
 import "@/lib/performance-init";
 
 export const metadata: Metadata = {
-	title: "Neon Cards - Arcade Game Show",
-	description: "High-energy multiplayer card game with neon arcade vibes",
+	title: "CTRL+LOL - Meme Arcade Mayhem",
+	description:
+		"Cards Against Humanity meets neon arcade chaos! Meme-fueled multiplayer mayhem with AI-generated cards.",
 };
 
 export default function RootLayout({

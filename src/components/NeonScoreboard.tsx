@@ -180,9 +180,30 @@ export function NeonScoreboard({
 
 	return (
 		<div className="space-y-4">
-			<h3 className="neon-heading neon-text-magenta text-center text-xl">
-				{title}
-			</h3>
+			{/* Meme-style scoreboard header */}
+			<motion.div
+				className="text-center relative"
+				animate={{
+					textShadow: [
+						"0 0 20px rgba(255, 58, 242, 0.8)",
+						"0 0 40px rgba(255, 58, 242, 1)",
+						"0 0 20px rgba(255, 58, 242, 0.8)",
+					],
+				}}
+				transition={{ duration: 2, repeat: Infinity }}
+			>
+				<h3 className="punk-heading neon-text-magenta text-2xl">{title} 💀</h3>
+				{/* Graffiti underline */}
+				<svg className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-2 pointer-events-none">
+					<path
+						d="M0,1 Q16,3 32,1 T64,1"
+						stroke="#B6FF3A"
+						strokeWidth="2"
+						fill="none"
+						opacity="0.7"
+					/>
+				</svg>
+			</motion.div>
 
 			<div className="space-y-3">
 				{sortedPlayers.map((player, index) => (
@@ -199,9 +220,13 @@ export function NeonScoreboard({
 			</div>
 
 			{targetScore && (
-				<div className="text-center pt-4 border-t border-electric-blue/30">
+				<div className="text-center pt-4 border-t border-electric-blue/30 relative">
 					<div className="text-soft-lavender text-sm font-body">
-						First to {targetScore} points wins!
+						First to {targetScore} points wins! 🏆
+					</div>
+					{/* Meme sticker */}
+					<div className="absolute -top-2 -right-2 bg-neon-magenta text-stage text-xs font-bold px-2 py-1 rounded transform rotate-12">
+						NO CAP
 					</div>
 				</div>
 			)}

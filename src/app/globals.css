@@ -1272,3 +1272,107 @@ button,
 		transform: translate(0, 0) rotate(360deg);
 	}
 }
+/* Radial gradient utility */
+.bg-gradient-radial {
+	background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* CTRL+LOL specific styles */
+.keyboard-key {
+	background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
+	border: 2px solid var(--neon-cyan);
+	box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1),
+		inset 0 -2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+.keyboard-key:hover {
+	box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2),
+		inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 229, 255, 0.6);
+}
+
+.graffiti-text {
+	position: relative;
+	background: linear-gradient(45deg, var(--neon-magenta), var(--acid-lime));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.graffiti-text::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: inherit;
+	filter: blur(8px);
+	opacity: 0.3;
+	z-index: -1;
+}
+
+/* Meme energy indicators */
+.meme-energy {
+	animation: memeFloat 2s ease-in-out infinite alternate;
+}
+
+@keyframes memeFloat {
+	0% {
+		transform: translateY(0px) rotate(-2deg);
+	}
+	100% {
+		transform: translateY(-10px) rotate(2deg);
+	}
+}
+
+/* Game show style elements */
+.game-show-border {
+	border: 4px solid transparent;
+	background: linear-gradient(var(--surface-dark), var(--surface-dark))
+			padding-box,
+		linear-gradient(
+				45deg,
+				var(--neon-cyan),
+				var(--neon-magenta),
+				var(--electric-blue),
+				var(--acid-lime)
+			)
+			border-box;
+	animation: gameShowGlow 3s linear infinite;
+}
+
+@keyframes gameShowGlow {
+	0% {
+		filter: hue-rotate(0deg);
+	}
+	100% {
+		filter: hue-rotate(360deg);
+	}
+}
+
+/* Retro CRT screen effect */
+.crt-screen {
+	position: relative;
+	background: var(--stage-bg);
+}
+
+.crt-screen::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%),
+		linear-gradient(90deg, transparent 50%, rgba(255, 0, 0, 0.03) 50%);
+	background-size: 100% 4px, 4px 100%;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.crt-screen::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		ellipse at center,
+		transparent 0%,
+		rgba(0, 0, 0, 0.3) 100%
+	);
+	pointer-events: none;
+	z-index: 1;
+}

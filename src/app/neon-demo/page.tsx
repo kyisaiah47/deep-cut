@@ -62,11 +62,18 @@ export default function NeonDemoPage() {
 			<div className="max-w-6xl mx-auto space-y-12">
 				{/* Header */}
 				<div className="text-center space-y-4">
-					<h1 className="neon-heading neon-text-cyan text-6xl">
-						NEON ARCADE DEMO
+					<div className="flex items-center justify-center gap-4">
+						<div className="keyboard-key px-6 py-3 rounded-lg">
+							<span className="punk-heading neon-text-cyan text-4xl">CTRL</span>
+						</div>
+						<span className="punk-heading neon-text-lime text-5xl">+</span>
+						<span className="punk-heading graffiti-text text-5xl">LOL</span>
+					</div>
+					<h1 className="punk-heading neon-text-magenta text-3xl">
+						MEME ARCADE DEMO
 					</h1>
 					<p className="text-soft-lavender font-body text-xl">
-						Experience the high-energy game show vibes
+						Experience the chaotic meme-fueled mayhem! 💀🔥
 					</p>
 				</div>
 
