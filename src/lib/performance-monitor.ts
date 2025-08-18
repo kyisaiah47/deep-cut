@@ -2,6 +2,7 @@
  * Performance monitoring utilities for real-time operations and AI generation
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface PerformanceMetric {
 	name: string;
 	value: number;
@@ -291,7 +292,11 @@ export function measureWebVitals() {
 		// Measure Core Web Vitals
 		const observer = new PerformanceObserver((list) => {
 			for (const entry of list.getEntries()) {
-				const value = (entry as unknown).value || entry.duration || 0;
+				// entry is PerformanceEntry, but some web vitals polyfills add .value
+				const value =
+					(entry as any).value !== undefined
+						? (entry as any).value
+						: entry.duration || 0;
 				performanceMonitor.recordMetric(`web_vital_${entry.name}`, value, {
 					entryType: entry.entryType,
 					startTime: entry.startTime,

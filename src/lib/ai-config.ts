@@ -3,7 +3,7 @@
  */
 
 export interface AIConfig {
-	openaiApiKey?: string;
+	geminiApiKey?: string;
 	model: string;
 	maxTokens: number;
 	temperature: number;
@@ -26,7 +26,7 @@ export const defaultAIConfig: AIConfig = {
 export function getAIConfig(): AIConfig {
 	return {
 		...defaultAIConfig,
-		openaiApiKey: process.env.OPENAI_API_KEY,
+		geminiApiKey: process.env.GEMINI_API_KEY,
 	};
 }
 

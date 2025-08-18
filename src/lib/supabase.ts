@@ -8,6 +8,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 	throw new Error("Missing Supabase environment variables");
 }
 
+try {
+	new URL(supabaseUrl);
+} catch {
+	throw new Error("Invalid Supabase URL");
+}
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 	realtime: {
 		params: {

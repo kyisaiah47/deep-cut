@@ -110,48 +110,38 @@ async function generateCardsWithAI(
 	playerCount: number,
 	theme?: string
 ): Promise<Card[]> {
-	const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
+	const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
 
-	if (!openaiApiKey) {
-		throw new Error("OpenAI API key not configured");
+	if (!geminiApiKey) {
+		throw new Error("Google Gemini API key not configured");
 	}
 
 	const themePrompt = theme ? ` with a ${theme} theme` : "";
 
 	// Generate prompt card
 	const promptResponse = await fetch(
-		"https://api.openai.com/v1/chat/completions",
+		"https://gemini.googleapis.com/v1/generatePrompt",
 		{
 			method: "POST",
 			headers: {
-				Authorization: `Bearer ${openaiApiKey}`,
+				Authorization: `Bearer ${geminiApiKey}`,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				model: "gpt-3.5-turbo",
-				messages: [
-					{
-						role: "system",
-						content: `You are generating prompt cards for a Cards Against Humanity-style game${themePrompt}. Create funny, engaging prompts that have blank spaces for responses. Keep them appropriate but humorous. The prompt should be a single sentence with one or more blanks indicated by underscores.`,
-					},
-					{
-						role: "user",
-						content:
-							"Generate one funny prompt card with blanks for responses.",
-					},
-				],
-				max_tokens: 100,
+				model: "gemini-1",
+				prompt: `You are generating prompt cards for a Cards Against Humanity-style game${themePrompt}. Create funny, engaging prompts that have blank spaces for responses. Keep them appropriate but humorous. The prompt should be a single sentence with one or more blanks indicated by underscores.`,
+				maxTokens: 100,
 				temperature: 0.8,
 			}),
 		}
 	);
 
 	if (!promptResponse.ok) {
-		throw new Error(`OpenAI API error: ${promptResponse.status}`);
+		throw new Error(`Google Gemini API error: ${promptResponse.status}`);
 	}
 
 	const promptData = await promptResponse.json();
-	const promptText = promptData.choices[0]?.message?.content?.trim();
+	const promptText = promptData.generatedText?.trim();
 
 	if (!promptText) {
 		throw new Error("Failed to generate prompt text");
@@ -161,37 +151,28 @@ async function generateCardsWithAI(
 	const responseCount = Math.max(playerCount * 6, 20); // Ensure enough for distribution
 
 	const responseResponse = await fetch(
-		"https://api.openai.com/v1/chat/completions",
+		"https://gemini.googleapis.com/v1/generateResponses",
 		{
 			method: "POST",
 			headers: {
-				Authorization: `Bearer ${openaiApiKey}`,
+				Authorization: `Bearer ${geminiApiKey}`,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				model: "gpt-3.5-turbo",
-				messages: [
-					{
-						role: "system",
-						content: `You are generating response cards for a Cards Against Humanity-style game${themePrompt}. Create funny, unexpected responses that could fill in blanks in prompt cards. Each response should be a short phrase or sentence. Keep them appropriate but humorous. Generate exactly ${responseCount} different responses, separated by newlines.`,
-					},
-					{
-						role: "user",
-						content: `Generate ${responseCount} funny response cards that could complete various prompts.`,
-					},
-				],
-				max_tokens: 500,
+				model: "gemini-1",
+				prompt: `You are generating response cards for a Cards Against Humanity-style game${themePrompt}. Create funny, unexpected responses that could fill in blanks in prompt cards. Each response should be a short phrase or sentence. Keep them appropriate but humorous. Generate exactly ${responseCount} different responses, separated by newlines.`,
+				maxTokens: 500,
 				temperature: 0.9,
 			}),
 		}
 	);
 
 	if (!responseResponse.ok) {
-		throw new Error(`OpenAI API error: ${responseResponse.status}`);
+		throw new Error(`Google Gemini API error: ${responseResponse.status}`);
 	}
 
 	const responseData = await responseResponse.json();
-	const responseText = responseData.choices[0]?.message?.content?.trim();
+	const responseText = responseData.generatedText?.trim();
 
 	if (!responseText) {
 		throw new Error("Failed to generate response text");

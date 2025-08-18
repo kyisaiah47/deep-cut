@@ -23,7 +23,7 @@ A Cards Against Humanity-style multiplayer game with AI-generated content, built
    - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
    - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
-   - `OPENAI_API_KEY`: Your OpenAI API key for card generation
+   - `GEMINI_API_KEY`: Your OpenAI API key for card generation
 
 ## Getting Started
 

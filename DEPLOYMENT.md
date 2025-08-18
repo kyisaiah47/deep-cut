@@ -24,7 +24,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # OpenAI Configuration (for AI card generation)
-OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_GEMINI_API_KEY
 
 # Optional: Performance Monitoring
 NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING=true

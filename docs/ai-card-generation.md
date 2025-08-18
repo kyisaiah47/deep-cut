@@ -41,7 +41,7 @@ The AI card generation system uses OpenAI's GPT models to create funny and engag
 
 ```bash
 # OpenAI API Configuration
-OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_GEMINI_API_KEY_here
 
 # Supabase Configuration (already configured)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -276,7 +276,7 @@ console.log("AI Generation Metrics:", metrics);
 supabase functions deploy generate-cards
 
 # Set environment variables
-supabase secrets set OPENAI_API_KEY=your_api_key_here
+supabase secrets set GEMINI_API_KEY=your_api_key_here
 ```
 
 ### Environment Setup
@@ -292,7 +292,7 @@ supabase secrets set OPENAI_API_KEY=your_api_key_here
 
 1. **OpenAI API Key Missing**
 
-   - Ensure `OPENAI_API_KEY` is set in environment variables
+   - Ensure `GEMINI_API_KEY` is set in environment variables
    - Check Supabase secrets configuration
 
 2. **Generation Failures**
