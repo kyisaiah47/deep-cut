@@ -39,7 +39,7 @@ export function Card({
 		}
 	};
 
-	// Size-based classes
+	// Size-based classes for neon arcade theme
 	const sizeClasses = {
 		sm: "p-3 text-xs",
 		md: "p-4 text-sm",
@@ -50,21 +50,19 @@ export function Card({
 	const responsivePadding = isMobile ? "p-3" : sizeClasses[size];
 
 	const baseClasses = `
-		relative rounded-lg border-2 transition-all duration-200 cursor-pointer
+		neon-card relative cursor-pointer font-body
 		${responsivePadding}
 		${
 			isPrompt
-				? "bg-blue-50 border-blue-300 text-blue-900"
-				: "bg-gray-50 border-gray-300 text-gray-900"
+				? "border-electric-blue text-neon-cyan"
+				: "border-neon-cyan text-white"
 		}
+		${isSelected ? "neon-card-selected" : ""}
 		${
-			isSelected
-				? isPrompt
-					? "border-blue-500 bg-blue-100 shadow-lg ring-2 ring-blue-200"
-					: "border-gray-500 bg-gray-100 shadow-lg ring-2 ring-gray-200"
-				: ""
+			isSelectable
+				? "hover:scale-105 hover:-translate-y-1 active:scale-95"
+				: "cursor-default"
 		}
-		${isSelectable ? "hover:shadow-md active:scale-95" : "cursor-default"}
 		${isTouchDevice && isSelectable ? "touch-manipulation" : ""}
 		${className}
 	`
@@ -91,15 +89,15 @@ export function Card({
 		prefersReducedMotion || isTouchDevice
 			? {}
 			: {
-					scale: 1.02,
-					y: -2,
+					scale: 1.05,
+					y: -4,
 					transition: { duration: ANIMATION_DURATIONS.CARD_HOVER },
 			  };
 
 	const tapVariant = prefersReducedMotion
 		? {}
 		: {
-				scale: 0.98,
+				scale: 0.95,
 				transition: { duration: 0.1 },
 		  };
 
@@ -126,51 +124,66 @@ export function Card({
 					: card.text
 			}
 		>
-			{/* Selection indicator */}
+			{/* Neon selection indicator */}
 			{isSelected && (
 				<motion.div
-					initial={{ scale: 0 }}
-					animate={{ scale: 1 }}
+					initial={{ scale: 0, rotate: -180 }}
+					animate={{ scale: 1, rotate: 0 }}
 					transition={
-						prefersReducedMotion ? { duration: 0.01 } : { duration: 0.2 }
+						prefersReducedMotion
+							? { duration: 0.01 }
+							: {
+									duration: 0.4,
+									type: "spring",
+									stiffness: 200,
+									damping: 15,
+							  }
 					}
-					className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ${
-						isPrompt ? "bg-blue-500" : "bg-gray-500"
+					className={`absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center text-stage font-display font-bold text-sm shadow-neon-cyan ${
+						isPrompt
+							? "bg-electric-blue border-2 border-neon-cyan"
+							: "bg-neon-cyan border-2 border-white"
 					}`}
 				>
-					✓
+					⚡
 				</motion.div>
 			)}
 
-			{/* Card content */}
+			{/* Card content with neon styling */}
 			<div className="relative z-10">
 				<p
 					className={`font-medium leading-relaxed ${
 						isMobile ? "text-sm" : sizeClasses[size].split(" ")[1]
-					} ${isPrompt ? "text-blue-900" : "text-gray-900"}`}
+					} ${
+						isPrompt
+							? "text-neon-cyan drop-shadow-[0_0_8px_rgba(0,229,255,0.6)]"
+							: "text-white drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]"
+					}`}
 				>
 					{card.text}
 				</p>
 			</div>
 
-			{/* Hover glow effect - disabled on touch devices */}
+			{/* Neon hover glow effect - disabled on touch devices */}
 			{isSelectable && !isTouchDevice && !prefersReducedMotion && (
 				<motion.div
-					className={`absolute inset-0 rounded-lg opacity-0 ${
-						isPrompt ? "bg-blue-200" : "bg-gray-200"
+					className={`absolute inset-0 rounded-arcade opacity-0 ${
+						isPrompt
+							? "bg-gradient-to-br from-electric-blue/20 to-neon-cyan/20"
+							: "bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20"
 					}`}
-					whileHover={{ opacity: 0.1 }}
+					whileHover={{ opacity: 1 }}
 					transition={{ duration: ANIMATION_DURATIONS.CARD_HOVER }}
 				/>
 			)}
 
-			{/* Touch feedback for mobile */}
+			{/* Neon touch feedback for mobile */}
 			{isSelectable && isTouchDevice && (
 				<motion.div
-					className={`absolute inset-0 rounded-lg opacity-0 ${
-						isPrompt ? "bg-blue-300" : "bg-gray-300"
+					className={`absolute inset-0 rounded-arcade opacity-0 ${
+						isPrompt ? "bg-electric-blue/30" : "bg-neon-cyan/30"
 					}`}
-					whileTap={{ opacity: 0.2 }}
+					whileTap={{ opacity: 1 }}
 					transition={{ duration: 0.1 }}
 				/>
 			)}

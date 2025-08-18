@@ -1,27 +1,54 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
-	--card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-	--card-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-		0 2px 4px -2px rgb(0 0 0 / 0.1);
-	--border-radius: 0.5rem;
-	--animation-duration: 0.2s;
+	/* Neon Arcade Color Palette */
+	--stage-bg: #0b0b14;
+	--neon-cyan: #00e5ff;
+	--neon-magenta: #ff3af2;
+	--electric-blue: #4d7cff;
+	--acid-lime: #b6ff3a;
+	--sun-yellow: #ffd23a;
+	--soft-lavender: #c7afff;
+
+	/* Dark surfaces */
+	--card-bg: #1a1a2e;
+	--card-bg-hover: #252545;
+	--surface-dark: #16213e;
+	--surface-darker: #0f1419;
+
+	/* Neon effects */
+	--neon-glow-cyan: 0 0 20px rgba(0, 229, 255, 0.5),
+		0 0 40px rgba(0, 229, 255, 0.3);
+	--neon-glow-magenta: 0 0 20px rgba(255, 58, 242, 0.5),
+		0 0 40px rgba(255, 58, 242, 0.3);
+	--neon-glow-blue: 0 0 20px rgba(77, 124, 255, 0.5),
+		0 0 40px rgba(77, 124, 255, 0.3);
+	--neon-glow-lime: 0 0 20px rgba(182, 255, 58, 0.5),
+		0 0 40px rgba(182, 255, 58, 0.3);
+
+	/* Card effects */
+	--card-rim-light: inset 0 0 0 1px rgba(0, 229, 255, 0.3),
+		0 0 10px rgba(0, 229, 255, 0.2);
+	--card-rim-light-hover: inset 0 0 0 2px rgba(0, 229, 255, 0.6),
+		0 0 20px rgba(0, 229, 255, 0.4);
+	--card-pulse: 0 0 0 0 rgba(0, 229, 255, 0.7);
+
+	/* Typography */
+	--font-display: "Orbitron", monospace;
+	--font-body: "Space Grotesk", sans-serif;
+
+	/* Animation durations */
+	--animation-fast: 0.15s;
+	--animation-normal: 0.3s;
+	--animation-slow: 0.6s;
 }
 
 @theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+	--color-background: var(--stage-bg);
+	--color-foreground: #ffffff;
+	--font-sans: var(--font-body);
+	--font-mono: var(--font-display);
 }
 
 /* Respect user's reduced motion preference */
@@ -36,29 +63,58 @@
 	}
 }
 
-/* Base styles */
+/* Base styles - Neon Arcade Theme */
 body {
-	background: var(--background);
-	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
-	line-height: 1.6;
+	background: var(--stage-bg);
+	color: #ffffff;
+	font-family: var(--font-body);
+	line-height: 1.5;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	overflow-x: hidden;
 }
 
-/* Improved focus styles for accessibility */
+/* Neon stage background with subtle grid pattern */
+body::before {
+	content: "";
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: radial-gradient(
+			circle at 20% 80%,
+			rgba(0, 229, 255, 0.1) 0%,
+			transparent 50%
+		),
+		radial-gradient(
+			circle at 80% 20%,
+			rgba(255, 58, 242, 0.1) 0%,
+			transparent 50%
+		),
+		linear-gradient(90deg, rgba(77, 124, 255, 0.03) 1px, transparent 1px),
+		linear-gradient(rgba(77, 124, 255, 0.03) 1px, transparent 1px);
+	background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+	pointer-events: none;
+	z-index: -1;
+}
+
+/* Neon focus styles for accessibility */
 *:focus {
-	outline: 2px solid #3b82f6;
+	outline: 2px solid var(--neon-cyan);
 	outline-offset: 2px;
+	box-shadow: var(--neon-glow-cyan);
 }
 
 *:focus:not(:focus-visible) {
 	outline: none;
+	box-shadow: none;
 }
 
 *:focus-visible {
-	outline: 2px solid #3b82f6;
+	outline: 2px solid var(--neon-cyan);
 	outline-offset: 2px;
+	box-shadow: var(--neon-glow-cyan);
 }
 
 /* Touch-friendly button styles */
@@ -160,17 +216,287 @@ button,
 	}
 }
 
+/* Neon Arcade Typography */
+.neon-heading {
+	font-family: var(--font-display);
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	text-shadow: 0 0 10px currentColor, 0 0 20px currentColor,
+		0 0 40px currentColor;
+	-webkit-text-stroke: 1px currentColor;
+}
+
+.neon-text-cyan {
+	color: var(--neon-cyan);
+	text-shadow: var(--neon-glow-cyan);
+}
+
+.neon-text-magenta {
+	color: var(--neon-magenta);
+	text-shadow: var(--neon-glow-magenta);
+}
+
+.neon-text-blue {
+	color: var(--electric-blue);
+	text-shadow: var(--neon-glow-blue);
+}
+
+.neon-text-lime {
+	color: var(--acid-lime);
+	text-shadow: var(--neon-glow-lime);
+}
+
+/* Neon Card Styles */
+.neon-card {
+	background: var(--card-bg);
+	border: 1px solid rgba(0, 229, 255, 0.3);
+	border-radius: 12px;
+	box-shadow: var(--card-rim-light);
+	transition: all var(--animation-normal) ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.neon-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(0, 229, 255, 0.1),
+		transparent
+	);
+	transition: left 0.5s ease;
+}
+
+.neon-card:hover {
+	background: var(--card-bg-hover);
+	box-shadow: var(--card-rim-light-hover);
+	transform: scale(1.02) translateY(-2px);
+}
+
+.neon-card:hover::before {
+	left: 100%;
+}
+
+.neon-card-selected {
+	border-color: var(--neon-cyan);
+	box-shadow: var(--card-rim-light-hover), 0 0 0 4px rgba(0, 229, 255, 0.2);
+	animation: neonPulse 2s ease-in-out infinite;
+}
+
+/* Neon Button Styles */
+.neon-button {
+	background: linear-gradient(
+		135deg,
+		var(--surface-dark),
+		var(--surface-darker)
+	);
+	border: 2px solid var(--neon-cyan);
+	border-radius: 25px;
+	color: var(--neon-cyan);
+	font-family: var(--font-display);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 12px 24px;
+	position: relative;
+	overflow: hidden;
+	transition: all var(--animation-fast) ease;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+		0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+.neon-button::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(0, 229, 255, 0.2),
+		transparent
+	);
+	transition: left 0.3s ease;
+}
+
+.neon-button:hover {
+	background: linear-gradient(135deg, var(--neon-cyan), rgba(0, 229, 255, 0.8));
+	color: var(--stage-bg);
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), var(--neon-glow-cyan);
+	transform: translateY(-1px);
+}
+
+.neon-button:hover::before {
+	left: 100%;
+}
+
+.neon-button:active {
+	transform: translateY(0) scale(0.98);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5),
+		0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+/* Scoreboard Styles */
+.scoreboard {
+	background: linear-gradient(
+		135deg,
+		var(--surface-dark),
+		var(--surface-darker)
+	);
+	border: 2px solid var(--electric-blue);
+	border-radius: 16px;
+	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3),
+		0 0 30px rgba(77, 124, 255, 0.3);
+	position: relative;
+}
+
+.scoreboard::before {
+	content: "";
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	right: -2px;
+	bottom: -2px;
+	background: linear-gradient(
+		45deg,
+		var(--electric-blue),
+		var(--neon-cyan),
+		var(--electric-blue)
+	);
+	border-radius: 16px;
+	z-index: -1;
+	animation: scoreboardGlow 3s ease-in-out infinite;
+}
+
+/* Timer Styles */
+.neon-timer {
+	position: relative;
+	width: 120px;
+	height: 120px;
+}
+
+.timer-circle {
+	fill: none;
+	stroke: rgba(0, 229, 255, 0.2);
+	stroke-width: 8;
+}
+
+.timer-progress {
+	fill: none;
+	stroke: var(--neon-cyan);
+	stroke-width: 8;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 10px var(--neon-cyan));
+	transition: stroke-dasharray var(--animation-fast) ease;
+}
+
+/* Arcade Animations */
+@keyframes neonPulse {
+	0%,
+	100% {
+		box-shadow: var(--card-rim-light-hover), 0 0 0 4px rgba(0, 229, 255, 0.2);
+	}
+	50% {
+		box-shadow: var(--card-rim-light-hover), 0 0 0 8px rgba(0, 229, 255, 0.4);
+	}
+}
+
+@keyframes scoreboardGlow {
+	0%,
+	100% {
+		opacity: 0.6;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+@keyframes slotMachineReveal {
+	0% {
+		transform: translateY(-100%);
+		opacity: 0;
+	}
+	50% {
+		transform: translateY(10%);
+		opacity: 0.8;
+	}
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes confettiBurst {
+	0% {
+		transform: scale(0) rotate(0deg);
+		opacity: 1;
+	}
+	50% {
+		transform: scale(1.2) rotate(180deg);
+		opacity: 0.8;
+	}
+	100% {
+		transform: scale(1.5) rotate(360deg);
+		opacity: 0;
+	}
+}
+
+@keyframes odometerRoll {
+	0% {
+		transform: translateY(100%);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
+@keyframes arcadeFlicker {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.8;
+	}
+}
+
+/* Utility Classes */
+.slot-reveal {
+	animation: slotMachineReveal 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.confetti-burst {
+	animation: confettiBurst 1s ease-out forwards;
+}
+
+.odometer-roll {
+	animation: odometerRoll 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.arcade-flicker {
+	animation: arcadeFlicker 0.1s ease-in-out 3;
+}
+
 /* Animation utilities */
 .animate-fade-in {
-	animation: fadeIn 0.3s ease-out;
+	animation: fadeIn var(--animation-normal) ease-out;
 }
 
 .animate-slide-up {
-	animation: slideUp 0.3s ease-out;
+	animation: slideUp var(--animation-normal) ease-out;
 }
 
 .animate-scale-in {
-	animation: scaleIn 0.2s ease-out;
+	animation: scaleIn var(--animation-fast) ease-out;
 }
 
 @keyframes fadeIn {
@@ -184,7 +510,7 @@ button,
 
 @keyframes slideUp {
 	from {
-		transform: translateY(10px);
+		transform: translateY(20px);
 		opacity: 0;
 	}
 	to {
@@ -195,7 +521,7 @@ button,
 
 @keyframes scaleIn {
 	from {
-		transform: scale(0.95);
+		transform: scale(0.9);
 		opacity: 0;
 	}
 	to {

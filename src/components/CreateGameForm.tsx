@@ -151,38 +151,44 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 			<div>
 				<label
 					htmlFor="playerName"
-					className="block text-sm font-medium text-white mb-2"
+					className="block text-sm font-display font-bold text-neon-cyan mb-3 uppercase tracking-wide"
 				>
-					Your Name
+					⚡ Your Name
 				</label>
 				<input
 					type="text"
 					id="playerName"
 					value={settings.playerName}
 					onChange={(e) => handleInputChange("playerName", e.target.value)}
-					className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-						errors.playerName ? "border-red-500" : "border-white/20"
+					className={`w-full px-4 py-3 bg-surface-darker border-2 rounded-arcade text-white placeholder-soft-lavender/50 font-body focus:outline-none transition-all duration-300 ${
+						errors.playerName
+							? "border-neon-magenta shadow-neon-magenta"
+							: "border-electric-blue/50 focus:border-neon-cyan focus:shadow-neon-cyan"
 					}`}
-					placeholder="Enter your name"
+					placeholder="Enter your player name"
 					maxLength={GAME_LIMITS.MAX_PLAYER_NAME_LENGTH}
 					disabled={isLoading}
 				/>
 				{errors.playerName && (
-					<p className="mt-1 text-sm text-red-400">{errors.playerName}</p>
+					<p className="mt-2 text-sm text-neon-magenta font-body">
+						{errors.playerName}
+					</p>
 				)}
 			</div>
 
 			{/* Game Settings */}
-			<div className="space-y-4 pt-4 border-t border-white/20">
-				<h3 className="text-lg font-medium text-white">Game Settings</h3>
+			<div className="space-y-6 pt-6 border-t border-electric-blue/30">
+				<h3 className="neon-heading neon-text-lime text-lg">
+					🎮 Game Settings
+				</h3>
 
 				{/* Max Players */}
 				<div>
 					<label
 						htmlFor="maxPlayers"
-						className="block text-sm font-medium text-white mb-2"
+						className="block text-sm font-display font-bold text-soft-lavender mb-2 uppercase"
 					>
-						Max Players ({GAME_LIMITS.MIN_PLAYERS}-{GAME_LIMITS.MAX_PLAYERS})
+						👥 Max Players ({GAME_LIMITS.MIN_PLAYERS}-{GAME_LIMITS.MAX_PLAYERS})
 					</label>
 					<input
 						type="number"
@@ -193,13 +199,17 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 						}
 						min={GAME_LIMITS.MIN_PLAYERS}
 						max={GAME_LIMITS.MAX_PLAYERS}
-						className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-							errors.maxPlayers ? "border-red-500" : "border-white/20"
+						className={`w-full px-4 py-3 bg-surface-darker border-2 rounded-arcade text-white font-body focus:outline-none transition-all duration-300 ${
+							errors.maxPlayers
+								? "border-neon-magenta shadow-neon-magenta"
+								: "border-electric-blue/50 focus:border-acid-lime focus:shadow-neon-lime"
 						}`}
 						disabled={isLoading}
 					/>
 					{errors.maxPlayers && (
-						<p className="mt-1 text-sm text-red-400">{errors.maxPlayers}</p>
+						<p className="mt-2 text-sm text-neon-magenta font-body">
+							{errors.maxPlayers}
+						</p>
 					)}
 				</div>
 
@@ -207,9 +217,9 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 				<div>
 					<label
 						htmlFor="targetScore"
-						className="block text-sm font-medium text-white mb-2"
+						className="block text-sm font-display font-bold text-soft-lavender mb-2 uppercase"
 					>
-						Target Score ({GAME_LIMITS.MIN_TARGET_SCORE}-
+						🏆 Target Score ({GAME_LIMITS.MIN_TARGET_SCORE}-
 						{GAME_LIMITS.MAX_TARGET_SCORE})
 					</label>
 					<input
@@ -221,13 +231,17 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 						}
 						min={GAME_LIMITS.MIN_TARGET_SCORE}
 						max={GAME_LIMITS.MAX_TARGET_SCORE}
-						className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-							errors.targetScore ? "border-red-500" : "border-white/20"
+						className={`w-full px-4 py-3 bg-surface-darker border-2 rounded-arcade text-white font-body focus:outline-none transition-all duration-300 ${
+							errors.targetScore
+								? "border-neon-magenta shadow-neon-magenta"
+								: "border-electric-blue/50 focus:border-sun-yellow focus:shadow-[0_0_20px_rgba(255,210,58,0.5)]"
 						}`}
 						disabled={isLoading}
 					/>
 					{errors.targetScore && (
-						<p className="mt-1 text-sm text-red-400">{errors.targetScore}</p>
+						<p className="mt-2 text-sm text-neon-magenta font-body">
+							{errors.targetScore}
+						</p>
 					)}
 				</div>
 
@@ -235,9 +249,9 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 				<div>
 					<label
 						htmlFor="submissionTimer"
-						className="block text-sm font-medium text-white mb-2"
+						className="block text-sm font-display font-bold text-soft-lavender mb-2 uppercase"
 					>
-						Submission Timer (30-300 seconds)
+						⏱️ Submission Timer (30-300 seconds)
 					</label>
 					<input
 						type="number"
@@ -249,13 +263,15 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 						min={30}
 						max={300}
 						step={15}
-						className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-							errors.submissionTimer ? "border-red-500" : "border-white/20"
+						className={`w-full px-4 py-3 bg-surface-darker border-2 rounded-arcade text-white font-body focus:outline-none transition-all duration-300 ${
+							errors.submissionTimer
+								? "border-neon-magenta shadow-neon-magenta"
+								: "border-electric-blue/50 focus:border-neon-cyan focus:shadow-neon-cyan"
 						}`}
 						disabled={isLoading}
 					/>
 					{errors.submissionTimer && (
-						<p className="mt-1 text-sm text-red-400">
+						<p className="mt-2 text-sm text-neon-magenta font-body">
 							{errors.submissionTimer}
 						</p>
 					)}
@@ -265,9 +281,9 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 				<div>
 					<label
 						htmlFor="votingTimer"
-						className="block text-sm font-medium text-white mb-2"
+						className="block text-sm font-display font-bold text-soft-lavender mb-2 uppercase"
 					>
-						Voting Timer (15-120 seconds)
+						🗳️ Voting Timer (15-120 seconds)
 					</label>
 					<input
 						type="number"
@@ -279,21 +295,27 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 						min={15}
 						max={120}
 						step={15}
-						className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-							errors.votingTimer ? "border-red-500" : "border-white/20"
+						className={`w-full px-4 py-3 bg-surface-darker border-2 rounded-arcade text-white font-body focus:outline-none transition-all duration-300 ${
+							errors.votingTimer
+								? "border-neon-magenta shadow-neon-magenta"
+								: "border-electric-blue/50 focus:border-neon-magenta focus:shadow-neon-magenta"
 						}`}
 						disabled={isLoading}
 					/>
 					{errors.votingTimer && (
-						<p className="mt-1 text-sm text-red-400">{errors.votingTimer}</p>
+						<p className="mt-2 text-sm text-neon-magenta font-body">
+							{errors.votingTimer}
+						</p>
 					)}
 				</div>
 			</div>
 
 			{/* General Error */}
 			{errors.general && (
-				<div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
-					<p className="text-sm text-red-400">{errors.general}</p>
+				<div className="p-4 bg-surface-darker border-2 border-neon-magenta rounded-arcade shadow-neon-magenta">
+					<p className="text-sm text-neon-magenta font-body">
+						⚠️ {errors.general}
+					</p>
 				</div>
 			)}
 
@@ -301,9 +323,9 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 			<button
 				type="submit"
 				disabled={isLoading}
-				className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+				className="w-full neon-button border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-stage disabled:opacity-50 disabled:cursor-not-allowed py-4"
 			>
-				{isLoading ? "Creating Game..." : "Create Game"}
+				{isLoading ? "🚀 Creating Game..." : "🎪 Create Game"}
 			</button>
 		</form>
 	);

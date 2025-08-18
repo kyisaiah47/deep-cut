@@ -119,65 +119,67 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 
 	return (
 		<ErrorBoundary>
-			<div
-				className={`min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 ${className}`}
-			>
-				{/* Header - responsive */}
-				<div className="bg-white shadow-sm border-b">
+			<div className={`min-h-screen bg-stage ${className}`}>
+				{/* Neon Arcade Header */}
+				<div className="bg-surface-dark border-b-2 border-neon-cyan shadow-neon-cyan">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 						<div
 							className={`flex items-center justify-between ${
-								isMobile ? "h-14" : "h-16"
+								isMobile ? "h-16" : "h-20"
 							}`}
 						>
-							{/* Game info */}
-							<div className="flex items-center space-x-2 sm:space-x-4">
+							{/* Game info with neon styling */}
+							<div className="flex items-center space-x-2 sm:space-x-6">
 								<h1
-									className={`font-bold text-gray-900 ${
-										isMobile ? "text-lg" : "text-xl"
+									className={`neon-heading neon-text-cyan ${
+										isMobile ? "text-lg" : "text-2xl"
 									}`}
 								>
 									{isMobile
 										? gameState.room_code
-										: `Room: ${gameState.room_code}`}
+										: `ROOM: ${gameState.room_code}`}
 								</h1>
 								<div
-									className={`text-gray-600 ${
-										isMobile ? "text-xs" : "text-sm"
+									className={`font-display font-bold neon-text-lime ${
+										isMobile ? "text-sm" : "text-lg"
 									}`}
 								>
-									R{gameState.current_round}
+									ROUND {gameState.current_round}
 								</div>
 							</div>
 
-							{/* Timer - responsive */}
+							{/* Neon Timer - responsive */}
 							{!isMobile && (
 								<div className="flex-1 flex justify-center">
-									<SynchronizedTimer
-										onPhaseTransition={handlePhaseTransition}
-										showControls={true}
-									/>
+									<div className="neon-timer">
+										<SynchronizedTimer
+											onPhaseTransition={handlePhaseTransition}
+											showControls={true}
+										/>
+									</div>
 								</div>
 							)}
 
-							{/* Connection status */}
+							{/* Connection status with neon styling */}
 							<div className="flex items-center space-x-2 sm:space-x-4">
 								<ConnectionStatus showText={!isMobile} />
 								{!isMobile && (
-									<div className="text-sm text-gray-600">
+									<div className="font-body text-sm text-soft-lavender font-medium">
 										{currentPlayer.name}
 									</div>
 								)}
 							</div>
 						</div>
 
-						{/* Mobile timer */}
+						{/* Mobile neon timer */}
 						{isMobile && (
-							<div className="pb-3 flex justify-center">
-								<SynchronizedTimer
-									onPhaseTransition={handlePhaseTransition}
-									showControls={false}
-								/>
+							<div className="pb-4 flex justify-center">
+								<div className="neon-timer scale-75">
+									<SynchronizedTimer
+										onPhaseTransition={handlePhaseTransition}
+										showControls={false}
+									/>
+								</div>
 							</div>
 						)}
 					</div>
@@ -221,14 +223,14 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 								isMobile || isTablet ? "space-y-4" : "lg:col-span-1 space-y-6"
 							}`}
 						>
-							{/* Players list */}
-							<div className="bg-white rounded-lg shadow-sm border p-4">
+							{/* Neon Players scoreboard */}
+							<div className="scoreboard p-6">
 								<h3
-									className={`font-semibold text-gray-900 mb-4 ${
-										isMobile ? "text-base" : "text-lg"
+									className={`neon-heading neon-text-magenta mb-6 ${
+										isMobile ? "text-sm" : "text-lg"
 									}`}
 								>
-									Players ({players.length})
+									PLAYERS ({players.length})
 								</h3>
 								<PlayerList
 									players={players}
@@ -247,54 +249,58 @@ export function GameInterface({ className = "" }: GameInterfaceProps) {
 								/>
 							)}
 
-							{/* Score display (when not in results phase) */}
+							{/* Neon Score display (when not in results phase) */}
 							{gameState.phase !== GAME_PHASES.RESULTS &&
 								gameState.phase !== GAME_PHASES.LOBBY && (
-									<div className="bg-white rounded-lg shadow-sm border p-4">
+									<div className="scoreboard p-6">
 										<SuspenseScoreManager onError={handleError} />
 									</div>
 								)}
 
-							{/* Game info - collapsible on mobile */}
-							<div className="bg-white rounded-lg shadow-sm border p-4">
+							{/* Neon Game info panel */}
+							<div className="bg-surface-dark border-2 border-electric-blue rounded-arcade p-6 shadow-neon-blue">
 								<h3
-									className={`font-semibold text-gray-900 mb-4 ${
-										isMobile ? "text-base" : "text-lg"
+									className={`neon-heading neon-text-blue mb-6 ${
+										isMobile ? "text-sm" : "text-lg"
 									}`}
 								>
-									Game Info
+									GAME STATUS
 								</h3>
 								<div
-									className={`space-y-2 ${isMobile ? "text-xs" : "text-sm"}`}
+									className={`space-y-3 font-body ${
+										isMobile ? "text-xs" : "text-sm"
+									}`}
 								>
-									<div className="flex justify-between">
-										<span className="text-gray-600">Phase:</span>
-										<span className="font-medium capitalize">
+									<div className="flex justify-between items-center">
+										<span className="text-soft-lavender">Phase:</span>
+										<span className="font-bold text-neon-cyan uppercase tracking-wide">
 											{gameState.phase.replace("_", " ")}
 										</span>
 									</div>
-									<div className="flex justify-between">
-										<span className="text-gray-600">Target Score:</span>
-										<span className="font-medium">
+									<div className="flex justify-between items-center">
+										<span className="text-soft-lavender">Target Score:</span>
+										<span className="font-bold text-sun-yellow">
 											{gameState.target_score}
 										</span>
 									</div>
-									<div className="flex justify-between">
-										<span className="text-gray-600">Max Players:</span>
-										<span className="font-medium">{gameState.max_players}</span>
+									<div className="flex justify-between items-center">
+										<span className="text-soft-lavender">Max Players:</span>
+										<span className="font-bold text-acid-lime">
+											{gameState.max_players}
+										</span>
 									</div>
 									{gameState.phase === GAME_PHASES.SUBMISSION && (
-										<div className="flex justify-between">
-											<span className="text-gray-600">Submission Timer:</span>
-											<span className="font-medium">
+										<div className="flex justify-between items-center">
+											<span className="text-soft-lavender">Submit Timer:</span>
+											<span className="font-bold text-neon-magenta">
 												{gameState.submission_timer}s
 											</span>
 										</div>
 									)}
 									{gameState.phase === GAME_PHASES.VOTING && (
-										<div className="flex justify-between">
-											<span className="text-gray-600">Voting Timer:</span>
-											<span className="font-medium">
+										<div className="flex justify-between items-center">
+											<span className="text-soft-lavender">Vote Timer:</span>
+											<span className="font-bold text-neon-magenta">
 												{gameState.voting_timer}s
 											</span>
 										</div>

@@ -115,24 +115,28 @@ export function JoinGameForm({ onGameJoined }: JoinGameFormProps) {
 			<div>
 				<label
 					htmlFor="playerName"
-					className="block text-sm font-medium text-white mb-2"
+					className="block text-sm font-display font-bold text-neon-magenta mb-3 uppercase tracking-wide"
 				>
-					Your Name
+					🎮 Your Name
 				</label>
 				<input
 					type="text"
 					id="playerName"
 					value={formData.playerName}
 					onChange={(e) => handleInputChange("playerName", e.target.value)}
-					className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-						errors.playerName ? "border-red-500" : "border-white/20"
+					className={`w-full px-4 py-3 bg-surface-darker border-2 rounded-arcade text-white placeholder-soft-lavender/50 font-body focus:outline-none transition-all duration-300 ${
+						errors.playerName
+							? "border-neon-magenta shadow-neon-magenta"
+							: "border-electric-blue/50 focus:border-neon-magenta focus:shadow-neon-magenta"
 					}`}
-					placeholder="Enter your name"
+					placeholder="Enter your player name"
 					maxLength={GAME_LIMITS.MAX_PLAYER_NAME_LENGTH}
 					disabled={isLoading}
 				/>
 				{errors.playerName && (
-					<p className="mt-1 text-sm text-red-400">{errors.playerName}</p>
+					<p className="mt-2 text-sm text-neon-magenta font-body">
+						{errors.playerName}
+					</p>
 				)}
 			</div>
 
@@ -140,17 +144,19 @@ export function JoinGameForm({ onGameJoined }: JoinGameFormProps) {
 			<div>
 				<label
 					htmlFor="roomCode"
-					className="block text-sm font-medium text-white mb-2"
+					className="block text-sm font-display font-bold text-neon-cyan mb-3 uppercase tracking-wide"
 				>
-					Room Code
+					🔑 Room Code
 				</label>
 				<input
 					type="text"
 					id="roomCode"
 					value={formData.roomCode}
 					onChange={(e) => handleInputChange("roomCode", e.target.value)}
-					className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg font-mono tracking-wider ${
-						errors.roomCode ? "border-red-500" : "border-white/20"
+					className={`w-full px-4 py-4 bg-surface-darker border-2 rounded-arcade text-white placeholder-soft-lavender/50 focus:outline-none transition-all duration-300 text-center text-2xl font-display font-bold tracking-[0.3em] ${
+						errors.roomCode
+							? "border-neon-magenta shadow-neon-magenta"
+							: "border-electric-blue/50 focus:border-neon-cyan focus:shadow-neon-cyan"
 					}`}
 					placeholder="ABC123"
 					maxLength={GAME_LIMITS.ROOM_CODE_LENGTH}
@@ -158,17 +164,21 @@ export function JoinGameForm({ onGameJoined }: JoinGameFormProps) {
 					style={{ textTransform: "uppercase" }}
 				/>
 				{errors.roomCode && (
-					<p className="mt-1 text-sm text-red-400">{errors.roomCode}</p>
+					<p className="mt-2 text-sm text-neon-magenta font-body">
+						{errors.roomCode}
+					</p>
 				)}
-				<p className="mt-1 text-xs text-white/60">
+				<p className="mt-2 text-xs text-soft-lavender font-body text-center">
 					Enter the 6-character room code shared by the host
 				</p>
 			</div>
 
 			{/* General Error */}
 			{errors.general && (
-				<div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
-					<p className="text-sm text-red-400">{errors.general}</p>
+				<div className="p-4 bg-surface-darker border-2 border-neon-magenta rounded-arcade shadow-neon-magenta">
+					<p className="text-sm text-neon-magenta font-body">
+						⚠️ {errors.general}
+					</p>
 				</div>
 			)}
 
@@ -176,9 +186,9 @@ export function JoinGameForm({ onGameJoined }: JoinGameFormProps) {
 			<button
 				type="submit"
 				disabled={isLoading}
-				className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+				className="w-full neon-button border-neon-magenta text-neon-magenta hover:bg-neon-magenta hover:text-stage disabled:opacity-50 disabled:cursor-not-allowed py-4"
 			>
-				{isLoading ? "Joining Game..." : "Join Game"}
+				{isLoading ? "🚀 Joining Game..." : "🎪 Join Game"}
 			</button>
 		</form>
 	);

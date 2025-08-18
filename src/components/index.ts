@@ -73,5 +73,15 @@ export {
 	AIGenerationLoader,
 } from "./SkeletonLoader";
 
+// Export neon arcade components
+export { ConfettiBurst, WinConfetti, RoundWinConfetti } from "./ConfettiBurst";
+export { NeonScoreDisplay, NeonScoreboard } from "./NeonScoreboard";
+export { NeonTimer, SubmissionTimer, VotingTimer } from "./NeonTimer";
+export {
+	SlotMachineReveal,
+	CardDealReveal,
+	SubmissionReveal,
+} from "./SlotMachineReveal";
+
 // Re-export context provider for convenience
 export { GameProvider } from "../contexts/GameContext";
