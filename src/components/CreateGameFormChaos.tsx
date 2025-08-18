@@ -139,7 +139,7 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 				<div className="absolute -top-2 -left-2 text-lg animate-bounce">🎭</div>
 				<div className="absolute -top-2 -right-2 text-lg chaos-spin">⚡</div>
 
-				<h3 className="neon-heading neon-text-cyan text-sm mb-3 strike-through">
+				<h3 className="punk-heading neon-text-cyan text-sm mb-3 strike-through transform -rotate-1">
 					WHO ARE YOU?
 				</h3>
 
@@ -171,7 +171,7 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 				<div className="absolute -top-2 -left-2 text-lg chaos-float">🎮</div>
 				<div className="absolute -top-2 -right-2 text-lg animate-pulse">🎯</div>
 
-				<h3 className="neon-heading neon-text-lime text-sm mb-3 graffiti-underline">
+				<h3 className="punk-heading neon-text-lime text-sm mb-3 graffiti-underline transform rotate-1">
 					GAME RULES
 				</h3>
 
@@ -245,7 +245,7 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 					💥
 				</div>
 
-				<h3 className="neon-heading neon-text-magenta text-sm mb-3 strike-through">
+				<h3 className="punk-heading neon-text-magenta text-sm mb-3 strike-through transform -rotate-1">
 					TIME PRESSURE
 				</h3>
 
@@ -324,27 +324,79 @@ export function CreateGameForm({ onGameCreated }: CreateGameFormProps) {
 				</motion.div>
 			)}
 
-			{/* Chaotic Submit Button */}
-			<motion.button
-				type="submit"
-				disabled={isLoading}
-				className="w-full neon-button border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-stage disabled:opacity-50 disabled:cursor-not-allowed py-3 relative overflow-hidden"
-				whileHover={{ scale: 1.05 }}
-				whileTap={{ scale: 0.95 }}
-			>
-				{/* Chaotic background elements */}
-				<div className="absolute inset-0 opacity-20">
-					<div className="absolute top-1 left-2 text-xs">🚀</div>
-					<div className="absolute top-1 right-2 text-xs">💥</div>
-					<div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-xs">
-						⚡
+			{/* Glowing Centerpiece Button */}
+			<div className="relative mt-6 -mx-4">
+				<motion.button
+					type="submit"
+					disabled={isLoading}
+					className="glow-centerpiece w-full py-4 px-6 rounded-pill font-display font-bold uppercase text-lg text-stage disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
+					whileHover={{ scale: 1.08, y: -2 }}
+					whileTap={{ scale: 0.95 }}
+					animate={
+						!isLoading
+							? {
+									y: [-2, 2, -2],
+							  }
+							: {}
+					}
+					transition={{
+						y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+						scale: { duration: 0.2 },
+					}}
+				>
+					{/* Floating chaos elements inside button */}
+					<div className="absolute inset-0 opacity-30">
+						<motion.div
+							className="absolute top-2 left-4 text-sm"
+							animate={{ rotate: [0, 360] }}
+							transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+						>
+							🚀
+						</motion.div>
+						<motion.div
+							className="absolute top-2 right-4 text-sm"
+							animate={{ scale: [1, 1.3, 1] }}
+							transition={{ duration: 1.5, repeat: Infinity }}
+						>
+							💥
+						</motion.div>
+						<motion.div
+							className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-sm"
+							animate={{ y: [-2, 2, -2] }}
+							transition={{ duration: 2, repeat: Infinity }}
+						>
+							⚡
+						</motion.div>
 					</div>
-				</div>
 
-				<span className="relative z-10">
-					{isLoading ? "🌪️ CREATING CHAOS..." : "🎪 UNLEASH THE CHAOS"}
-				</span>
-			</motion.button>
+					<span className="relative z-10 tracking-wider">
+						{isLoading ? "🌪️ CREATING CHAOS..." : "🎪 UNLEASH THE CHAOS"}
+					</span>
+				</motion.button>
+
+				{/* Extra glow particles around button */}
+				<div className="absolute inset-0 pointer-events-none">
+					{Array.from({ length: 8 }).map((_, i) => (
+						<motion.div
+							key={i}
+							className="absolute w-2 h-2 bg-neon-cyan rounded-full"
+							style={{
+								left: `${10 + i * 10}%`,
+								top: `${Math.random() * 100}%`,
+							}}
+							animate={{
+								scale: [0, 1, 0],
+								opacity: [0, 0.8, 0],
+							}}
+							transition={{
+								duration: 2,
+								repeat: Infinity,
+								delay: i * 0.2,
+							}}
+						/>
+					))}
+				</div>
+			</div>
 		</form>
 	);
 }

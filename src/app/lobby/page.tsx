@@ -272,134 +272,217 @@ export default function LobbyPage() {
 				</motion.div>
 			</div>
 
-			{/* Main container - more compact and chaotic */}
+			{/* Main container - broken rectangle, bleeding chaos */}
 			<motion.div
-				className="relative z-10 bg-surface-dark/90 backdrop-blur-neon border-2 border-neon-cyan rounded-arcade shadow-neon-cyan p-6 w-full max-w-md"
+				className="relative z-10 w-full max-w-lg scribble-overflow"
 				initial={{ scale: 0.8, rotate: -2 }}
 				animate={{ scale: 1, rotate: 0 }}
 				transition={{ type: "spring", stiffness: 200, damping: 20 }}
 			>
-				{/* Chaotic header with strike-through */}
-				<div className="text-center mb-6 relative">
-					<motion.h1
-						className="neon-heading neon-text-cyan text-4xl mb-2 relative"
+				{/* Bleeding chaotic header */}
+				<div className="relative mb-8 -mx-8">
+					{/* Main title bleeding out */}
+					<motion.div
+						className="tilt-bleed mb-4"
 						animate={{
-							textShadow: [
-								"0 0 20px rgba(0, 229, 255, 0.8)",
-								"0 0 40px rgba(0, 229, 255, 1)",
-								"0 0 20px rgba(0, 229, 255, 0.8)",
-							],
+							rotate: [-2, 1, -2],
+							x: [-5, 5, -5],
 						}}
-						transition={{ duration: 2, repeat: Infinity }}
+						transition={{ duration: 4, repeat: Infinity }}
 					>
-						NEON CARDS
-						{/* Graffiti strike-through */}
-						<svg className="absolute inset-0 w-full h-full pointer-events-none">
-							<line
-								x1="10%"
-								y1="50%"
-								x2="90%"
-								y2="45%"
+						<motion.h1
+							className="punk-heading neon-text-cyan text-4xl relative"
+							animate={{
+								textShadow: [
+									"0 0 20px rgba(0, 229, 255, 0.8), 2px 2px 0px rgba(0, 0, 0, 0.8)",
+									"0 0 40px rgba(0, 229, 255, 1), 3px 3px 0px rgba(0, 0, 0, 1)",
+									"0 0 20px rgba(0, 229, 255, 0.8), 2px 2px 0px rgba(0, 0, 0, 0.8)",
+								],
+							}}
+							transition={{ duration: 2, repeat: Infinity }}
+						>
+							NEON CARDS
+							{/* Multiple graffiti strikes */}
+							<svg className="absolute inset-0 w-full h-full pointer-events-none">
+								<line
+									x1="5%"
+									y1="45%"
+									x2="95%"
+									y2="50%"
+									stroke="#FF3AF2"
+									strokeWidth="4"
+									opacity="0.8"
+								/>
+								<line
+									x1="10%"
+									y1="55%"
+									x2="90%"
+									y2="48%"
+									stroke="#B6FF3A"
+									strokeWidth="2"
+									opacity="0.6"
+								/>
+								<path
+									d="M15%,40% Q50%,35% 85%,45%"
+									stroke="#FFD23A"
+									strokeWidth="3"
+									fill="none"
+									opacity="0.7"
+								/>
+							</svg>
+						</motion.h1>
+					</motion.div>
+
+					{/* Subtitle bleeding right */}
+					<motion.div
+						className="relative ml-8 -mr-4 transform rotate-1"
+						animate={{
+							rotate: [1, -0.5, 1],
+							x: [0, 3, 0],
+						}}
+						transition={{ duration: 3, repeat: Infinity }}
+					>
+						<div className="punk-heading neon-text-magenta text-lg relative bg-surface-darker/80 px-4 py-2 border-l-4 border-neon-magenta">
+							ARCADE CHAOS SHOW
+							{/* Scribbled decorations */}
+							<svg className="absolute -right-6 top-0 w-8 h-full pointer-events-none">
+								<path
+									d="M2,10% L6,90% M0,30% L8,70%"
+									stroke="#B6FF3A"
+									strokeWidth="2"
+									opacity="0.6"
+								/>
+							</svg>
+						</div>
+					</motion.div>
+
+					{/* Tagline bleeding left */}
+					<motion.div
+						className="relative -ml-6 mt-3 transform -rotate-1"
+						animate={{
+							rotate: [-1, 0.5, -1],
+							x: [0, -2, 0],
+						}}
+						transition={{ duration: 5, repeat: Infinity }}
+					>
+						<p className="text-soft-lavender font-body text-sm bg-surface-dark/60 px-3 py-1 border-r-2 border-acid-lime">
+							💥 Create hilarious chaos with AI cards! 💥
+						</p>
+					</motion.div>
+
+					{/* Chaotic floating elements around header */}
+					<div className="absolute -top-8 -right-12 text-3xl animate-bounce">
+						⚡
+					</div>
+					<div className="absolute -bottom-4 -left-8 text-2xl animate-pulse">
+						🔥
+					</div>
+					<div className="absolute top-1/2 -right-8 text-xl chaos-spin">💀</div>
+					<div className="absolute -top-4 left-1/4 text-lg chaos-float">🎲</div>
+				</div>
+
+				{/* Bleeding Tab Navigation */}
+				<div className="relative mb-6 -mx-4">
+					<div className="bleed-border p-3 transform -rotate-1">
+						<div className="flex bg-surface-darker/70 rounded-pill p-2 relative overflow-hidden">
+							{/* Glitch effect overlay */}
+							<motion.div
+								className="absolute inset-0 bg-gradient-to-r from-neon-magenta/20 to-transparent"
+								animate={{ x: ["-100%", "100%"] }}
+								transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+							/>
+
+							<button
+								onClick={() => setActiveTab("create")}
+								className={`flex-1 py-2 px-4 rounded-pill font-display font-bold uppercase text-xs transition-all duration-300 relative ${
+									activeTab === "create"
+										? "bg-neon-cyan text-stage shadow-neon-cyan"
+										: "text-neon-cyan hover:text-white hover:bg-neon-cyan/20"
+								}`}
+							>
+								⚡ CREATE CHAOS
+							</button>
+							<button
+								onClick={() => setActiveTab("join")}
+								className={`flex-1 py-2 px-4 rounded-pill font-display font-bold uppercase text-xs transition-all duration-300 relative ${
+									activeTab === "join"
+										? "bg-neon-magenta text-stage shadow-neon-magenta"
+										: "text-neon-magenta hover:text-white hover:bg-neon-magenta/20"
+								}`}
+							>
+								🎮 JOIN MAYHEM
+							</button>
+						</div>
+					</div>
+
+					{/* Tab bleeding decorations */}
+					<div className="absolute -top-2 -left-2 text-lg chaos-spin">🎯</div>
+					<div className="absolute -bottom-2 -right-2 text-lg animate-bounce">
+						🎪
+					</div>
+				</div>
+
+				{/* Irregular bleeding form container */}
+				<div className="relative -mx-2">
+					<motion.div
+						className="irregular-section p-6 transform rotate-1"
+						animate={{
+							rotate: [1, -0.5, 1],
+						}}
+						transition={{ duration: 6, repeat: Infinity }}
+					>
+						{/* Bleeding corner chaos */}
+						<div className="absolute -top-4 -left-4 text-2xl chaos-float">
+							💥
+						</div>
+						<div className="absolute -top-4 -right-4 text-2xl animate-bounce">
+							🎲
+						</div>
+						<div className="absolute -bottom-4 -left-4 text-2xl chaos-spin">
+							👾
+						</div>
+						<div className="absolute -bottom-4 -right-4 text-2xl animate-pulse">
+							😂
+						</div>
+
+						{/* Scribbles bleeding out */}
+						<svg className="absolute -top-8 -left-8 w-16 h-16 pointer-events-none">
+							<path
+								d="M2,2 Q8,14 14,2 Q8,10 2,2"
 								stroke="#FF3AF2"
-								strokeWidth="4"
+								strokeWidth="2"
+								fill="none"
 								opacity="0.6"
 							/>
 						</svg>
-					</motion.h1>
-
-					<motion.div
-						className="neon-heading neon-text-magenta text-sm mb-2 relative"
-						animate={{ rotate: [-1, 1, -1] }}
-						transition={{ duration: 3, repeat: Infinity }}
-					>
-						~~ARCADE CHAOS SHOW~~
-						{/* Scribbled underline */}
-						<svg className="absolute bottom-0 left-0 w-full h-2 pointer-events-none">
-							<path
-								d="M0,1 Q25,3 50,1 T100,1"
-								stroke="#B6FF3A"
+						<svg className="absolute -bottom-8 -right-8 w-16 h-16 pointer-events-none">
+							<circle
+								cx="8"
+								cy="8"
+								r="6"
+								stroke="#00E5FF"
 								strokeWidth="2"
 								fill="none"
+								opacity="0.5"
+							/>
+							<line
+								x1="2"
+								y1="2"
+								x2="14"
+								y2="14"
+								stroke="#B6FF3A"
+								strokeWidth="1"
 								opacity="0.7"
 							/>
 						</svg>
+
+						{activeTab === "create" ? (
+							<CreateGameForm onGameCreated={handleGameCreated} />
+						) : (
+							<JoinGameForm onGameJoined={handleGameJoined} />
+						)}
 					</motion.div>
-
-					<p className="text-soft-lavender font-body text-sm">
-						💥 Create hilarious chaos with AI cards! 💥
-					</p>
-
-					{/* Floating doodles around header */}
-					<div className="absolute -top-4 -right-4 text-2xl animate-bounce">
-						⚡
-					</div>
-					<div className="absolute -bottom-2 -left-2 text-xl animate-pulse">
-						🔥
-					</div>
-					<div
-						className="absolute top-0 left-1/4 text-lg animate-spin"
-						style={{ animationDuration: "3s" }}
-					>
-						💀
-					</div>
 				</div>
-
-				{/* Chaotic Tab Navigation */}
-				<div className="flex mb-6 bg-surface-darker/70 rounded-pill p-2 border-2 border-electric-blue/50 relative overflow-hidden">
-					{/* Glitch effect overlay */}
-					<motion.div
-						className="absolute inset-0 bg-gradient-to-r from-neon-magenta/20 to-transparent"
-						animate={{ x: ["-100%", "100%"] }}
-						transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-					/>
-
-					<button
-						onClick={() => setActiveTab("create")}
-						className={`flex-1 py-2 px-4 rounded-pill font-display font-bold uppercase text-xs transition-all duration-300 relative ${
-							activeTab === "create"
-								? "bg-neon-cyan text-stage shadow-neon-cyan"
-								: "text-neon-cyan hover:text-white hover:bg-neon-cyan/20"
-						}`}
-					>
-						⚡ CREATE CHAOS
-					</button>
-					<button
-						onClick={() => setActiveTab("join")}
-						className={`flex-1 py-2 px-4 rounded-pill font-display font-bold uppercase text-xs transition-all duration-300 relative ${
-							activeTab === "join"
-								? "bg-neon-magenta text-stage shadow-neon-magenta"
-								: "text-neon-magenta hover:text-white hover:bg-neon-magenta/20"
-						}`}
-					>
-						🎮 JOIN MAYHEM
-					</button>
-				</div>
-
-				{/* Form Content with glitch border */}
-				<motion.div
-					className="space-y-4 relative border-2 border-dashed border-acid-lime/30 rounded-arcade p-4"
-					animate={{
-						borderColor: [
-							"rgba(182, 255, 58, 0.3)",
-							"rgba(255, 58, 242, 0.3)",
-							"rgba(0, 229, 255, 0.3)",
-							"rgba(182, 255, 58, 0.3)",
-						],
-					}}
-					transition={{ duration: 4, repeat: Infinity }}
-				>
-					{/* Chaos corner decorations */}
-					<div className="absolute -top-2 -left-2 text-lg">💥</div>
-					<div className="absolute -top-2 -right-2 text-lg">🎲</div>
-					<div className="absolute -bottom-2 -left-2 text-lg">👾</div>
-					<div className="absolute -bottom-2 -right-2 text-lg">😂</div>
-
-					{activeTab === "create" ? (
-						<CreateGameForm onGameCreated={handleGameCreated} />
-					) : (
-						<JoinGameForm onGameJoined={handleGameJoined} />
-					)}
-				</motion.div>
 
 				{/* Chaotic Footer */}
 				<motion.div
