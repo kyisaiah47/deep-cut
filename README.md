@@ -18,7 +18,7 @@ Each session is a one-time ritual: strange, personal, and impossible to repeat.
 
 Kiro isn’t a feature — **Kiro _is_ the game**.
 
-Here’s how the AI (via OpenAI’s GPT-4o) is integrated across every layer:
+Here’s how the AI (via Google Gemini) is integrated across every layer:
 
 ### 🌀 1. Theme Alchemy
 
