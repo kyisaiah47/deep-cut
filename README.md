@@ -4,6 +4,20 @@ _An AI-fueled multiplayer ritual disguised as a party game._
 
 ![screenshot](./public/screenshot.png) <!-- optional -->
 
+---
+
+## 🎥 Demo Video
+
+[Watch on YouTube](https://youtube.com/your-demo-link-here)
+
+---
+
+## 🏆 Category
+
+**Games & Entertainment**
+
+---
+
 ## 👻 What is Deep Cut?
 
 **Deep Cut** is a surreal, chaotic, and emotionally charged AI party game powered by a ghostly game host named **Kiro**.
@@ -14,71 +28,55 @@ Each session is a one-time ritual: strange, personal, and impossible to repeat.
 
 ---
 
-## 🧠 How Kiro Shapes the Game
+## 🧠 How We Used Kiro
 
-Kiro isn’t a feature — **Kiro _is_ the game**.
+Kiro wasn’t just a tool — **Kiro _was_ our co-dev**. We used it across all three modes of creation:
 
-Here’s how the AI (via Google Gemini) is integrated across every layer:
+### 1. Spec-to-Code
 
-### 🌀 1. Theme Alchemy
+We started with Kiro’s **spec feature**, which generated an **Implementation Plan** (`/.kiro/specs/implementation-plan.md`).  
+That plan broke the build into 18 milestones, covering everything from Supabase schema & RLS policies to real-time game state, AI edge functions, voting, scoring, error recovery, and polish.
 
-Players start by entering a **custom theme** like:
-
-> `Horny Nostalgia` • `Daddy Issues & Deli Meats` • `Public Apology Tour`
-
-Kiro takes this and:
-
-- Generates a full **deck of prompts** inspired by the theme’s tone
-- Creates **private hallucinated answer choices** for each player
-- Writes a series of **ritual whispers** that set the mood
-
-> _“You’ve opened the meat door. There’s no going back.”_
+This gave us a crisp blueprint so we could parallelize backend, realtime, and UI work without losing the “ritual” flow.
 
 ---
 
-### 🔮 2. Personal Hallucinations
+### 2. Agent Hooks
 
-Unlike other party games, **each player receives their own set of AI-generated choices** based on the current prompt and theme.
+We wired up **Kiro hooks** to automate the boring but critical parts of development:
 
-- No two players see the same options
-- Each choice feels poetic, cursed, or disturbingly accurate
-- Kiro watches silently… or doesn’t
+- **Schema drift checks** – block PRs if DB migrations diverge from the spec.
+- **Edge Function contract tests** – smoke-test OpenAI prompt pipelines + moderation fallback.
+- **Realtime perf budgets** – measure subscription fan-out latency in CI.
+- **Spec sync** – when specs changed, hooks opened TODO issues mapped back to the plan.
 
----
-
-### 👁 3. Real-Time Commentary
-
-Every 3 rounds, Kiro returns with an insight:
-
-> _“Ella’s answers suggest thirst disguised as intellect.”_
-
-Kiro judges:
-
-- Player patterns
-- Group mood
-- Submission tone
-
-And at the **end of the game**, Kiro gives a final **vibe reading**:
-
-> _“You all flowed like regret in a blender. Try again — softer this time.”_
-
-If the group failed to vibe, Kiro may even prescribe a new theme...
+These hooks acted like a silent game master, enforcing rules and letting us focus on creative chaos.
 
 ---
 
-### 🗳️ 4. Ritual Flow & Judgment
+### 3. Vibe Coding
+
+Once the mechanics were stable, we switched into **Kiro’s vibe mode** to tune the game’s aesthetic:
+
+- **Tailwind palette** → eerie gradients and spectral hues.
+- **Typography** → ritualistic yet readable scale.
+- **Framer Motion** → staggered card entrances, whisper-like opacity fades, jittery prompt reveals.
+- **Atmosphere prompts** → iterated until the UI felt haunted without sacrificing usability.
+
+This made the difference between a functional card game and an **immersive ritual**.
+
+---
+
+## 🔮 How the Game Flows
 
 Gameplay is structured around rounds of:
 
 - Prompt presentation
-- Personal choice selection
+- Personal hallucinations (unique AI-generated choices)
 - Group voting
 - Kiro insights
 
-At the end:
-
-- The group may continue **only if Kiro believes they have “flow”**
-- Otherwise, Kiro ends the ritual and suggests a new deck
+Every 3 rounds, Kiro judges the vibe. If you flowed, you continue. If not… the ritual ends, and Kiro prescribes a new theme.
 
 ---
 
@@ -87,31 +85,45 @@ At the end:
 - **Next.js + React + Tailwind CSS**
 - **Framer Motion** for animations and transitions
 - **Supabase** for real-time multiplayer and room logic
-- **OpenAI GPT-4o** for all Kiro interactions:
-  - Prompt generation
-  - Personalized answer sets
-  - Ritual whispers
-  - Group insights & judgments
+- **OpenAI GPT-4o** for Kiro’s voice:
+  - Prompt & card generation
+  - Personalized player choices
+  - Ritual whispers & judgments
 
 ---
 
 ## 🧙‍♂️ Why We Built This
 
-Most AI games use LLMs to generate text. We wanted to go further — to build a game that **feels haunted** by AI.  
-Where the model doesn’t just create content, but **reacts, judges, and adapts** based on how you and your friends show up.
+Most AI games just generate text. We wanted one that feels **possessed**:  
+Where the AI doesn’t just create content, but **reacts, judges, and adapts** based on your group’s energy.
 
 ---
 
-## 🚀 Try It (Coming Soon)
+## 🧪 Testing Instructions
 
-<!-- optional: include demo link or deployment URL here -->
+\`\`\`bash
+git clone https://github.com/kyisaiah47/deep-cut
+cd deep-cut
+npm install
+cp .env.local.example .env.local # add SUPABASE_URL, SUPABASE_ANON_KEY, OPENAI_API_KEY
+npm run dev
+\`\`\`
+
+- Requires Node 18+
+- Open two browsers at \`http://localhost:3000\` to see realtime multiplayer flow.
 
 ---
 
 ## 🙏 Credits
 
-Created for the **Kiro Hackathon** by  
+Created for the **Code with Kiro Hackathon** by  
 Isaiah Kim ([@kyisaiah47](https://github.com/kyisaiah47)) + ChatGPT rituals
+
+---
+
+## 📜 License
+
+Licensed under the [MIT License](./LICENSE).
 
 ---
 
