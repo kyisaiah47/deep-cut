@@ -1,0 +1,21 @@
+{
+  "name": "Deep Cut: Revelations",
+  "short_name": "Deep Cut",
+  "description": "A psychological party game where truth cuts deeper than lies",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon-large.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
