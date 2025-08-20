@@ -131,16 +131,16 @@ const nextConfig: NextConfig = {
 	// Enable source maps in production for debugging
 	productionBrowserSourceMaps: false,
 
-	// Redirect configuration
-	async redirects() {
-		return [
-			{
-				source: "/",
-				destination: "/lobby",
-				permanent: false,
-			},
-		];
-	},
+	// // Redirect configuration
+	// async redirects() {
+	// 	return [
+	// 		{
+	// 			source: "/",
+	// 			destination: "/",
+	// 			permanent: false,
+	// 		},
+	// 	];
+	// },
 
 	// Environment variables validation
 	env: {
