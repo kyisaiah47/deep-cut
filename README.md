@@ -8,7 +8,7 @@ _An AI-fueled multiplayer ritual disguised as a party game._
 
 ## 🎥 Demo Video
 
-[Watch on YouTube](https://youtube.com/your-demo-link-here)
+[Watch on YouTube](https://youtu.be/4Ne8__wL-pQ)
 
 ---
 
