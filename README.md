@@ -41,20 +41,7 @@ This gave us a crisp blueprint so we could parallelize backend, realtime, and UI
 
 ---
 
-### 2. Agent Hooks
-
-We wired up **Kiro hooks** to automate the boring but critical parts of development:
-
-- **Schema drift checks** – block PRs if DB migrations diverge from the spec.
-- **Edge Function contract tests** – smoke-test OpenAI prompt pipelines + moderation fallback.
-- **Realtime perf budgets** – measure subscription fan-out latency in CI.
-- **Spec sync** – when specs changed, hooks opened TODO issues mapped back to the plan.
-
-These hooks acted like a silent game master, enforcing rules and letting us focus on creative chaos.
-
----
-
-### 3. Vibe Coding
+### 2. Vibe Coding
 
 Once the mechanics were stable, we switched into **Kiro’s vibe mode** to tune the game’s aesthetic:
 
