@@ -49,11 +49,15 @@ export async function POST(request: NextRequest) {
 			console.log("📏 Response length:", text.length);
 		} catch (geminiError) {
 			console.error("❌ Gemini API call failed:", geminiError);
-			console.error("🔍 Error details:", {
-				message: geminiError.message,
-				stack: geminiError.stack,
-			});
-			throw new Error(`Gemini API failed: ${geminiError.message}`);
+			if (geminiError instanceof Error) {
+				console.error("🔍 Error details:", {
+					message: geminiError.message,
+					stack: geminiError.stack,
+				});
+				throw new Error(`Gemini API failed: ${geminiError.message}`);
+			} else {
+				throw new Error("Gemini API failed: Unknown error");
+			}
 		}
 
 		let questions: string[] = [];
@@ -115,17 +119,23 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ deckId: data.id, theme: data.theme });
 	} catch (error) {
 		console.error("💥 API route error:", error);
-		console.error("🔍 Error details:", {
-			message: error.message,
-			stack: error.stack,
-			name: error.name,
-		});
+		if (error instanceof Error) {
+			console.error("🔍 Error details:", {
+				message: error.message,
+				stack: error.stack,
+				name: error.name,
+			});
+		} else {
+			console.error("🔍 Error details:", error);
+		}
 
+		let errorMessage = "Deck generation failed";
+		if (error instanceof Error && process.env.NODE_ENV === "development") {
+			errorMessage += ": " + error.message;
+		}
 		return NextResponse.json(
 			{
-				error: "Deck generation failed",
-				details:
-					process.env.NODE_ENV === "development" ? error.message : undefined,
+				error: errorMessage,
 			},
 			{ status: 500 }
 		);
