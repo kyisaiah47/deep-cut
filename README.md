@@ -2,13 +2,8 @@
 
 _An AI-fueled multiplayer ritual disguised as a party game._
 
-![screenshot](./public/screenshot.png) <!-- optional -->
-
----
-
-## 🎥 Demo Video
-
-[Watch on YouTube](https://youtu.be/4Ne8__wL-pQ)
+[![YouTube Demo](https://img.shields.io/badge/▶️%20Watch%20on%20YouTube-red?logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=4Ne8__wL-pQ)
+[![Watch the demo](https://img.youtube.com/vi/4Ne8__wL-pQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=4Ne8__wL-pQ)
 
 ---
 
