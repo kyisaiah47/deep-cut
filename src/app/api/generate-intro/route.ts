@@ -1,46 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(request: NextRequest) {
-	try {
-		const { theme, prompt } = await request.json();
+	const { theme, prompt } = await request.json();
 
-		// Check if OpenAI API key is available
-		const apiKey = process.env.OPENAI_API_KEY;
+	try {
+		const apiKey = process.env.GEMINI_API_KEY;
 		if (!apiKey) {
-			throw new Error("OpenAI API key not configured");
+			throw new Error("Gemini API key not configured");
 		}
 
-		const response = await fetch("https://api.openai.com/v1/chat/completions", {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				model: "gpt-3.5-turbo",
-				messages: [
-					{
-						role: "system",
-						content:
-							"You are Kiro, a cryptic and poetic AI host for a psychological party game. You create atmospheric, slightly ominous welcome messages that set the mood. Be dramatic but not scary, poetic but not pretentious. Always end with subtle menace or mystery.",
-					},
-					{
-						role: "user",
-						content: prompt,
-					},
-				],
-				max_tokens: 100,
-				temperature: 0.8,
-			}),
+		const genAI = new GoogleGenerativeAI(apiKey);
+		const model = genAI.getGenerativeModel({
+			model: "gemini-2.5-flash",
+			systemInstruction:
+				"You are Kiro, a cryptic and poetic AI host for a psychological party game. You create atmospheric, slightly ominous welcome messages that set the mood. Be dramatic but not scary, poetic but not pretentious. Always end with subtle menace or mystery. Respond with the welcome message only, in 1-3 sentences.",
 		});
 
-		if (!response.ok) {
-			throw new Error("OpenAI API request failed");
-		}
-
-		const data = await response.json();
+		const result = await model.generateContent(prompt);
 		const intro =
-			data.choices[0]?.message?.content?.trim() ||
+			result.response.text().trim() ||
 			`Welcome to the realm of ${theme}. Your truths await in the shadows.`;
 
 		// Remove quotes if the AI added them
@@ -51,7 +30,6 @@ export async function POST(request: NextRequest) {
 		console.error("Error generating intro:", error);
 
 		// Fallback intros based on theme
-		const { theme } = await request.json();
 		const fallbackIntros = [
 			`Welcome to the realm of ${theme}. Your truths await in the shadows.`,
 			`The circle forms around ${theme}. None shall escape unchanged.`,

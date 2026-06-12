@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { supabase } from "@/lib/supabase"; // adjust path if needed
-
-console.log("🔑 Gemini API Key exists:", !!process.env.GEMINI_API_KEY);
-console.log("🔑 API Key length:", process.env.GEMINI_API_KEY?.length || 0);
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: NextRequest) {
 	try {
+		const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+		const model = genAI.getGenerativeModel({
+			model: "gemini-2.5-flash",
+			generationConfig: { responseMimeType: "application/json" },
+		});
+		const supabase = createClient(
+			process.env.NEXT_PUBLIC_SUPABASE_URL!,
+			process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+		);
 		const { theme, roomCode } = await request.json();
 
 		console.log("📥 API Request received:", { theme, roomCode });
@@ -48,16 +51,8 @@ export async function POST(request: NextRequest) {
 			console.log("📝 Raw Gemini response:", text);
 			console.log("📏 Response length:", text.length);
 		} catch (geminiError) {
-			console.error("❌ Gemini API call failed:", geminiError);
-			if (geminiError instanceof Error) {
-				console.error("🔍 Error details:", {
-					message: geminiError.message,
-					stack: geminiError.stack,
-				});
-				throw new Error(`Gemini API failed: ${geminiError.message}`);
-			} else {
-				throw new Error("Gemini API failed: Unknown error");
-			}
+			console.error("❌ Gemini API call failed, using fallback deck:", geminiError);
+			text = "";
 		}
 
 		let questions: string[] = [];

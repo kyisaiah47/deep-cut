@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Fallback choices for different types of prompts
 const fallbackChoices = {
@@ -78,24 +79,14 @@ export async function POST(request: NextRequest) {
 		}
 
 		const playerChoices: Record<string, string[]> = {};
+		const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
 
 		// Generate choices for each player
 		for (const player of players) {
 			try {
-				const response = await fetch(
-					"https://api.openai.com/v1/chat/completions",
-					{
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							model: "gpt-3.5-turbo",
-							messages: [
-								{
-									role: "system",
-									content: `You are Kiro, a chaotic and darkly humorous AI game master. Generate exactly 5 unique, creative, and slightly twisted answer choices for a party game prompt. 
+				const model = genAI.getGenerativeModel({
+					model: "gemini-2.5-flash",
+					systemInstruction: `You are Kiro, a chaotic and darkly humorous AI game master. Generate exactly 5 unique, creative, and slightly twisted answer choices for a party game prompt.
 
 The theme is: ${theme || "General Chaos"}
 
@@ -108,35 +99,24 @@ Make each choice:
 - No numbering or bullet points
 
 Return ONLY the 5 choices, one per line.`,
-								},
-								{
-									role: "user",
-									content: `Generate 5 answer choices for: "${prompt}"`,
-								},
-							],
-							max_tokens: 200,
-							temperature: 0.9,
-						}),
-					}
+					generationConfig: { temperature: 0.9 },
+				});
+
+				const result = await model.generateContent(
+					`Generate 5 answer choices for: "${prompt}"`
 				);
+				const choicesText = result.response.text().trim();
+				if (choicesText) {
+					const choices = choicesText
+						.split("\n")
+						.map((choice: string) => choice.trim())
+						.filter((choice: string) => choice.length > 0)
+						.slice(0, 5); // Ensure exactly 5 choices
 
-				if (response.ok) {
-					const completion = await response.json();
-					const choicesText = completion.choices[0]?.message?.content?.trim();
-					if (choicesText) {
-						const choices = choicesText
-							.split("\n")
-							.map((choice: string) => choice.trim())
-							.filter((choice: string) => choice.length > 0)
-							.slice(0, 5); // Ensure exactly 5 choices
-
-						if (choices.length === 5) {
-							playerChoices[player] = choices;
-						} else {
-							// Fallback if AI didn't generate exactly 5
-							playerChoices[player] = getFallbackSet(prompt).slice(0, 5);
-						}
+					if (choices.length === 5) {
+						playerChoices[player] = choices;
 					} else {
+						// Fallback if AI didn't generate exactly 5
 						playerChoices[player] = getFallbackSet(prompt).slice(0, 5);
 					}
 				} else {

@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
 
 	// Compiler options
 	compiler: {
-		// Remove console.log in production
-		removeConsole: process.env.NODE_ENV === "production",
+		// Remove console.log in production, but keep errors visible in logs
+		removeConsole:
+			process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
 	},
 
 	// Image optimization

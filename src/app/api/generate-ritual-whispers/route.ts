@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Fallback ritual whispers by theme category
 const fallbackWhispers = {
@@ -97,20 +98,10 @@ export async function POST(request: NextRequest) {
 		let ritualWhispers: string[] = [];
 
 		try {
-			const response = await fetch(
-				"https://api.openai.com/v1/chat/completions",
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						model: "gpt-3.5-turbo",
-						messages: [
-							{
-								role: "system",
-								content: `You are Kiro, a darkly charismatic AI game master welcoming players to a twisted party game. 
+			const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
+			const model = genAI.getGenerativeModel({
+				model: "gemini-2.5-flash",
+				systemInstruction: `You are Kiro, a darkly charismatic AI game master welcoming players to a twisted party game.
 
 Generate exactly 3 atmospheric "ritual whispers" that set the mood for a game session with theme: "${theme}"
 
@@ -127,32 +118,23 @@ Examples:
 "Welcome to the theater of broken souls."
 
 Return ONLY the 3 whispers, one per line, no numbering.`,
-							},
-							{
-								role: "user",
-								content: `Generate 3 ritual whispers for theme: "${theme}"`,
-							},
-						],
-						max_tokens: 150,
-						temperature: 0.8,
-					}),
-				}
+				generationConfig: { temperature: 0.8 },
+			});
+
+			const result = await model.generateContent(
+				`Generate 3 ritual whispers for theme: "${theme}"`
 			);
+			const whispersText = result.response.text().trim();
 
-			if (response.ok) {
-				const completion = await response.json();
-				const whispersText = completion.choices[0]?.message?.content?.trim();
+			if (whispersText) {
+				const whispers = whispersText
+					.split("\n")
+					.map((whisper: string) => whisper.trim())
+					.filter((whisper: string) => whisper.length > 0)
+					.slice(0, 3);
 
-				if (whispersText) {
-					const whispers = whispersText
-						.split("\n")
-						.map((whisper: string) => whisper.trim())
-						.filter((whisper: string) => whisper.length > 0)
-						.slice(0, 3);
-
-					if (whispers.length === 3) {
-						ritualWhispers = whispers;
-					}
+				if (whispers.length === 3) {
+					ritualWhispers = whispers;
 				}
 			}
 		} catch (error) {
